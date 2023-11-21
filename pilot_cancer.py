@@ -106,8 +106,8 @@ def add_confidence(my_dict):
         while next_position != position:
             next_position = next(keys_iterator)
 
-        for next_position in islice(keys_iterator, 9):
-            if count_10 == 10:
+        for next_position in islice(keys_iterator, 50):
+            if count_10 == 50:
                 break
             else:
                 count_10 += 1
@@ -117,6 +117,7 @@ def add_confidence(my_dict):
                     # If they match, increment the count
                     count += 1
         values.append(count)
+
 
 def process_dict(data_dict):
     """
@@ -136,12 +137,12 @@ def filter_low_score(data_dict):
     """
     filtered_dict = dict()
     for key, value in data_dict.items():
-        if value[3] > 8:
+        if value[3] > 45:
             filtered_dict[key] = value
     return filtered_dict
 
 
-def plot_data(data_dict_to_plot):
+def plot_data(data_dict_to_plot, plot_title):
     """
     This function will plot the given dict:
     x axis will be the chromosome position
@@ -159,7 +160,7 @@ def plot_data(data_dict_to_plot):
     fig = px.scatter(df, x="Chromosome Position", y="Haplotype",
                      labels={'Chromosome Position': 'Chromosome Position',
                              'Haplotype': 'Haplotype'},
-                     title='Interactive Scatter Plot of Haplotypes')
+                     title=plot_title)
 
     # Show the plot in an HTML window
     fig.show()
@@ -177,7 +178,8 @@ def main():
     child_2_to_plot_dict = process_dict(child_2_dict)
 
     # plotting the dicts
-    plot_data(child_1_to_plot_dict)
+    plot_data(child_1_to_plot_dict, 'child 1, chromosome 13')
+    plot_data(child_2_to_plot_dict, 'child 2, chromosome 13')
 
 
 if __name__ == '__main__':
