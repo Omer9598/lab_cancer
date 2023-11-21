@@ -1,6 +1,5 @@
 from collections import Counter
 import matplotlib.pyplot as plt
-import cancer_path
 
 
 def check_heterozygous_parent(parent):
@@ -161,7 +160,7 @@ def plot_data(data_dict_to_plot):
 
 
 def main():
-    open_and_split_file(cancer_path.file_path)
+    open_and_split_file(r"HR1.ch13.phased.tsv")
 
     # creating and filtering the child dicts
     child_1_dict = create_and_filter_dictionary('child_1.txt')
