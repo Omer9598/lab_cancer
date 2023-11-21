@@ -138,6 +138,8 @@ def main():
     child_1_batch_dict = process_rows_in_batches(child_1_dict)
     child_2_batch_dict = process_rows_in_batches(child_2_dict)
 
+    print("hi")
+
 
 if __name__ == '__main__':
     main()
