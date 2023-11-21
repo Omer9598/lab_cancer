@@ -182,6 +182,7 @@ def main():
     child_1_batch_dict = add_confidence(child_1_dict)
     child_2_batch_dict = add_haplotype(child_2_dict)
     child_2_batch_dict = add_confidence(child_2_dict)
+    print("x")
 
 if __name__ == '__main__':
     main()
