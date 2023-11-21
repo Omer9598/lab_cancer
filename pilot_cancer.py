@@ -1,6 +1,4 @@
-from collections import Counter
 from itertools import islice
-from matplotlib import pyplot as plt
 import plotly.express as px
 import pandas as pd
 
