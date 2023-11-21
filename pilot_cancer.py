@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt
 import cancer_path
 
 
-
 def check_heterozygous_parent(parent):
     if parent == '0|0' or parent == '1|1':
         return False
@@ -84,12 +83,10 @@ def create_dictionary(file_path):
 
 def process_rows_in_batches(data_dict, batch_size=10):
     """
-    We check the 4 different cases and create 4 dictionaries for each case.
-    the format of each dict is as follows:
-    {start_position - end_position, the score of key's window (10 mutations)}
-    the 4 dictionaries will be: left-left, left-right, right-left, right-right
-    :returns a dict that contains 4 dicts above for each 10-sized "window" of
-    mutations
+    Creating a dict in the following format:
+    key = position in the chromosome
+    value = [haplotype: (1 or 2), Score: (0 to 10)]
+    the haplotype is determined by the
     """
     result_dict = {}
 
