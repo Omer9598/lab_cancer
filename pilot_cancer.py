@@ -103,8 +103,8 @@ def process_rows_in_batches(data_dict, batch_size=10):
             continue
 
         result_key = f'{batch_keys[0]}_{batch_keys[-1]}'
-        left_parent_counter = Counter()
-        right_parent_counter = Counter()
+        left_parent_counter = Counter({"Score": 0})
+        right_parent_counter = Counter({"Score": 0})
 
         for key in batch_keys:
             values = data_dict[key]
@@ -119,7 +119,7 @@ def process_rows_in_batches(data_dict, batch_size=10):
                 if right_side_parent == left_side_child:
                     right_parent_counter.update({"Score": 1})
 
-        result_dict[result_key + 'left_parent_child'] = dict(left_parent_counter)
+        result_dict[result_key + 'left_parent'] = dict(left_parent_counter)
         result_dict[result_key + 'right_parent'] = dict(right_parent_counter)
     return result_dict
 
