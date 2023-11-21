@@ -1,5 +1,8 @@
 from collections import Counter
 from itertools import islice
+from matplotlib import pyplot as plt
+import plotly.express as px
+import pandas as pd
 
 
 def check_heterozygous_parent(parent):
@@ -79,46 +82,6 @@ def create_and_filter_dictionary(file_path):
     return filter_dict(result_dict)
 
 
-# def process_rows_in_batches(data_dict, batch_size=10):
-#     """
-#     Creating a dict in the following format:
-#     key = position in the chromosome
-#     value = [alleles: (mother, child), haplotype: (1 or 2), Score: (0 to 10)]
-#     the haplotype is determined by the
-#     """
-#     result_dict = {}
-#
-#     keys = list(data_dict.keys())
-#
-#     for start in range(len(keys) - batch_size + 1):
-#         end = start + batch_size
-#         batch_keys = keys[start:end]
-#
-#         if len(batch_keys) < 2:
-#             continue
-#
-#         result_key = f'{batch_keys[0]}_{batch_keys[-1]}'
-#         left_parent_counter = Counter({"Score": 0})
-#         right_parent_counter = Counter({"Score": 0})
-#
-#         for key in batch_keys:
-#             values = data_dict[key]
-#
-#             if len(values) == 2:
-#                 left_side_parent, right_side_parent = values[0].split('|')
-#                 left_side_child, right_side_child = values[1].split('|')
-#
-#                 if left_side_parent == left_side_child:
-#                     left_parent_counter.update({"Score": 1})
-#
-#                 if right_side_parent == left_side_child:
-#                     right_parent_counter.update({"Score": 1})
-#
-#         result_dict[result_key + 'left_parent'] = dict(left_parent_counter)
-#         result_dict[result_key + 'right_parent'] = dict(right_parent_counter)
-#     return result_dict
-
-
 def add_haplotype(my_dict):
     for position, values in my_dict.items():
         left_side_parent, right_side_parent = values[0].split('|')
@@ -130,7 +93,6 @@ def add_haplotype(my_dict):
         elif right_side_parent == left_side_child:
             # Condition 2: If the right side of the parent is equal to the left side of the child, add 2 to the list
             values.append(2)
-
 
 
 def add_confidence(my_dict):
@@ -156,9 +118,16 @@ def add_confidence(my_dict):
                 if haplotype == next_haplotype:
                     # If they match, increment the count
                     count += 1
-
         values.append(count)
 
+def process_dict(data_dict):
+    """
+    This function will process the dicts to be plotted
+    """
+    add_haplotype(data_dict)
+    add_confidence(data_dict)
+    filtered_dict = filter_low_score(data_dict)
+    return filtered_dict
 
 
 def filter_low_score(data_dict):
@@ -184,21 +153,18 @@ def plot_data(data_dict_to_plot):
     positions = list(data_dict_to_plot.keys())
     haplotypes = [entry[2] for entry in data_dict_to_plot.values()]
 
-    # Create a range for the x-axis
-    x_range = range(min(positions), max(positions) + 1)
+    # Create a DataFrame for Plotly Express
+    data = {"Chromosome Position": positions, "Haplotype": haplotypes}
+    df = pd.DataFrame(data)
 
-    # Create the dot plot
-    plt.scatter(positions, haplotypes, s=100, c='blue', marker='o')
+    # Create an interactive scatter plot
+    fig = px.scatter(df, x="Chromosome Position", y="Haplotype",
+                     labels={'Chromosome Position': 'Chromosome Position',
+                             'Haplotype': 'Haplotype'},
+                     title='Interactive Scatter Plot of Haplotypes')
 
-    # Set plot labels and title
-    plt.xlabel('Chromosome Position')
-    plt.ylabel('Haplotype')
-    plt.title('Dot Plot of Haplotypes')
-
-    # Set x-axis ticks to cover the entire range
-    plt.xticks(x_range)
-
-    plt.show()
+    # Show the plot in an HTML window
+    fig.show()
 
 
 def main():
@@ -209,11 +175,12 @@ def main():
     child_2_dict = create_and_filter_dictionary('child_2.txt')
 
     # adding the haplotype and score values to the keys
-    child_1_batch_dict = add_haplotype(child_1_dict)
-    child_2_batch_dict = add_haplotype(child_2_dict)
+    child_1_to_plot_dict = process_dict(child_1_dict)
+    child_2_to_plot_dict = process_dict(child_2_dict)
 
-    # child_1_batch_dict = add_confidence(child_1_dict)
-    child_2_batch_dict = add_confidence(child_2_dict)
+    # plotting the dicts
+    plot_data(child_1_to_plot_dict)
+
 
 if __name__ == '__main__':
     main()
