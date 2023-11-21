@@ -1,5 +1,6 @@
 from collections import Counter
 import matplotlib.pyplot as plt
+import cancer_path
 
 
 
@@ -118,14 +119,13 @@ def process_rows_in_batches(data_dict, batch_size=10):
                 if right_side_parent == left_side_child:
                     right_parent_counter.update({"Score": 1})
 
-        result_dict[result_key + '_left1_left2'] = dict(left_parent_counter)
-        result_dict[result_key + '_right1_left2'] = dict(right_parent_counter)
+        result_dict[result_key + 'left_parent_child'] = dict(left_parent_counter)
+        result_dict[result_key + 'right_parent'] = dict(right_parent_counter)
     return result_dict
 
 
 def main():
-    open_and_split_file(
-        r"/Users/dahansarah/Downloads/HR1.ch13.phased.tsv")
+    open_and_split_file(cancer_path.file_path)
 
     # creating the child dicts
     child_1_dict = create_dictionary('child_1.txt')
@@ -138,10 +138,6 @@ def main():
     child_1_batch_dict = process_rows_in_batches(child_1_dict)
     child_2_batch_dict = process_rows_in_batches(child_2_dict)
 
-    print("hi")
-
-
-    print("hello")
 
 if __name__ == '__main__':
     main()
