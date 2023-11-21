@@ -1,5 +1,5 @@
 from collections import Counter
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 import cancer_path
 
 
@@ -82,50 +82,7 @@ def create_dictionary(file_path):
     return result_dict
 
 
-# def process_rows_in_batches(data_dict, batch_size=10):
-#     """
-#     We check the 4 different cases and create 4 dictionaries for each case.
-#     the format of each dict is as follows:
-#     {start_position - end_position, the score of key's window (10 mutations)}
-#     the 4 dictionaries will be: left-left, left-right, right-left, right-right
-#     :returns a dict that contains 4 dicts above for each 10-sized "window" of
-#     mutations
-#     """
-#     result_dict = {}
-#
-#     keys = list(data_dict.keys())
-#
-#     for start in range(len(keys) - batch_size + 1):
-#         end = start + batch_size
-#         batch_keys = keys[start:end]
-#
-#         if len(batch_keys) < 2:
-#             continue
-#
-#         result_key = f'{batch_keys[0]}'
-#         left_parent_counter = Counter({"Score": 0})
-#         right_parent_counter = Counter({"Score": 0})
-#
-#         for key in batch_keys:
-#             values = data_dict[key]
-#
-#             if len(values) == 2:
-#                 left_side_parent, right_side_parent = values[0].split('|')
-#                 left_side_child, right_side_child = values[1].split('|')
-#
-#                 if left_side_parent == left_side_child:
-#
-#                     left_parent_counter.update({"Score": 1})
-#
-#                 if right_side_parent == left_side_child:
-#                     right_parent_counter.update({"Score": 1})
-#
-#         result_dict[result_key] = dict(left_parent_counter)
-#         result_dict[result_key] = dict(right_parent_counter)
-#     return result_dict
-
-
-def add_haplotype(data_dict):
+def process_rows_in_batches(data_dict, batch_size=10):
     """
     We check the 4 different cases and create 4 dictionaries for each case.
     the format of each dict is as follows:
@@ -134,37 +91,37 @@ def add_haplotype(data_dict):
     :returns a dict that contains 4 dicts above for each 10-sized "window" of
     mutations
     """
-    for position, values in data_dict.items():
-        left_side_parent, right_side_parent = values[0].split('|')
-        left_side_child, right_side_child = values[1].split('|')
+    result_dict = {}
 
-        if left_side_parent == left_side_child:
-            # Condition 1: If left sides are equal, add 1 to the list
-            values.append(1)
-        elif right_side_parent == left_side_child:
-            # Condition 2: If the right side of the parent is equal to the left side of the child, add 2 to the list
-            values.append(2)
-    return data_dict
+    keys = list(data_dict.keys())
 
+    for start in range(len(keys) - batch_size + 1):
+        end = start + batch_size
+        batch_keys = keys[start:end]
 
-def add_confidence(data_dict):
-    for position, values in data_dict.items():
-        haplotype = values[-1]  # Get the haplotype for the current position
-        count = 0  # Initialize the count
+        if len(batch_keys) < 2:
+            continue
 
-        for next_position in data_dict.keys():
-            for i in range(10):
+        result_key = f'{batch_keys[0]}_{batch_keys[-1]}'
+        left_parent_counter = Counter({"Score": 0})
+        right_parent_counter = Counter({"Score": 0})
 
-                # Check if the next position exists in the dictionary
-                next_haplotype = data_dict[next_position][-1]  # Get the haplotype for the next position
-                # Check if haplotypes match
-                if haplotype == next_haplotype:
-                    # If they match, increment the count
-                    count += 1
+        for key in batch_keys:
+            values = data_dict[key]
 
-            # Append the count to the list in the value for the current key
-            values.append(count)
-    return data_dict
+            if len(values) == 2:
+                left_side_parent, right_side_parent = values[0].split('|')
+                left_side_child, right_side_child = values[1].split('|')
+
+                if left_side_parent == left_side_child:
+                    left_parent_counter.update({"Score": 1})
+
+                if right_side_parent == left_side_child:
+                    right_parent_counter.update({"Score": 1})
+
+        result_dict[result_key + 'left_parent'] = dict(left_parent_counter)
+        result_dict[result_key + 'right_parent'] = dict(right_parent_counter)
+    return result_dict
 
 
 def main():
@@ -178,11 +135,9 @@ def main():
     child_1_dict = filter_dict(child_1_dict)
     child_2_dict = filter_dict(child_2_dict)
 
-    child_1_batch_dict = add_haplotype(child_1_dict)
-    child_1_batch_dict = add_confidence(child_1_dict)
-    child_2_batch_dict = add_haplotype(child_2_dict)
-    child_2_batch_dict = add_confidence(child_2_dict)
-    print("x")
+    child_1_batch_dict = process_rows_in_batches(child_1_dict)
+    child_2_batch_dict = process_rows_in_batches(child_2_dict)
+
 
 if __name__ == '__main__':
     main()
