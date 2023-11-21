@@ -1,4 +1,5 @@
 from collections import Counter
+from matplotlib import pyplot as plt
 
 
 def check_heterozygous_parent(parent):
