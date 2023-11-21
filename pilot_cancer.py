@@ -21,8 +21,7 @@ def filter_dict(dictionary):
     the mother has to be heterozygous, for us to know which side she inherited
     and the child has to be homozygous, for us to know that he got one of his
     alleles from the mother
-    :param dictionary:
-    :return:
+    :return: the filtered dictionary
     """
     filtered_dict = {}
     for key, value in dictionary.items():
@@ -65,7 +64,7 @@ def open_and_split_file(file):
             child_2.write(child_2_line)
 
 
-def create_dictionary(file_path):
+def create_and_filter_dictionary(file_path):
     """
     This file will create dictionary from the given file, in the following
     format:
@@ -78,14 +77,14 @@ def create_dictionary(file_path):
             position = int(columns[0])
             values = [columns[1], columns[2]]
             result_dict[position] = values
-    return result_dict
+    return filter_dict(result_dict)
 
 
 def process_rows_in_batches(data_dict, batch_size=10):
     """
     Creating a dict in the following format:
     key = position in the chromosome
-    value = [haplotype: (1 or 2), Score: (0 to 10)]
+    value = [alleles: (mother, child), haplotype: (1 or 2), Score: (0 to 10)]
     the haplotype is determined by the
     """
     result_dict = {}
@@ -121,17 +120,54 @@ def process_rows_in_batches(data_dict, batch_size=10):
     return result_dict
 
 
+def filter_low_score(data_dict):
+    """
+    This function will filter the variants (keys in the dict) which their
+    score is under 8
+    :returns a new filtered dict
+    """
+    filtered_dict = dict()
+    for key, value in data_dict.items():
+        if value[3] > 8:
+            filtered_dict[key] = value
+    return filtered_dict
+
+
+def plot_data(data_dict_to_plot):
+    """
+    This function will plot the given dict:
+    x axis will be the chromosome position
+    y axis will be the haplotype value of the current variant (position)
+    """
+    # Extract relevant information
+    positions = list(data_dict_to_plot.keys())
+    haplotypes = [entry[2] for entry in data_dict_to_plot.values()]
+
+    # Create a range for the x-axis
+    x_range = range(min(positions), max(positions) + 1)
+
+    # Create the dot plot
+    plt.scatter(positions, haplotypes, s=100, c='blue', marker='o')
+
+    # Set plot labels and title
+    plt.xlabel('Chromosome Position')
+    plt.ylabel('Haplotype')
+    plt.title('Dot Plot of Haplotypes')
+
+    # Set x-axis ticks to cover the entire range
+    plt.xticks(x_range)
+
+    plt.show()
+
+
 def main():
     open_and_split_file(cancer_path.file_path)
 
-    # creating the child dicts
-    child_1_dict = create_dictionary('child_1.txt')
-    child_2_dict = create_dictionary('child_2.txt')
+    # creating and filtering the child dicts
+    child_1_dict = create_and_filter_dictionary('child_1.txt')
+    child_2_dict = create_and_filter_dictionary('child_2.txt')
 
-    # filtering the dicts
-    child_1_dict = filter_dict(child_1_dict)
-    child_2_dict = filter_dict(child_2_dict)
-
+    # adding the haplotype and score values to the keys
     child_1_batch_dict = process_rows_in_batches(child_1_dict)
     child_2_batch_dict = process_rows_in_batches(child_2_dict)
 
