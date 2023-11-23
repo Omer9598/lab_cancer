@@ -350,6 +350,8 @@ def main():
 
     create_table(shared_interval_list, 13)
 
+    print("hi")
+
     # plotting the dicts
     # plot_data(child_1_windowed_dict, child_2_windowed_dict, 'children 1
     # and 2,'
