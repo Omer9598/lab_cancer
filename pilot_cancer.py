@@ -190,14 +190,36 @@ def plot_data(child_1_dict, child_2_dict, plot_title):
     fig.show()
 
 
-"""
-This function will create a list for each child in the following format:
-[(interval number is the index) {start position: , end position: ,
-haplotype: (1 or 2)]
-each interval starts with the position of a variant from haplotype 1 or 2, and 
-ends when the next variant is from the opposite haplotype, where a new interval
-will start
-"""
+def create_intervals(haplotype_dict):
+    """
+    This function will create a list for each child in the following format:
+    [(interval number is the index) {start position: , end position: ,
+    haplotype: (1 or 2)]
+    each interval starts with the position of a variant from haplotype 1 or 2, and
+    ends when the next variant is from the opposite haplotype, where a new interval
+    will start
+    """
+    intervals = []
+    current_interval = None
+
+    for position, haplotype in haplotype_dict.items():
+        if current_interval is None:
+            # Start a new interval
+            current_interval = {"start": position, "end": position, "haplotype": haplotype[2]}
+        elif haplotype[2] == current_interval["haplotype"]:
+            # Continue the current interval
+            current_interval["end"] = position
+        else:
+            # Start a new interval as haplotype changed
+            intervals.append({"start": current_interval["start"], "end": current_interval["end"], "haplotype": current_interval["haplotype"]})
+            current_interval = {"start": position, "end": position, "haplotype": haplotype[2]}
+
+    # Add the last interval
+    if current_interval is not None:
+        intervals.append({"start": current_interval["start"], "end": current_interval["end"], "haplotype": current_interval["haplotype"]})
+
+    return intervals
+
 
 
 def shared_interval(interval_list_1, interval_list_2):
