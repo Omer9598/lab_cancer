@@ -4,6 +4,10 @@ import pandas as pd
 import plotly.graph_objects as go
 from tabulate import tabulate
 
+WINDOW_NUM = 20
+WINDOW_ERR = 18
+CHROMOSOME_NUM = 13
+
 
 def check_heterozygous_parent(parent):
     if parent == '0|0' or parent == '1|1':
@@ -113,12 +117,6 @@ def add_haplotype(my_dict):
 
 
 def add_confidence(my_dict):
-    """
-    This function will add the confidence value to the dict - comparing each
-    entry to the next WINDOW_NUM entries.
-    The confidence is the number of variants that have the same haplotype as
-    the current variant in its window
-    """
     for position, values in my_dict.items():
         haplotype = values[-1]  # Get the haplotype for the current position
         count = 1
@@ -131,8 +129,8 @@ def add_confidence(my_dict):
         while next_position != position:
             next_position = next(keys_iterator)
 
-        for next_position in islice(keys_iterator, 20):
-            if count_10 == 20:
+        for next_position in islice(keys_iterator, WINDOW_NUM):
+            if count_10 == WINDOW_NUM:
                 break
             else:
                 count_10 += 1
@@ -163,7 +161,7 @@ def filter_low_score(data_dict):
     """
     filtered_dict = dict()
     for key, value in data_dict.items():
-        if value[3] > 18:
+        if value[3] > WINDOW_ERR:
             filtered_dict[key] = value
     return filtered_dict
 
@@ -276,8 +274,7 @@ def shared_interval(interval_list_1, interval_list_2):
 def plot_interval(interval_list, plot_title):
     """
     This function plots intervals as straight lines, where each interval is
-    represented by a line starting from the "start" to "end" keys on the
-    x-axis,
+    represented by a line starting from the "start" to "end" keys on the x-axis,
     and the height determined by the "haplotype" key on the y-axis.
     """
     # Create a DataFrame for Plotly Express
@@ -292,7 +289,7 @@ def plot_interval(interval_list, plot_title):
         data["Start"].extend([start_position, end_position])
         data["End"].extend([start_position, end_position])
         data["Haplotype"].extend([haplotype, haplotype])
-        data["Interval"].extend([f'Interval {i + 1}', f'Interval {i + 1}'])
+        data["Interval"].extend([f'Interval {i+1}', f'Interval {i+1}'])
 
     # Create a DataFrame
     df = pd.DataFrame(data)
@@ -313,9 +310,7 @@ def create_table(data_list, chromosome_num):
         entry['chromosome'] = chromosome_num
 
     # Reorder the keys to make "chromosome" the first column
-    data_list_reordered = [
-        {k: entry[k] for k in ['chromosome', 'start', 'end', 'haplotype']} for
-        entry in data_list]
+    data_list_reordered = [{k: entry[k] for k in ['chromosome', 'start', 'end', 'haplotype']} for entry in data_list]
 
     # Convert the reordered list of dictionaries to a table
     table = tabulate(data_list_reordered, headers="keys", tablefmt="pretty")
@@ -329,7 +324,11 @@ def create_table(data_list, chromosome_num):
 
 
 def main():
+    columns = count_columns(r"HR1.ch13.phased.tsv")
     open_and_split_file(r"HR1.ch13.phased.tsv")
+    print(columns)
+
+
 
     # creating and filtering the child dicts
     child_1_dict = create_and_filter_dictionary('child_1.txt')
@@ -348,7 +347,7 @@ def main():
     plot_interval(shared_interval_list,
                   "shared haplotypes of child 1 and child 2")
 
-    create_table(shared_interval_list, 13)
+    create_table(shared_interval_list, CHROMOSOME_NUM)
 
     print("hi")
 
@@ -360,6 +359,7 @@ def main():
 
     # plot_data(child_1_dict, child_2_dict, 'children 1 and 2,'
     #                                       ' chromosome 13 without filter')
+
 
 
 if __name__ == '__main__':
