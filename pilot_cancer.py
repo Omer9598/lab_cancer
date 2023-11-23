@@ -166,6 +166,31 @@ def plot_data(data_dict_to_plot, plot_title):
     fig.show()
 
 
+def create_intervals(haplotype_dict):
+    intervals = []
+    current_interval = None
+
+    for position, haplotype in haplotype_dict.items():
+        if current_interval is None:
+            # Start a new interval
+            current_interval = {"start": position, "end": position, "haplotype": haplotype[2]}
+        elif haplotype[2] == current_interval["haplotype"]:
+            # Continue the current interval
+            current_interval["end"] = position
+        else:
+            # Start a new interval as haplotype changed
+            intervals.append({"start": current_interval["start"], "end": current_interval["end"], "haplotype": current_interval["haplotype"]})
+            current_interval = {"start": position, "end": position, "haplotype": haplotype[2]}
+
+    # Add the last interval
+    if current_interval is not None:
+        intervals.append({"start": current_interval["start"], "end": current_interval["end"], "haplotype": current_interval["haplotype"]})
+
+    print(intervals)
+
+    return intervals
+
+
 def main():
     open_and_split_file(r"HR1.ch13.phased.tsv")
 
@@ -178,9 +203,10 @@ def main():
     child_2_to_plot_dict = process_dict(child_2_dict)
 
     # plotting the dicts
-    plot_data(child_1_to_plot_dict, 'child 1, chromosome 13')
-    plot_data(child_2_to_plot_dict, 'child 2, chromosome 13')
-    print('x')
+    # plot_data(child_1_to_plot_dict, 'child 1, chromosome 13')
+    # plot_data(child_2_to_plot_dict, 'child 2, chromosome 13')
+
+    create_intervals(child_1_to_plot_dict)
 
 
 if __name__ == '__main__':
