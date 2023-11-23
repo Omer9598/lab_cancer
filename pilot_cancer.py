@@ -85,6 +85,8 @@ def open_and_split_file(file):
                     # Write the line to the child file
                     child_file.write(child_line)
 
+    return num_children
+
 
 def create_and_filter_dictionary(file_path):
     """
@@ -248,25 +250,36 @@ def create_intervals(haplotype_dict):
     return intervals
 
 
-def shared_interval(interval_list_1, interval_list_2):
+def shared_interval(interval_lists):
     """
     This function will create a new list containing intervals that are shared
-    in both lists given, according to the haplotype
+    in all the lists given, according to the haplotype
     """
-    shared_intervals = []
+    # Initialize shared_intervals with the intervals from the first list
+    shared_intervals = interval_lists[0]
 
-    for interval_1 in interval_list_1:
-        for interval_2 in interval_list_2:
-            if (
-                    interval_1["haplotype"] == interval_2["haplotype"]
-                    and interval_1["start"] <= interval_2["end"]
-                    and interval_1["end"] >= interval_2["start"]
-            ):
-                # Calculate the intersection of intervals
-                start = max(interval_1["start"], interval_2["start"])
-                end = min(interval_1["end"], interval_2["end"])
-                shared_intervals.append({"start": start, "end": end,
-                                         "haplotype": interval_1["haplotype"]})
+    # Iterate through the remaining lists
+    for interval_list in interval_lists[1:]:
+        # A temporary list to store shared intervals for the current list
+        temp_shared_intervals = []
+
+        # Iterate through each interval in the current list
+        for interval_1 in shared_intervals:
+            for interval_2 in interval_list:
+                if (
+                        interval_1["haplotype"] == interval_2["haplotype"]
+                        and interval_1["start"] <= interval_2["end"]
+                        and interval_1["end"] >= interval_2["start"]
+                ):
+                    # Calculate the intersection of intervals
+                    start = max(interval_1["start"], interval_2["start"])
+                    end = min(interval_1["end"], interval_2["end"])
+                    temp_shared_intervals.append({"start": start, "end": end,
+                                                  "haplotype": interval_1[
+                                                      "haplotype"]})
+
+        # Update shared_intervals with the current shared intervals
+        shared_intervals = temp_shared_intervals
 
     return shared_intervals
 
@@ -274,7 +287,8 @@ def shared_interval(interval_list_1, interval_list_2):
 def plot_interval(interval_list, plot_title):
     """
     This function plots intervals as straight lines, where each interval is
-    represented by a line starting from the "start" to "end" keys on the x-axis,
+    represented by a line starting from the "start" to "end" keys on the
+    x-axis,
     and the height determined by the "haplotype" key on the y-axis.
     """
     # Create a DataFrame for Plotly Express
@@ -289,7 +303,7 @@ def plot_interval(interval_list, plot_title):
         data["Start"].extend([start_position, end_position])
         data["End"].extend([start_position, end_position])
         data["Haplotype"].extend([haplotype, haplotype])
-        data["Interval"].extend([f'Interval {i+1}', f'Interval {i+1}'])
+        data["Interval"].extend([f'Interval {i + 1}', f'Interval {i + 1}'])
 
     # Create a DataFrame
     df = pd.DataFrame(data)
@@ -310,7 +324,9 @@ def create_table(data_list, chromosome_num):
         entry['chromosome'] = chromosome_num
 
     # Reorder the keys to make "chromosome" the first column
-    data_list_reordered = [{k: entry[k] for k in ['chromosome', 'start', 'end', 'haplotype']} for entry in data_list]
+    data_list_reordered = [
+        {k: entry[k] for k in ['chromosome', 'start', 'end', 'haplotype']} for
+        entry in data_list]
 
     # Convert the reordered list of dictionaries to a table
     table = tabulate(data_list_reordered, headers="keys", tablefmt="pretty")
@@ -323,35 +339,31 @@ def create_table(data_list, chromosome_num):
         file.write(table)
 
 
+def process_child_file(file_path):
+    """
+    Process a child file and return the processed dictionary.
+    """
+    child_dict = create_and_filter_dictionary(file_path)
+    windowed_dict = process_dict(child_dict)
+    interval_list = create_intervals(windowed_dict)
+    return interval_list
+
+
 def main():
-    # creating and filtering the child dicts
-    child_1_dict = create_and_filter_dictionary('child_1.txt')
-    child_2_dict = create_and_filter_dictionary('child_2.txt')
+    # Opening the file
+    num_of_children = open_and_split_file(r"HR1.ch13.phased.tsv")
+    interval_children_list = []
+    for i in range(1, num_of_children + 1):
+        file_path = f'{"child_"}{i}{".txt"}'
+        interval_list = process_child_file(file_path)
+        interval_children_list.append(interval_list)
 
-    # adding the haplotype and score values to the keys
-    child_1_windowed_dict = process_dict(child_1_dict)
-    child_2_windowed_dict = process_dict(child_2_dict)
-
-    child_1_interval_list = create_intervals(child_1_windowed_dict)
-    child_2_interval_list = create_intervals(child_2_windowed_dict)
-
-    shared_interval_list = shared_interval(child_1_interval_list,
-                                           child_2_interval_list)
+    shared_interval_list = shared_interval(interval_children_list)
 
     plot_interval(shared_interval_list,
                   "shared haplotypes of child 1 and child 2")
 
     create_table(shared_interval_list, CHROMOSOME_NUM)
-
-    # plotting the dicts
-    # plot_data(child_1_windowed_dict, child_2_windowed_dict, 'children 1
-    # and 2,'
-    #                                                         ' chromosome
-    #                                                         13 with filter')
-
-    # plot_data(child_1_dict, child_2_dict, 'children 1 and 2,'
-    #                                       ' chromosome 13 without filter')
-
 
 
 if __name__ == '__main__':
