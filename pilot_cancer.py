@@ -1,6 +1,7 @@
 from itertools import islice
 import plotly.express as px
 import pandas as pd
+import plotly.graph_objects as go
 
 
 def check_heterozygous_parent(parent):
@@ -45,7 +46,7 @@ def open_and_split_file(file):
     """
     # Open the input and output files
     with open(file, 'r') as infile, open('child_1.txt', 'w') as child_1, open(
-        'child_2.txt', 'w') as child_2:
+            'child_2.txt', 'w') as child_2:
         # Iterate through each line in the input file
         for line in infile:
             # Split the line into columns
@@ -89,7 +90,8 @@ def add_haplotype(my_dict):
             # Condition 1: If left sides are equal, add 1 to the list
             values.append(1)
         elif right_side_parent == left_side_child:
-            # Condition 2: If the right side of the parent is equal to the left side of the child, add 2 to the list
+            # Condition 2: If the right side of the parent is equal to the
+            # left side of the child, add 2 to the list
             values.append(2)
 
 
@@ -106,12 +108,13 @@ def add_confidence(my_dict):
         while next_position != position:
             next_position = next(keys_iterator)
 
-        for next_position in islice(keys_iterator, 50):
-            if count_10 == 50:
+        for next_position in islice(keys_iterator, 20):
+            if count_10 == 20:
                 break
             else:
                 count_10 += 1
-                next_haplotype = my_dict[next_position][-1]  # Get the haplotype for the next position
+                next_haplotype = my_dict[next_position][
+                    -1]  # Get the haplotype for the next position
                 # Check if haplotypes match
                 if haplotype == next_haplotype:
                     # If they match, increment the count
@@ -137,33 +140,71 @@ def filter_low_score(data_dict):
     """
     filtered_dict = dict()
     for key, value in data_dict.items():
-        if value[3] > 45:
+        if value[3] > 18:
             filtered_dict[key] = value
     return filtered_dict
 
 
-def plot_data(data_dict_to_plot, plot_title):
+def plot_data(child_1_dict, child_2_dict, plot_title):
     """
-    This function will plot the given dict:
-    x axis will be the chromosome position
-    y axis will be the haplotype value of the current variant (position)
+    This function will plot data from two dictionaries (child_1 and child_2).
+    The x-axis will be the chromosome position, and the y-axis will be the
+    haplotype value of the current variant (position).
+    Red dots will be added at positions 1.05 and 1.95 for child_1.
     """
-    # Extract relevant information
-    positions = list(data_dict_to_plot.keys())
-    haplotypes = [entry[2] for entry in data_dict_to_plot.values()]
+    # Extract relevant information for child_1
+    positions_child_1 = list(child_1_dict.keys())
+    haplotypes_child_1 = [entry[2] for entry in child_1_dict.values()]
 
-    # Create a DataFrame for Plotly Express
-    data = {"Chromosome Position": positions, "Haplotype": haplotypes}
-    df = pd.DataFrame(data)
+    # Extract relevant information for child_2
+    positions_child_2 = list(child_2_dict.keys())
+    haplotypes_child_2 = [(entry[2] - 0.015) for entry in
+                          child_2_dict.values()]
 
-    # Create an interactive scatter plot
-    fig = px.scatter(df, x="Chromosome Position", y="Haplotype",
+    # Create DataFrames for Plotly Express
+    data_child_1 = {"Chromosome Position": positions_child_1,
+                    "Haplotype": haplotypes_child_1}
+    data_child_2 = {"Chromosome Position": positions_child_2,
+                    "Haplotype": haplotypes_child_2}
+
+    df_child_1 = pd.DataFrame(data_child_1)
+    df_child_2 = pd.DataFrame(data_child_2)
+
+    # Create an interactive scatter plot for child_1
+    fig = px.scatter(df_child_1, x="Chromosome Position", y="Haplotype",
                      labels={'Chromosome Position': 'Chromosome Position',
                              'Haplotype': 'Haplotype'},
+                     color_discrete_sequence=['blue'],  # Set color for child_1
                      title=plot_title)
+
+    # Add data for child_2 to the same plot with red color
+    fig.add_trace(
+        px.scatter(df_child_2, x="Chromosome Position", y="Haplotype",
+                   color_discrete_sequence=['red'],  # Set color for child_2
+                   labels={'Haplotype': 'Haplotype (Child 2)'}).data[0])
+
+    # Adjust legend position
+    fig.update_layout(showlegend=True)
 
     # Show the plot in an HTML window
     fig.show()
+
+
+"""
+This function will create a list for each child in the following format:
+[(interval number is the index) {start position: , end position: ,
+haplotype: (1 or 2)]
+each interval starts with the position of a variant from haplotype 1 or 2, and 
+ends when the next variant is from the opposite haplotype, where a new interval
+will start
+"""
+
+
+def shared_interval(interval_list_1, interval_list_2):
+    """
+    This function will create a new list containing intervals that are shared
+    in both lists given, according to the haplotype
+    """
 
 
 def main():
@@ -174,13 +215,15 @@ def main():
     child_2_dict = create_and_filter_dictionary('child_2.txt')
 
     # adding the haplotype and score values to the keys
-    child_1_to_plot_dict = process_dict(child_1_dict)
-    child_2_to_plot_dict = process_dict(child_2_dict)
+    child_1_windowed_dict = process_dict(child_1_dict)
+    child_2_windowed_dict = process_dict(child_2_dict)
 
     # plotting the dicts
-    plot_data(child_1_to_plot_dict, 'child 1, chromosome 13')
-    plot_data(child_2_to_plot_dict, 'child 2, chromosome 13')
-    print('x')
+    plot_data(child_1_windowed_dict, child_2_windowed_dict, 'children 1 and 2,'
+                                                ' chromosome 13 with filter')
+
+    plot_data(child_1_dict, child_2_dict, 'children 1 and 2,'
+                                             ' chromosome 13 without filter')
 
 
 if __name__ == '__main__':
