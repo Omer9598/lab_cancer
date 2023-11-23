@@ -180,6 +180,7 @@ def main():
     # plotting the dicts
     plot_data(child_1_to_plot_dict, 'child 1, chromosome 13')
     plot_data(child_2_to_plot_dict, 'child 2, chromosome 13')
+    print('x')
 
 
 if __name__ == '__main__':
