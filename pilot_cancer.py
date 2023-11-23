@@ -3,6 +3,8 @@ import plotly.express as px
 import pandas as pd
 import plotly.graph_objects as go
 # import matplotlib.pyplot as plt
+from tabulate import tabulate
+import csv
 
 
 def check_heterozygous_parent(parent):
@@ -284,6 +286,24 @@ def plot_interval(interval_list, plot_title):
     fig.show()
 
 
+def create_table(data_list, chromosome_num):
+    # Add a new column for chromosome numbers to each dictionary in the list
+    for entry in data_list:
+        entry['chromosome'] = chromosome_num
+
+    # Reorder the keys to make "chromosome" the first column
+    data_list_reordered = [{k: entry[k] for k in ['chromosome', 'start', 'end', 'haplotype']} for entry in data_list]
+
+    # Convert the reordered list of dictionaries to a table
+    table = tabulate(data_list_reordered, headers="keys", tablefmt="pretty")
+
+    # Specify the file path
+    file_path = 'table.txt'
+
+    # Write the table to a text file
+    with open(file_path, 'w') as file:
+        file.write(table)
+
 def main():
     open_and_split_file(r"HR1.ch13.phased.tsv")
 
@@ -304,6 +324,8 @@ def main():
     plot_interval(shared_interval_list,
                   "shared haplotypes of child 1 and child 2")
 
+    create_table(shared_interval_list, 13)
+
     # plotting the dicts
     # plot_data(child_1_windowed_dict, child_2_windowed_dict, 'children 1
     # and 2,'
@@ -312,6 +334,7 @@ def main():
 
     # plot_data(child_1_dict, child_2_dict, 'children 1 and 2,'
     #                                       ' chromosome 13 without filter')
+
 
 
 if __name__ == '__main__':
