@@ -324,12 +324,6 @@ def create_table(data_list, chromosome_num):
 
 
 def main():
-    columns = count_columns(r"HR1.ch13.phased.tsv")
-    open_and_split_file(r"HR1.ch13.phased.tsv")
-    print(columns)
-
-
-
     # creating and filtering the child dicts
     child_1_dict = create_and_filter_dictionary('child_1.txt')
     child_2_dict = create_and_filter_dictionary('child_2.txt')
@@ -348,8 +342,6 @@ def main():
                   "shared haplotypes of child 1 and child 2")
 
     create_table(shared_interval_list, CHROMOSOME_NUM)
-
-    print("hi")
 
     # plotting the dicts
     # plot_data(child_1_windowed_dict, child_2_windowed_dict, 'children 1
