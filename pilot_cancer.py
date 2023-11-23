@@ -2,9 +2,7 @@ from itertools import islice
 import plotly.express as px
 import pandas as pd
 import plotly.graph_objects as go
-# import matplotlib.pyplot as plt
 from tabulate import tabulate
-import csv
 
 
 def check_heterozygous_parent(parent):
@@ -44,28 +42,44 @@ def filter_dict(dictionary):
 
 def open_and_split_file(file):
     """
-    This function will open the file and split it to the 2 files - mother
-    compared to child 1 and mother compared to child 2
+    This function will open the file and split it into n files.
+    Each file will contain column[1], column[4], and subsequent columns from
+    5 to the last column.
+    The number of child files will be determined based on the available
+    columns.
     """
-    # Open the input and output files
-    with open(file, 'r') as infile, open('child_1.txt', 'w') as child_1, open(
-            'child_2.txt', 'w') as child_2:
-        # Iterate through each line in the input file
-        for line in infile:
-            # Split the line into columns
-            columns = line.strip().split('\t')
+    # Open the input file
+    with open(file, 'r') as infile:
+        # Get header columns
+        header_columns = infile.readline().strip().split('\t')
 
-            # Extract the desired columns for child_1
-            child_1_line = f"{columns[1]}\t{columns[4]}\t{columns[5]}\n"
+        # Determine the number of child files based on available columns
+        num_children = len(header_columns) - 5
 
-            # Write the line to the child_1 file
-            child_1.write(child_1_line)
+        # Iterate through each child file
+        for child_num in range(1, num_children + 1):
+            child_filename = f'child_{child_num}.txt'
 
-            # Extract the desired columns for child_2
-            child_2_line = f"{columns[1]}\t{columns[4]}\t{columns[6]}\n"
+            # Open the child file for writing
+            with open(child_filename, 'w') as child_file:
+                # Write the header columns to the child file
+                header_line = '\t'.join([header_columns[1], header_columns[4],
+                                         header_columns[child_num + 4]])
+                child_file.write(header_line + '\n')
 
-            # Write the line to the child_2 file
-            child_2.write(child_2_line)
+                # Iterate through each line in the input file
+                infile.seek(0)  # Reset file pointer to the beginning
+                next(infile)  # Skip the header line
+                for line in infile:
+                    # Split the line into columns
+                    columns = line.strip().split('\t')
+
+                    # Extract the desired columns for the current child file
+                    child_line = f"{columns[1]}\t{columns[4]}\t" \
+                                 f"{columns[child_num + 4]}\n"
+
+                    # Write the line to the child file
+                    child_file.write(child_line)
 
 
 def create_and_filter_dictionary(file_path):
@@ -99,6 +113,12 @@ def add_haplotype(my_dict):
 
 
 def add_confidence(my_dict):
+    """
+    This function will add the confidence value to the dict - comparing each
+    entry to the next WINDOW_NUM entries.
+    The confidence is the number of variants that have the same haplotype as
+    the current variant in its window
+    """
     for position, values in my_dict.items():
         haplotype = values[-1]  # Get the haplotype for the current position
         count = 1
@@ -256,7 +276,8 @@ def shared_interval(interval_list_1, interval_list_2):
 def plot_interval(interval_list, plot_title):
     """
     This function plots intervals as straight lines, where each interval is
-    represented by a line starting from the "start" to "end" keys on the x-axis,
+    represented by a line starting from the "start" to "end" keys on the
+    x-axis,
     and the height determined by the "haplotype" key on the y-axis.
     """
     # Create a DataFrame for Plotly Express
@@ -271,7 +292,7 @@ def plot_interval(interval_list, plot_title):
         data["Start"].extend([start_position, end_position])
         data["End"].extend([start_position, end_position])
         data["Haplotype"].extend([haplotype, haplotype])
-        data["Interval"].extend([f'Interval {i+1}', f'Interval {i+1}'])
+        data["Interval"].extend([f'Interval {i + 1}', f'Interval {i + 1}'])
 
     # Create a DataFrame
     df = pd.DataFrame(data)
@@ -292,7 +313,9 @@ def create_table(data_list, chromosome_num):
         entry['chromosome'] = chromosome_num
 
     # Reorder the keys to make "chromosome" the first column
-    data_list_reordered = [{k: entry[k] for k in ['chromosome', 'start', 'end', 'haplotype']} for entry in data_list]
+    data_list_reordered = [
+        {k: entry[k] for k in ['chromosome', 'start', 'end', 'haplotype']} for
+        entry in data_list]
 
     # Convert the reordered list of dictionaries to a table
     table = tabulate(data_list_reordered, headers="keys", tablefmt="pretty")
@@ -303,6 +326,7 @@ def create_table(data_list, chromosome_num):
     # Write the table to a text file
     with open(file_path, 'w') as file:
         file.write(table)
+
 
 def main():
     open_and_split_file(r"HR1.ch13.phased.tsv")
@@ -334,7 +358,6 @@ def main():
 
     # plot_data(child_1_dict, child_2_dict, 'children 1 and 2,'
     #                                       ' chromosome 13 without filter')
-
 
 
 if __name__ == '__main__':
