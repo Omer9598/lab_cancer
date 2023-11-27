@@ -168,12 +168,12 @@ def process_child_file(file_path):
 
 def main():
     # preprocessing the all chromosome file
-    # preprocess_file(r"genotypes.generation1.txt",
-    #                 r"preprocess.genotypes.generation1.txt")
+    preprocess_file(r"genotypes.generation1.txt",
+                    r"preprocess.genotypes.generation1.txt")
     # Opening the file
-    # num_of_children = open_and_split_file(
-    #     r"preprocess.genotypes.generation1.txt")
-    num_of_children = open_and_split_file(r"HR1.ch13.phased.tsv")
+    num_of_children = open_and_split_file(
+        r"preprocess.genotypes.generation1.txt")
+    # num_of_children = open_and_split_file(r"HR1.ch13.phased.tsv")
     interval_children_list = []
     for i in range(1, num_of_children + 1):
         file_path = f'{"child_"}{i}{".txt"}'

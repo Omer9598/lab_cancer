@@ -6,15 +6,14 @@ WINDOW_NUM = 20
 WINDOW_ERR = 18
 
 
-# todo - change | to "\" in these functions
 def check_heterozygous_parent(parent):
-    if parent == '0|0' or parent == '1|1':
+    if parent == '0/0' or parent == '1/1':
         return False
     return True
 
 
 def check_homozygous_child(child):
-    if child == '0|1' or child == '1|0':
+    if child == '0/1' or child == '1/0':
         return False
     return True
 
@@ -70,10 +69,9 @@ def add_haplotype(my_dict):
     """
     This function will add the haplotype of each variant to the child_dict
     """
-    # todo - fix the split to "/"
     for position, values in my_dict.items():
-        left_side_parent, right_side_parent = values[0].split('|')
-        left_side_child, right_side_child = values[1].split('|')
+        left_side_parent, right_side_parent = values[0].split('/')
+        left_side_child, right_side_child = values[1].split('/')
 
         if left_side_parent == left_side_child:
             # Condition 1: If left sides are equal, add 1 to the list
