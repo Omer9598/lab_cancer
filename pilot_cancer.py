@@ -7,16 +7,50 @@ from interval_analyze import *
 from dict_analyzer import *
 
 
-def open_and_split_file(file):
+def preprocess_file(input_file_path, output_file_path):
+    """
+    This function will preprocess the file given:
+    Changing "./." to 0/0, or "./1" to 0/1 etc, and save the result in a new
+    file.
+    """
+    # Read the input file and process each line
+    with open(input_file_path, 'r') as file:
+        lines = file.readlines()
+
+    processed_lines = []
+
+    for line in lines:
+        # Split the line into columns
+        columns = line.strip().split('\t')
+
+        # Process each column starting from the 5th column
+        for i in range(4, len(columns)):
+            # Replace "./." with 0/0, "./1" with 0/1, etc.
+            columns[i] = columns[i].replace("./.", "0/0")\
+                .replace("./1", "0/1").replace("1/.", "1/0")
+
+        # Join the columns back into a line
+        processed_line = '\t'.join(columns)
+        processed_lines.append(processed_line)
+
+    # Join the processed lines into a string
+    result = '\n'.join(processed_lines)
+
+    # Write the processed data to the output file
+    with open(output_file_path, 'w') as output_file:
+        output_file.write(result)
+
+
+def open_and_split_file(file_path):
     """
     This function will open the file and split it into n files.
-    Each file will contain column[1], column[4], and subsequent columns from
-    5 to the last column.
+    Each file will contain column[0] column[1], column[4], and subsequent
+    columns from 5 to the last column.
     The number of child files will be determined based on the available
     columns.
     """
     # Open the input file
-    with open(file, 'r') as infile:
+    with open(file_path, 'r') as infile:
         # Get header columns
         header_columns = infile.readline().strip().split('\t')
 
@@ -30,7 +64,8 @@ def open_and_split_file(file):
             # Open the child file for writing
             with open(child_filename, 'w') as child_file:
                 # Write the header columns to the child file
-                header_line = '\t'.join([header_columns[1], header_columns[4],
+                header_line = '\t'.join([header_columns[0], header_columns[1],
+                                         header_columns[4],
                                          header_columns[child_num + 4]])
                 child_file.write(header_line + '\n')
 
@@ -42,7 +77,7 @@ def open_and_split_file(file):
                     columns = line.strip().split('\t')
 
                     # Extract the desired columns for the current child file
-                    child_line = f"{columns[1]}\t{columns[4]}\t" \
+                    child_line = f"{columns[0]}\t{columns[1]}\t{columns[4]}\t"\
                                  f"{columns[child_num + 4]}\n"
 
                     # Write the line to the child file
@@ -96,25 +131,29 @@ def plot_data(child_1_dict, child_2_dict, plot_title):
     fig.show()
 
 
-def create_table(data_list, chromosome_num):
-    # Add a new column for chromosome numbers to each dictionary in the list
-    for entry in data_list:
-        entry['chromosome'] = chromosome_num
-
+def create_table(data_list):
+    """
+    This function will create the shared haplotype intervals table
+    The table will be in a new .txt file, ordered in the following format - each
+    row represents an interval, and will be as follows:
+    chromosome - the chromosome number
+    start - the starting position of the interval in the row's chromosome
+    end - the ending position
+    haplotype - the haplotype of the current interval
+    """
     # Reorder the keys to make "chromosome" the first column
     data_list_reordered = [
         {k: entry[k] for k in ['chromosome', 'start', 'end', 'haplotype']} for
         entry in data_list]
 
-    # Convert the reordered list of dictionaries to a table
-    table = tabulate(data_list_reordered, headers="keys", tablefmt="pretty")
-
     # Specify the file path
-    file_path = 'table.txt'
+    file_path = 'haplotype.interval.table.txt'
 
-    # Write the table to a text file
+    # Write the data to a text file without any table formatting
     with open(file_path, 'w') as file:
-        file.write(table)
+        for entry in data_list_reordered:
+            file.write(f"{entry['chromosome']}\t{entry['start']}\t"
+                       f"{entry['end']}\t{entry['haplotype']}\n")
 
 
 def process_child_file(file_path):
@@ -128,7 +167,12 @@ def process_child_file(file_path):
 
 
 def main():
+    # preprocessing the all chromosome file
+    # preprocess_file(r"genotypes.generation1.txt",
+    #                 r"preprocess.genotypes.generation1.txt")
     # Opening the file
+    # num_of_children = open_and_split_file(
+    #     r"preprocess.genotypes.generation1.txt")
     num_of_children = open_and_split_file(r"HR1.ch13.phased.tsv")
     interval_children_list = []
     for i in range(1, num_of_children + 1):
@@ -138,10 +182,10 @@ def main():
 
     shared_interval_list = shared_interval(interval_children_list)
 
-    plot_interval(shared_interval_list,
-                  "shared haplotypes of child 1 and child 2")
+    # plot_interval(shared_interval_list,
+    #               "shared haplotypes of child 1 and child 2")
 
-    create_table(shared_interval_list, 13)
+    create_table(shared_interval_list)
 
 
 if __name__ == '__main__':

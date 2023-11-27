@@ -1,10 +1,12 @@
 from itertools import islice
+from collections import deque
 
 
 WINDOW_NUM = 20
 WINDOW_ERR = 18
 
 
+# todo - change | to "\" in these functions
 def check_heterozygous_parent(parent):
     if parent == '0|0' or parent == '1|1':
         return False
@@ -49,14 +51,26 @@ def create_and_filter_dictionary(file_path):
     result_dict = {}
     with open(file_path, 'r') as file:
         for line in file:
-            columns = line.strip().split('\t')
-            position = int(columns[0])
-            values = [columns[1], columns[2]]
+            row = line.strip().split('\t')
+            # skip the first line
+            if row[0] == "CHROM":
+                continue
+            position = int(row[1])
+            values = []
+            # adding the inheritance values of each child
+            for i in range(2, len(row)):
+                values.append(row[i])
+            # adding the chromosome number
+            values.append(row[0])
             result_dict[position] = values
     return filter_dict(result_dict)
 
 
 def add_haplotype(my_dict):
+    """
+    This function will add the haplotype of each variant to the child_dict
+    """
+    # todo - fix the split to "/"
     for position, values in my_dict.items():
         left_side_parent, right_side_parent = values[0].split('|')
         left_side_child, right_side_child = values[1].split('|')
@@ -94,13 +108,54 @@ def add_confidence(my_dict):
                 break
             else:
                 count_10 += 1
-                next_haplotype = my_dict[next_position][
-                    -1]  # Get the haplotype for the next position
+                next_haplotype = my_dict[next_position][-1]  # Get the haplotype for the next position
                 # Check if haplotypes match
                 if haplotype == next_haplotype:
                     # If they match, increment the count
                     count += 1
         values.append(count)
+
+
+# def add_confidence(my_dict):
+#     """
+#     This function will add the confidence value to the dict
+#     the confidence is the number of variants that are similar to the current
+#     variant, in a given window - the size of the window is determined by
+#     WINDOW_NUM global parameter
+#     """
+#     positions = list(my_dict.keys())  # positions already sorted
+#
+#     for i, position in enumerate(positions):
+#         haplotype = my_dict[position][-1]  # Get the haplotype for the current position
+#         count = 1
+#
+#         # Use a deque to efficiently maintain the sliding window
+#         window = deque(maxlen=WINDOW_NUM)
+#         window.append(haplotype)
+#
+#         # Iterate over the next positions within the window
+#         for next_position in islice(positions, i + 1, i + 1 + WINDOW_NUM):
+#             next_haplotype = my_dict[next_position][-1]  # Get the haplotype for the next position
+#             window.append(next_haplotype)
+#
+#             # Check if haplotypes match
+#             if haplotype == next_haplotype:
+#                 # If they match, increment the count
+#                 count += 1
+#
+#         my_dict[position].append(count)
+
+
+def add_confidence_efficient(data_dict):
+    """
+    This function will add the confidence value to the dict
+    the confidence is the number of variants that are similar to the current
+    variant, in a given window - the size of the window is determined by
+    WINDOW_NUM global parameter
+    """
+    for position, value_list in data_dict.items():
+        cur_haplotype = value_list[-1]
+
 
 
 def process_dict(data_dict):
@@ -121,6 +176,6 @@ def filter_low_score(data_dict):
     """
     filtered_dict = dict()
     for key, value in data_dict.items():
-        if value[3] > WINDOW_ERR:
+        if value[-1] > WINDOW_ERR:
             filtered_dict[key] = value
     return filtered_dict
