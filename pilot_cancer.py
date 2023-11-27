@@ -26,8 +26,10 @@ def preprocess_file(input_file_path, output_file_path):
         # Process each column starting from the 5th column
         for i in range(4, len(columns)):
             # Replace "./." with 0/0, "./1" with 0/1, etc.
-            columns[i] = columns[i].replace("./.", "0/0")\
-                .replace("./1", "0/1").replace("1/.", "1/0")
+            columns[i] = columns[i].replace("./.", "0|0")\
+                .replace("./1", "0|1").replace("1/.", "1|0")\
+                .replace("1/1", "1|1").replace("1/0", "1|0")\
+                .replace("0/1", "0|1").replace("0/0", "0|0")
 
         # Join the columns back into a line
         processed_line = '\t'.join(columns)
