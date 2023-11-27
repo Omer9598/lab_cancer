@@ -3,45 +3,8 @@ import plotly.express as px
 import pandas as pd
 import plotly.graph_objects as go
 from tabulate import tabulate
-
-WINDOW_NUM = 20
-WINDOW_ERR = 18
-CHROMOSOME_NUM = 13
-
-
-def check_heterozygous_parent(parent):
-    if parent == '0|0' or parent == '1|1':
-        return False
-    return True
-
-
-def check_homozygous_child(child):
-    if child == '0|1' or child == '1|0':
-        return False
-    return True
-
-
-def filter_dict(dictionary):
-    """
-    filtering the dict:
-    the mother has to be heterozygous, for us to know which side she inherited
-    and the child has to be homozygous, for us to know that he got one of his
-    alleles from the mother
-    :return: the filtered dictionary
-    """
-    filtered_dict = {}
-    for key, value in dictionary.items():
-        # Apply check_heterozygous_parent to the value associated with the key
-        result_parent = check_heterozygous_parent(value[0])
-
-        # Apply check_homozygous_child to the value associated with the key
-        result_child = check_homozygous_child(value[1])
-
-        # If both functions return True, add the key to the filtered_dict
-        if result_parent and result_child:
-            filtered_dict[key] = value
-
-    return filtered_dict
+from interval_analyze import *
+from dict_analyzer import *
 
 
 def open_and_split_file(file):
@@ -88,86 +51,6 @@ def open_and_split_file(file):
     return num_children
 
 
-def create_and_filter_dictionary(file_path):
-    """
-    This file will create dictionary from the given file, in the following
-    format:
-    {position: [mother, child], ...}
-    """
-    result_dict = {}
-    with open(file_path, 'r') as file:
-        for line in file:
-            columns = line.strip().split('\t')
-            position = int(columns[0])
-            values = [columns[1], columns[2]]
-            result_dict[position] = values
-    return filter_dict(result_dict)
-
-
-def add_haplotype(my_dict):
-    for position, values in my_dict.items():
-        left_side_parent, right_side_parent = values[0].split('|')
-        left_side_child, right_side_child = values[1].split('|')
-
-        if left_side_parent == left_side_child:
-            # Condition 1: If left sides are equal, add 1 to the list
-            values.append(1)
-        elif right_side_parent == left_side_child:
-            # Condition 2: If the right side of the parent is equal to the
-            # left side of the child, add 2 to the list
-            values.append(2)
-
-
-def add_confidence(my_dict):
-    for position, values in my_dict.items():
-        haplotype = values[-1]  # Get the haplotype for the current position
-        count = 1
-        count_10 = 1
-
-        keys_iterator = iter(my_dict.keys())
-        next_position = next(keys_iterator)
-
-        # Skip positions until the current position in the outer loop
-        while next_position != position:
-            next_position = next(keys_iterator)
-
-        for next_position in islice(keys_iterator, WINDOW_NUM):
-            if count_10 == WINDOW_NUM:
-                break
-            else:
-                count_10 += 1
-                next_haplotype = my_dict[next_position][
-                    -1]  # Get the haplotype for the next position
-                # Check if haplotypes match
-                if haplotype == next_haplotype:
-                    # If they match, increment the count
-                    count += 1
-        values.append(count)
-
-
-def process_dict(data_dict):
-    """
-    This function will process the dicts to be plotted
-    """
-    add_haplotype(data_dict)
-    add_confidence(data_dict)
-    filtered_dict = filter_low_score(data_dict)
-    return filtered_dict
-
-
-def filter_low_score(data_dict):
-    """
-    This function will filter the variants (keys in the dict) which their
-    score is under 8
-    :returns a new filtered dict
-    """
-    filtered_dict = dict()
-    for key, value in data_dict.items():
-        if value[3] > WINDOW_ERR:
-            filtered_dict[key] = value
-    return filtered_dict
-
-
 def plot_data(child_1_dict, child_2_dict, plot_title):
     """
     This function will plot data from two dictionaries (child_1 and child_2).
@@ -208,111 +91,6 @@ def plot_data(child_1_dict, child_2_dict, plot_title):
 
     # Adjust legend position
     fig.update_layout(showlegend=True)
-
-    # Show the plot in an HTML window
-    fig.show()
-
-
-def create_intervals(haplotype_dict):
-    """
-    This function will create a list for each child in the following format:
-    [(interval number is the index) {start position: , end position: ,
-    haplotype: (1 or 2)]
-    each interval starts with the position of a variant from haplotype 1 or 2,
-    and ends when the next variant is from the opposite haplotype, where a new
-    interval will start
-    """
-    intervals = []
-    current_interval = None
-
-    for position, haplotype in haplotype_dict.items():
-        if current_interval is None:
-            # Start a new interval
-            current_interval = {"start": position, "end": position,
-                                "haplotype": haplotype[2]}
-        elif haplotype[2] == current_interval["haplotype"]:
-            # Continue the current interval
-            current_interval["end"] = position
-        else:
-            # Start a new interval as haplotype changed
-            intervals.append({"start": current_interval["start"],
-                              "end": current_interval["end"],
-                              "haplotype": current_interval["haplotype"]})
-            current_interval = {"start": position, "end": position,
-                                "haplotype": haplotype[2]}
-
-    # Add the last interval
-    if current_interval is not None:
-        intervals.append({"start": current_interval["start"],
-                          "end": current_interval["end"],
-                          "haplotype": current_interval["haplotype"]})
-
-    return intervals
-
-
-def shared_interval(interval_lists):
-    """
-    This function will create a new list containing intervals that are shared
-    in all the lists given, according to the haplotype
-    """
-    # Initialize shared_intervals with the intervals from the first list
-    shared_intervals = interval_lists[0]
-
-    # Iterate through the remaining lists
-    for interval_list in interval_lists[1:]:
-        # A temporary list to store shared intervals for the current list
-        temp_shared_intervals = []
-
-        # Iterate through each interval in the current list
-        for interval_1 in shared_intervals:
-            for interval_2 in interval_list:
-                if (
-                        interval_1["haplotype"] == interval_2["haplotype"]
-                        and interval_1["start"] <= interval_2["end"]
-                        and interval_1["end"] >= interval_2["start"]
-                ):
-                    # Calculate the intersection of intervals
-                    start = max(interval_1["start"], interval_2["start"])
-                    end = min(interval_1["end"], interval_2["end"])
-                    temp_shared_intervals.append({"start": start, "end": end,
-                                                  "haplotype": interval_1[
-                                                      "haplotype"]})
-
-        # Update shared_intervals with the current shared intervals
-        shared_intervals = temp_shared_intervals
-
-    return shared_intervals
-
-
-def plot_interval(interval_list, plot_title):
-    """
-    This function plots intervals as straight lines, where each interval is
-    represented by a line starting from the "start" to "end" keys on the
-    x-axis,
-    and the height determined by the "haplotype" key on the y-axis.
-    """
-    # Create a DataFrame for Plotly Express
-    data = {"Start": [], "End": [], "Haplotype": [], "Interval": []}
-
-    for i, interval in enumerate(interval_list):
-        start_position = interval["start"]
-        end_position = interval["end"]
-        haplotype = interval["haplotype"]
-
-        # Append data to the DataFrame
-        data["Start"].extend([start_position, end_position])
-        data["End"].extend([start_position, end_position])
-        data["Haplotype"].extend([haplotype, haplotype])
-        data["Interval"].extend([f'Interval {i + 1}', f'Interval {i + 1}'])
-
-    # Create a DataFrame
-    df = pd.DataFrame(data)
-
-    # Create an interactive line plot using Plotly Express
-    fig = px.line(df, x="Start", y="Haplotype", color="Interval",
-                  labels={'Start': 'Chromosome Position',
-                          'Haplotype': 'Haplotype'},
-                  title=plot_title)
 
     # Show the plot in an HTML window
     fig.show()
@@ -363,7 +141,7 @@ def main():
     plot_interval(shared_interval_list,
                   "shared haplotypes of child 1 and child 2")
 
-    create_table(shared_interval_list, CHROMOSOME_NUM)
+    create_table(shared_interval_list, 13)
 
 
 if __name__ == '__main__':
