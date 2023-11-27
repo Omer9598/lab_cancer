@@ -114,36 +114,6 @@ def add_confidence(my_dict):
         values.append(count)
 
 
-# def add_confidence(my_dict):
-#     """
-#     This function will add the confidence value to the dict
-#     the confidence is the number of variants that are similar to the current
-#     variant, in a given window - the size of the window is determined by
-#     WINDOW_NUM global parameter
-#     """
-#     positions = list(my_dict.keys())  # positions already sorted
-#
-#     for i, position in enumerate(positions):
-#         haplotype = my_dict[position][-1]  # Get the haplotype for the current position
-#         count = 1
-#
-#         # Use a deque to efficiently maintain the sliding window
-#         window = deque(maxlen=WINDOW_NUM)
-#         window.append(haplotype)
-#
-#         # Iterate over the next positions within the window
-#         for next_position in islice(positions, i + 1, i + 1 + WINDOW_NUM):
-#             next_haplotype = my_dict[next_position][-1]  # Get the haplotype for the next position
-#             window.append(next_haplotype)
-#
-#             # Check if haplotypes match
-#             if haplotype == next_haplotype:
-#                 # If they match, increment the count
-#                 count += 1
-#
-#         my_dict[position].append(count)
-
-
 def add_confidence_efficient(data_dict):
     """
     This function will add the confidence value to the dict
@@ -151,9 +121,38 @@ def add_confidence_efficient(data_dict):
     variant, in a given window - the size of the window is determined by
     WINDOW_NUM global parameter
     """
-    for position, value_list in data_dict.items():
-        cur_haplotype = value_list[-1]
+    positions = list(data_dict.keys())  # positions already sorted
 
+    # Starting the window - loop through the first WINDOW_NUM positions
+    window_1_counter = 0
+    window_2_counter = 0
+    position_index = WINDOW_NUM - 1
+    for i in range(WINDOW_NUM):
+        cur_position = positions[i]
+        haplotype = data_dict[cur_position][-1]
+        if haplotype == 1:
+            window_1_counter += 1
+        if haplotype == 2:
+            window_2_counter += 1
+
+    for first_position_in_window, value_list in data_dict.items():
+        cur_haplotype = value_list[-1]
+        # add the confidence value to the dict and updating the window
+        if cur_haplotype == 1:
+            data_dict[first_position_in_window].append(window_1_counter)
+            window_1_counter -= 1
+        if cur_haplotype == 2:
+            data_dict[first_position_in_window].append(window_2_counter)
+            window_2_counter -= 1
+
+        if position_index < len(positions):
+            last_position_in_window = positions[position_index]
+            last_position_haplotype = data_dict[last_position_in_window][-1]
+            if last_position_haplotype == 1:
+                window_1_counter += 1
+            if last_position_haplotype == 2:
+                window_2_counter += 1
+            position_index += 1
 
 
 def process_dict(data_dict):
@@ -161,7 +160,7 @@ def process_dict(data_dict):
     This function will process the dicts to be plotted
     """
     add_haplotype(data_dict)
-    add_confidence(data_dict)
+    add_confidence_efficient(data_dict)
     filtered_dict = filter_low_score(data_dict)
     return filtered_dict
 

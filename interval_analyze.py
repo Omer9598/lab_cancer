@@ -15,24 +15,24 @@ def create_intervals(haplotype_dict):
     current_interval = None
 
     for position, value in haplotype_dict.items():
-        chromosome_num = int(haplotype_dict[position][-3])
+        chromosome = haplotype_dict[position][-3]
         cur_haplotype = value[-2]
         if current_interval is None:
             # Start a new interval
             current_interval = {"start": position, "end": position,
                                 "haplotype": cur_haplotype,
-                                "chromosome": chromosome_num}
+                                "chromosome": chromosome}
         elif cur_haplotype == current_interval["haplotype"]:
             # Continue the current interval
             current_interval["end"] = position
             # Adding the chromosome of the interval
-            current_interval["chromosome"] = chromosome_num
+            current_interval["chromosome"] = chromosome
         else:
             # Start a new interval as haplotype changed
             intervals.append({"start": current_interval["start"],
                               "end": current_interval["end"],
                               "haplotype": current_interval["haplotype"],
-                              "chromosome": chromosome_num})
+                              "chromosome": chromosome})
             current_interval = {"start": position, "end": position,
                                 "haplotype": cur_haplotype}
 
