@@ -5,6 +5,7 @@ import plotly.graph_objects as go
 from tabulate import tabulate
 from interval_analyze import *
 from dict_analyzer import *
+import os
 
 
 def preprocess_file(input_file_path, output_file_path):
@@ -43,7 +44,28 @@ def preprocess_file(input_file_path, output_file_path):
         output_file.write(result)
 
 
-def open_and_split_file(file_path):
+def split_to_chromosomes(input_file, output_directory):
+    """
+    This function will split the input_file to different files, according to the
+    number of chromosomes (e.g 23 chromosomes in the input file)
+    The files the function creates will be placed in the output_directory
+    """
+    # Read the input file into a DataFrame, specifying dtype for 'CHROM' as str
+    df = pd.read_table(input_file, sep='\t', dtype={'CHROM': str})
+
+    # Group the DataFrame by the 'CHROM' column
+    grouped = df.groupby('CHROM')
+
+    # Iterate through each group and write to separate files
+    for chrom, group in grouped:
+        # Define the output file path for each chromosome
+        output_file = os.path.join(output_directory, f'chromosome_{chrom}.txt')
+
+        # Write the group to the output file
+        group.to_csv(output_file, sep='\t', index=False)
+
+
+def open_and_split_children_files(file_path):
     """
     This function will open the file and split it into n files.
     Each file will contain column[0] column[1], column[4], and subsequent
@@ -133,7 +155,7 @@ def plot_data(child_1_dict, child_2_dict, plot_title):
     fig.show()
 
 
-def create_table(data_list):
+def create_table(data_list, output_directory):
     """
     This function will create the shared haplotype intervals table
     The table will be in a new .txt file, ordered in the following format - each
@@ -142,20 +164,32 @@ def create_table(data_list):
     start - the starting position of the interval in the row's chromosome
     end - the ending position
     haplotype - the haplotype of the current interval
+    the .txt file will be saved in the haplotype_interval_tables
+    directory
     """
-    # Reorder the keys to make "chromosome" the first column
-    data_list_reordered = [
-        {k: entry[k] for k in ['chromosome', 'start', 'end', 'haplotype']} for
-        entry in data_list]
+    # Group data by chromosome
+    grouped_data = {}
+    for entry in data_list:
+        chromosome = entry['chromosome']
+        if chromosome not in grouped_data:
+            grouped_data[chromosome] = []
+        grouped_data[chromosome].append(entry)
 
-    # Specify the file path
-    file_path = 'haplotype.interval.table.txt'
+    # Write data for each chromosome
+    for chromosome, chromosome_data in grouped_data.items():
+        # Reorder the keys to make "chromosome" the first column
+        data_list_reordered = [
+            {k: entry[k] for k in ['chromosome', 'start', 'end', 'haplotype']} for
+            entry in chromosome_data]
 
-    # Write the data to a text file without any table formatting
-    with open(file_path, 'w') as file:
-        for entry in data_list_reordered:
-            file.write(f"{entry['chromosome']}\t{entry['start']}\t"
-                       f"{entry['end']}\t{entry['haplotype']}\n")
+        file_path = os.path.join(output_directory,
+                                 f'haplotype_interval_table_{chromosome}.txt')
+
+        # Write the data to a text file without any table formatting
+        with open(file_path, 'w') as file:
+            for entry in data_list_reordered:
+                file.write(f"{entry['chromosome']}\t{entry['start']}\t"
+                           f"{entry['end']}\t{entry['haplotype']}\n")
 
 
 def process_child_file(file_path):
@@ -172,22 +206,26 @@ def main():
     # preprocessing the all chromosome file
     preprocess_file(r"genotypes.generation1.txt",
                     r"preprocess.genotypes.generation1.txt")
-    # Opening the file
-    num_of_children = open_and_split_file(
-        r"preprocess.genotypes.generation1.txt")
-    # num_of_children = open_and_split_file(r"HR1.ch13.phased.tsv")
-    interval_children_list = []
-    for i in range(1, num_of_children + 1):
-        file_path = f'{"child_"}{i}{".txt"}'
-        interval_list = process_child_file(file_path)
-        interval_children_list.append(interval_list)
+    # splitting the file to separate chromosome files
+    split_to_chromosomes(r"preprocess.genotypes.generation1.txt",
+                         r"genotypes_generation1_chromosomes")
 
-    shared_interval_list = shared_interval(interval_children_list)
+    # creating interval table for each chromosome
+    for chrom_num in range(1, 23):
+        num_of_children = open_and_split_children_files(
+            f"genotypes_generation1_chromosomes/chromosome_{chrom_num}.txt")
 
-    # plot_interval(shared_interval_list,
-    #               "shared haplotypes of child 1 and child 2")
+        # num_of_children = open_and_split_file(r"HR1.ch13.phased.tsv")
 
-    create_table(shared_interval_list)
+        interval_children_list = []
+        for i in range(1, num_of_children + 1):
+            file_path = f'{"child_"}{i}{".txt"}'
+            interval_list = process_child_file(file_path)
+            interval_children_list.append(interval_list)
+
+        shared_interval_list = shared_interval(interval_children_list)
+
+        create_table(shared_interval_list, r"haplotype_interval_tables")
 
 
 if __name__ == '__main__':

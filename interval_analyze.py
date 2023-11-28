@@ -20,13 +20,10 @@ def create_intervals(haplotype_dict):
         if current_interval is None:
             # Start a new interval
             current_interval = {"start": position, "end": position,
-                                "haplotype": cur_haplotype,
-                                "chromosome": chromosome}
+                                "haplotype": cur_haplotype}
         elif cur_haplotype == current_interval["haplotype"]:
             # Continue the current interval
             current_interval["end"] = position
-            # Adding the chromosome of the interval
-            current_interval["chromosome"] = chromosome
         else:
             # Start a new interval as haplotype changed
             intervals.append({"start": current_interval["start"],
@@ -41,7 +38,7 @@ def create_intervals(haplotype_dict):
         intervals.append({"start": current_interval["start"],
                           "end": current_interval["end"],
                           "haplotype": current_interval["haplotype"],
-                          "chromosome": current_interval["chromosome"]})
+                          "chromosome": chromosome})
 
     return intervals
 
@@ -62,12 +59,10 @@ def shared_interval(interval_lists):
         # Iterate through each interval in the current list
         for interval_1 in shared_intervals:
             for interval_2 in interval_list:
-                check = interval_1["chromosome"]
                 if (
                         interval_1["haplotype"] == interval_2["haplotype"]
                         and interval_1["start"] <= interval_2["end"]
                         and interval_1["end"] >= interval_2["start"]
-                        and interval_1["chromosome"] == interval_2["chromosome"]
                 ):
                     # Calculate the intersection of intervals
                     start = max(interval_1["start"], interval_2["start"])

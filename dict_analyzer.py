@@ -160,7 +160,7 @@ def process_dict(data_dict):
     This function will process the dicts to be plotted
     """
     add_haplotype(data_dict)
-    add_confidence_efficient(data_dict)
+    add_confidence(data_dict)
     filtered_dict = filter_low_score(data_dict)
     return filtered_dict
 
