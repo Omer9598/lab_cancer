@@ -121,6 +121,46 @@ def create_table(data_list, output_directory):
                            f"{entry['end']}\t{entry['haplotype']}\n")
 
 
+def invert_reference_genome_haplotype(input_file, output_file):
+    """
+    This function will create a new file from the file given, that will contain
+    the inverted variants (if needed) of the reference genotype
+    for example:
+    reference - 0|1 child - 1|1, the reference will be inverted to 1|0
+    reference - 0|1 child - 0|0, the reference won't be inverted
+    If cases where the reference is homozygous or the child is heterozygous
+    will be ignored
+    In other words, the reference will always inherit the left side (haplotype =
+    1)
+    """
+    inverted_lines = []
+    with open(input_file, 'r') as file:
+        header = file.readline().strip()
+        inverted_lines.append(header)
+
+        for line in file:
+            columns = line.strip().split('\t')
+            btn1, btn2 = columns[2], columns[3]
+
+            # Process the reference and child genotypes
+            ref_genotype = btn1.split('|')
+            child_genotype = btn2.split('|')
+
+            # Check if the conditions for inversion are met
+            if ref_genotype[0] == '0' and ref_genotype[1] == '1' and child_genotype[0] == '1' and child_genotype[1] == '1':
+                # Invert the reference genotype to 1|0
+                columns[2] = '1|0'
+                inverted_lines.append('\t'.join(columns))
+            elif ref_genotype[0] == '1' and ref_genotype[1] == '0' and child_genotype[0] == '0' and child_genotype[1] == '0':
+                # Invert the reference genotype to 0|1
+                columns[2] = '0|1'
+                inverted_lines.append('\t'.join(columns))
+
+    # Write the inverted lines to the output file
+    with open(output_file, 'w') as output_file:
+        output_file.write('\n'.join(inverted_lines))
+
+
 def open_and_split_children_files(file_path):
     """
     This function will open the file and split it into n files.
