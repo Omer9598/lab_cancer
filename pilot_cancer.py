@@ -44,7 +44,7 @@ def preprocess_file(input_file_path, output_file_path):
         output_file.write(result)
 
 
-def split_to_chromosomes(input_file, output_directory):
+def split_file_to_chromosomes(input_file, output_directory):
     """
     This function will split the input_file to different files, according to the
     number of chromosomes (e.g 23 chromosomes in the input file)
@@ -197,7 +197,6 @@ def process_child_file(file_path):
     Process a child file and return the processed dictionary.
     """
     child_dict = create_and_filter_dictionary(file_path)
-    check = len(child_dict)
     windowed_dict = process_dict(child_dict)
     interval_list = create_intervals(windowed_dict)
     return interval_list
@@ -249,8 +248,7 @@ def main():
     preprocess_file(r"all_chromosomes_HR1.txt",
                     r"preprocess.genotypes.generation1.txt")
     # splitting the file to separate chromosome files
-    split_to_chromosomes(r"preprocess.genotypes.generation1.txt",
-                         r"genotypes_generation1_chromosomes")
+    split_file_to_chromosomes(r"preprocess.genotypes.generation1.txt", r"genotypes_generation1_chromosomes")
 
     # creating interval table for each chromosome
     for chrom_num in range(1, 23):
@@ -265,6 +263,9 @@ def main():
 
         shared_interval_list = shared_interval(interval_children_list)
         create_table(shared_interval_list, r"haplotype_interval_tables")
+
+        plot_interval(shared_interval_list, f"chromosome {chrom_num} interval"
+                                            f" plot")
 
     # Merging the interval tables
     merge_haplotype_tables("haplotype_interval_tables")
