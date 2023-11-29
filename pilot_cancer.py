@@ -1,8 +1,3 @@
-from itertools import islice
-import plotly.express as px
-import pandas as pd
-import plotly.graph_objects as go
-from tabulate import tabulate
 from interval_analyze import *
 from dict_analyzer import *
 import os
@@ -234,7 +229,7 @@ def main():
         interval_list = process_child_file(file_path)
         # interval_children_list.append(interval_list)
 
-    num_of_children_omer_13 = open_and_split_file(r"HR1.ch13.phased.tsv")
+    num_of_children_omer_13 = open_and_split_children_files(r"HR1.ch13.phased.tsv")
 
     # interval_children_list = []
     for i in range(1, num_of_children_omer_13 + 1):
