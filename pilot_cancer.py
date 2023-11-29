@@ -203,6 +203,47 @@ def process_child_file(file_path):
     return interval_list
 
 
+def merge_haplotype_tables(input_directory):
+    """
+    This function will merge all the tables given in the input_directory
+    The format will be as follows:
+    CHROM START END HAPLOTYPE
+    Specifying each interval's chromosome, location, and haplotype
+    """
+    # Initialize a list to store the merged intervals
+    merged_intervals = []
+
+    # Loop through chromosomes 1 to 22
+    for chrom_num in range(1, 23):
+        # Read each haplotype interval table file
+        file_path = f"{input_directory}/haplotype_interval_table_{chrom_num}.txt"
+
+        try:
+            with open(file_path, 'r') as file:
+                # Skip the header line
+                next(file)
+
+                # Process each line in the file
+                for line in file:
+                    # Split the line into columns
+                    columns = line.strip().split()
+
+                    # Append the columns to the merged intervals list
+                    merged_intervals.append(columns)
+        except FileNotFoundError:
+            print(f"File not found: {file_path}")
+
+    # Write the merged intervals to a new file in the input directory
+    output_path = f"{input_directory}/merged_haplotype_intervals.txt"
+    with open(output_path, 'w') as output_file:
+        # Write the header line
+        output_file.write("CHROM\tSTART\tEND\tHAPLOTYPE\n")
+
+        # Write each merged interval to the output file
+        for interval in merged_intervals:
+            output_file.write('\t'.join(interval) + '\n')
+
+
 def main():
     # preprocessing the all chromosome file
     preprocess_file(r"all_chromosomes_HR1.txt",
@@ -223,24 +264,10 @@ def main():
             interval_children_list.append(interval_list)
 
         shared_interval_list = shared_interval(interval_children_list)
-
         create_table(shared_interval_list, r"haplotype_interval_tables")
 
-    # num_of_children_our_13 = open_and_split_children_files(r"genotypes_generation1_chromosomes/chromosome_13.txt")
-    #
-    # interval_children_list = []
-    # for i in range(1, num_of_children_our_13 + 1):
-    #     file_path = f'{"child_"}{i}{".txt"}'
-    #     interval_list = process_child_file(file_path)
-    #     interval_children_list.append(interval_list)
-    #
-    # num_of_children_omer_13 = open_and_split_children_files(r"HR1.ch13.phased.tsv")
-    #
-    # # interval_children_list = []
-    # for i in range(1, num_of_children_omer_13 + 1):
-    #     file_path = f'{"child_"}{i}{".txt"}'
-    #     interval_list = process_child_file(file_path)
-    #     interval_children_list.append(interval_list)
+    # Merging the interval tables
+    merge_haplotype_tables("haplotype_interval_tables")
 
 
 if __name__ == '__main__':
