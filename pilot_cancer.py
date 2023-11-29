@@ -223,6 +223,8 @@ def main():
             interval_children_list.append(interval_list)
 
         shared_interval_list = shared_interval(interval_children_list)
+        plot_title = 'Chromosome: ' + str(chrom_num)
+        plot_interval(shared_interval_list, plot_title, save_dir='interval_plots')
 
         create_table(shared_interval_list, r"haplotype_interval_tables")
 
