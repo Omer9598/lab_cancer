@@ -1,6 +1,8 @@
 from interval_analyze import *
 from dict_analyzer import *
 import os
+import matplotlib.pyplot as plt
+
 
 
 def preprocess_file(input_file_path, output_file_path):
@@ -117,7 +119,6 @@ def plot_data(child_1_dict, child_2_dict, plot_title):
     haplotype value of the current variant (position).
     Red dots will be added at positions 1.05 and 1.95 for child_1.
     """
-    # Extract relevant information for child_1
     positions_child_1 = list(child_1_dict.keys())
     haplotypes_child_1 = [entry[2] for entry in child_1_dict.values()]
 
@@ -223,7 +224,8 @@ def main():
             interval_children_list.append(interval_list)
 
         shared_interval_list = shared_interval(interval_children_list)
-
+        plot_title = 'Chromosome ' + str(chrom_num)
+        plot_interval(shared_interval_list, plot_title, save_dir="interval_plots")
         create_table(shared_interval_list, r"haplotype_interval_tables")
 
     # num_of_children_our_13 = open_and_split_children_files(r"genotypes_generation1_chromosomes/chromosome_13.txt")

@@ -1,3 +1,5 @@
+import os
+
 import pandas as pd
 import plotly.express as px
 
@@ -79,7 +81,7 @@ def shared_interval(interval_lists):
     return shared_intervals
 
 
-def plot_interval(interval_list, plot_title):
+def plot_interval(interval_list, plot_title, save_dir):
     """
     This function plots intervals as straight lines, where each interval is
     represented by a line starting from the "start" to "end" keys on the
@@ -110,4 +112,5 @@ def plot_interval(interval_list, plot_title):
                   title=plot_title)
 
     # Show the plot in an HTML window
-    fig.show()
+    save_path = os.path.join(save_dir, f'{plot_title.replace(" ", "_")}_plot.png')
+    fig.write_image(save_path)
