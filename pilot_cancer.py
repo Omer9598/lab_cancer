@@ -200,7 +200,7 @@ def process_child_file(file_path):
 
 def main():
     # preprocessing the all chromosome file
-    preprocess_file(r"genotypes.generation1.txt",
+    preprocess_file(r"all_chromosomes_HR1.txt",
                     r"preprocess.genotypes.generation1.txt")
     # splitting the file to separate chromosome files
     split_to_chromosomes(r"preprocess.genotypes.generation1.txt",
