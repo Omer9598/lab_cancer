@@ -1,5 +1,4 @@
 from itertools import islice
-from collections import deque
 
 
 WINDOW_NUM = 20
