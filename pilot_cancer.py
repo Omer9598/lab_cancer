@@ -15,7 +15,12 @@ def preprocess_file(input_file_path, output_file_path):
 
     processed_lines = []
 
-    for line in lines:
+    # Process the header line separately
+    header_columns = lines[0].strip().split()
+    processed_header = '\t'.join(header_columns)
+    processed_lines.append(processed_header)
+
+    for line in lines[1:]:
         # Split the line into columns
         columns = line.strip().split('\t')
 
@@ -207,35 +212,35 @@ def main():
                          r"genotypes_generation1_chromosomes")
 
     # creating interval table for each chromosome
-    # for chrom_num in range(1, 23):
-    #     num_of_children = open_and_split_children_files(
-    #         f"genotypes_generation1_chromosomes/chromosome_{chrom_num}.txt")
-    #
-    #     interval_children_list = []
-    #     for i in range(1, num_of_children + 1):
-    #         file_path = f'{"child_"}{i}{".txt"}'
-    #         interval_list = process_child_file(file_path)
-    #         interval_children_list.append(interval_list)
-    #
-    #     shared_interval_list = shared_interval(interval_children_list)
-    #
-    #     create_table(shared_interval_list, r"haplotype_interval_tables")
+    for chrom_num in range(1, 23):
+        num_of_children = open_and_split_children_files(
+            f"genotypes_generation1_chromosomes/chromosome_{chrom_num}.txt")
 
-    num_of_children_our_13 = open_and_split_children_files(r"genotypes_generation1_chromosomes/chromosome_13.txt")
+        interval_children_list = []
+        for i in range(1, num_of_children + 1):
+            file_path = f'{"child_"}{i}{".txt"}'
+            interval_list = process_child_file(file_path)
+            interval_children_list.append(interval_list)
 
+        shared_interval_list = shared_interval(interval_children_list)
+
+        create_table(shared_interval_list, r"haplotype_interval_tables")
+
+    # num_of_children_our_13 = open_and_split_children_files(r"genotypes_generation1_chromosomes/chromosome_13.txt")
+    #
     # interval_children_list = []
-    for i in range(1, num_of_children_our_13 + 1):
-        file_path = f'{"child_"}{i}{".txt"}'
-        interval_list = process_child_file(file_path)
-        # interval_children_list.append(interval_list)
-
-    num_of_children_omer_13 = open_and_split_children_files(r"HR1.ch13.phased.tsv")
-
-    # interval_children_list = []
-    for i in range(1, num_of_children_omer_13 + 1):
-        file_path = f'{"child_"}{i}{".txt"}'
-        interval_list = process_child_file(file_path)
-        # interval_children_list.append(interval_list)
+    # for i in range(1, num_of_children_our_13 + 1):
+    #     file_path = f'{"child_"}{i}{".txt"}'
+    #     interval_list = process_child_file(file_path)
+    #     interval_children_list.append(interval_list)
+    #
+    # num_of_children_omer_13 = open_and_split_children_files(r"HR1.ch13.phased.tsv")
+    #
+    # # interval_children_list = []
+    # for i in range(1, num_of_children_omer_13 + 1):
+    #     file_path = f'{"child_"}{i}{".txt"}'
+    #     interval_list = process_child_file(file_path)
+    #     interval_children_list.append(interval_list)
 
 
 if __name__ == '__main__':
