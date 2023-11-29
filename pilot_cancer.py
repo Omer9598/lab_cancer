@@ -197,6 +197,7 @@ def process_child_file(file_path):
     Process a child file and return the processed dictionary.
     """
     child_dict = create_and_filter_dictionary(file_path)
+    check = len(child_dict)
     windowed_dict = process_dict(child_dict)
     interval_list = create_intervals(windowed_dict)
     return interval_list
@@ -211,21 +212,35 @@ def main():
                          r"genotypes_generation1_chromosomes")
 
     # creating interval table for each chromosome
-    for chrom_num in range(1, 23):
-        num_of_children = open_and_split_children_files(
-            f"genotypes_generation1_chromosomes/chromosome_{chrom_num}.txt")
+    # for chrom_num in range(1, 23):
+    #     num_of_children = open_and_split_children_files(
+    #         f"genotypes_generation1_chromosomes/chromosome_{chrom_num}.txt")
+    #
+    #     interval_children_list = []
+    #     for i in range(1, num_of_children + 1):
+    #         file_path = f'{"child_"}{i}{".txt"}'
+    #         interval_list = process_child_file(file_path)
+    #         interval_children_list.append(interval_list)
+    #
+    #     shared_interval_list = shared_interval(interval_children_list)
+    #
+    #     create_table(shared_interval_list, r"haplotype_interval_tables")
 
-        # num_of_children = open_and_split_file(r"HR1.ch13.phased.tsv")
+    num_of_children_our_13 = open_and_split_children_files(r"genotypes_generation1_chromosomes/chromosome_13.txt")
 
-        interval_children_list = []
-        for i in range(1, num_of_children + 1):
-            file_path = f'{"child_"}{i}{".txt"}'
-            interval_list = process_child_file(file_path)
-            interval_children_list.append(interval_list)
+    # interval_children_list = []
+    for i in range(1, num_of_children_our_13 + 1):
+        file_path = f'{"child_"}{i}{".txt"}'
+        interval_list = process_child_file(file_path)
+        # interval_children_list.append(interval_list)
 
-        shared_interval_list = shared_interval(interval_children_list)
+    num_of_children_omer_13 = open_and_split_file(r"HR1.ch13.phased.tsv")
 
-        create_table(shared_interval_list, r"haplotype_interval_tables")
+    # interval_children_list = []
+    for i in range(1, num_of_children_omer_13 + 1):
+        file_path = f'{"child_"}{i}{".txt"}'
+        interval_list = process_child_file(file_path)
+        # interval_children_list.append(interval_list)
 
 
 if __name__ == '__main__':
