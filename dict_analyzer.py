@@ -122,16 +122,17 @@ def add_haplotype_children_reference(my_dict):
         left_side_child1, right_side_child1 = values[0].split('|')
         left_side_child2, right_side_child2 = values[1].split('|')
 
-        if left_side_child1 == left_side_child2:
+        if left_side_child1 == '1' and right_side_child1 == '1' and\
+                left_side_child2 == '0' and right_side_child2 == '0':
+            values.append(0)
+        elif (left_side_child1 == '0' and right_side_child1 == '0') and \
+             (left_side_child2 == '1' and right_side_child2 == '1'):
+            values.append(0)
+
+        elif left_side_child1 == left_side_child2:
             values.append(1)
         elif right_side_child1 == left_side_child2:
             values.append(2)
-        elif left_side_child1 == 1 and right_side_child1 == 1 and\
-                left_side_child2 == 0 and right_side_child2 == 0:
-            values.append(0)
-        elif left_side_child1 == 0 and right_side_child1 == 0 and\
-                left_side_child2 == 1 and right_side_child2 == 1:
-            values.append(0)
 
 
 def add_confidence(my_dict):
