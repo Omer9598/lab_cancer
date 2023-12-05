@@ -82,7 +82,7 @@ def create_tables_and_plots(input_file):
             interval_children_list.append(interval_list)
 
         shared_interval_list = shared_interval(interval_children_list)
-        plot_title = f'Chromosome: {chrom_num} interval plot'
+        plot_title = f'Chromosome {chrom_num} interval plot'
         plot_interval(shared_interval_list, plot_title, save_dir='interval_plots')
 
         create_table(shared_interval_list, r"haplotype_interval_tables")
