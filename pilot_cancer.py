@@ -62,9 +62,9 @@ def create_tables_and_plots(input_file):
     """
     This function will create interval table from the given family.txt file
     """
-    invert_reference_genome_haplotype(input_file, r"inverted.txt")
+    # invert_reference_genome_haplotype(input_file, r"inverted.txt")
     # preprocessing the all chromosome file
-    preprocess_file(r"inverted.txt",
+    preprocess_file(input_file,
                     r"preprocess.genotypes.generation1.txt")
     # splitting the file to separate chromosome files
     split_file_to_chromosomes(r"preprocess.genotypes.generation1.txt",
