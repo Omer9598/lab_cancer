@@ -111,6 +111,25 @@ def add_haplotype_parent_reference(my_dict):
             values.append(2)
 
 
+def add_haplotype_children_reference(my_dict):
+    """
+    This function will add the haplotype of each variant to the child_dict
+    """
+    for position, values in my_dict.items():
+        left_side_child1, right_side_child1 = values[0].split('|')
+        left_side_child2, right_side_child2 = values[1].split('|')
+
+        if left_side_child1 == left_side_child2:
+            values.append(1)
+        elif right_side_child1 == left_side_child2:
+            values.append(2)
+        elif left_side_child1 == 1 and right_side_child1 == 1 and left_side_child2 == 0 and right_side_child2 == 0:
+            values.append(0)
+        elif left_side_child1 == 0 and right_side_child1 == 0 and left_side_child2 == 1 and right_side_child2 == 1:
+            values.append(0)
+
+
+
 def add_confidence(my_dict):
     """
     This function will add the confidence value to the dict
@@ -150,8 +169,7 @@ def process_dict(data_dict, reference_type):
     if reference_type == PARENT_REFERENCE:
         add_haplotype_parent_reference(data_dict)
     if reference_type == SIBLING_REFERENCE:
-        pass
-        # todo - add_haplotype_sibling_reference
+        add_haplotype_children_reference(data_dict)
     add_confidence(data_dict)
     filtered_dict = filter_low_score(data_dict)
     return filtered_dict
