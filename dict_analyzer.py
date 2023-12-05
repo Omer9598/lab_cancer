@@ -1,6 +1,5 @@
 from itertools import islice
 
-
 WINDOW_NUM = 20
 WINDOW_ERR = 18
 PARENT_REFERENCE = "parent"
@@ -55,8 +54,10 @@ def filter_dict_sibling_reference(dictionary):
 
         result_parent = check_heterozygous(parent)
         result_child = check_homozygous(child)
-        result_sibling = (parent == '0|0' and child == '1|1') or\
-                         (child == '0|0' and parent == '1|1')
+        result_sibling = False
+        if (parent == '0|0' and child == '1|1') or\
+                (child == '0|0' and parent == '1|1'):
+            result_sibling = True
 
         if result_parent and result_child or result_sibling:
             filtered_dict[key] = value
@@ -89,7 +90,7 @@ def create_and_filter_dictionary(file_path, reference_type):
             result_dict[position] = values
     # Filter the dict according to reference type
     if reference_type == PARENT_REFERENCE:
-        return filter_dict_sibling_reference(result_dict)
+        return filter_dict_parent_reference(result_dict)
     if reference_type == SIBLING_REFERENCE:
         return filter_dict_sibling_reference(result_dict)
 
@@ -106,14 +107,16 @@ def add_haplotype_parent_reference(my_dict):
             # If left sides are equal, add 1 to the list
             values.append(1)
         elif right_side_parent == left_side_child:
-            # If the right side of the parent is equal to the left side of the
-            # child, add 2 to the list
+            # If the right side of the parent equal to the left side of child
             values.append(2)
 
 
 def add_haplotype_children_reference(my_dict):
     """
     This function will add the haplotype of each variant to the child_dict
+    Similar to add_haplotype_parent_reference, but adding a condition where
+    the 2 siblings are homozygous and with opposite haplotypes
+    (e.g 1|1 with 0|0)
     """
     for position, values in my_dict.items():
         left_side_child1, right_side_child1 = values[0].split('|')
@@ -123,11 +126,12 @@ def add_haplotype_children_reference(my_dict):
             values.append(1)
         elif right_side_child1 == left_side_child2:
             values.append(2)
-        elif left_side_child1 == 1 and right_side_child1 == 1 and left_side_child2 == 0 and right_side_child2 == 0:
+        elif left_side_child1 == 1 and right_side_child1 == 1 and\
+                left_side_child2 == 0 and right_side_child2 == 0:
             values.append(0)
-        elif left_side_child1 == 0 and right_side_child1 == 0 and left_side_child2 == 1 and right_side_child2 == 1:
+        elif left_side_child1 == 0 and right_side_child1 == 0 and\
+                left_side_child2 == 1 and right_side_child2 == 1:
             values.append(0)
-
 
 
 def add_confidence(my_dict):
