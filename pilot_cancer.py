@@ -48,17 +48,17 @@ def plot_data(child_1_dict, child_2_dict, plot_title):
     fig.show()
 
 
-def process_child_file(file_path):
+def process_child_file(file_path, reference_type):
     """
     Process a child file and return the processed dictionary.
     """
-    child_dict = create_and_filter_dictionary(file_path)
+    child_dict = create_and_filter_dictionary(file_path, reference_type)
     windowed_dict = process_dict(child_dict)
     interval_list = create_intervals(windowed_dict)
     return interval_list
 
 
-def create_tables_and_plots(input_file):
+def create_tables_and_plots(input_file, reference_type):
     """
     This function will create interval table from the given family.txt file
     """
@@ -78,7 +78,7 @@ def create_tables_and_plots(input_file):
         interval_children_list = []
         for i in range(1, num_of_children + 1):
             file_path = f'{"child_"}{i}{".txt"}'
-            interval_list = process_child_file(file_path)
+            interval_list = process_child_file(file_path, reference_type)
             interval_children_list.append(interval_list)
 
         shared_interval_list = shared_interval(interval_children_list)
@@ -97,7 +97,7 @@ def main():
     interval_children_list = []
     for i in range(1, num_of_children + 1):
         file_path = f'{"child_"}{i}{".txt"}'
-        interval_list = process_child_file(file_path)
+        interval_list = process_child_file(file_path, SIBLING_REFERENCE)
         interval_children_list.append(interval_list)
 
     shared_interval_list = shared_interval(interval_children_list)
