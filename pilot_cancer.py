@@ -53,7 +53,7 @@ def process_child_file(file_path, reference_type):
     Process a child file and return the processed dictionary.
     """
     child_dict = create_and_filter_dictionary(file_path, reference_type)
-    windowed_dict = process_dict(child_dict)
+    windowed_dict = process_dict(child_dict, reference_type)
     interval_list = create_intervals(windowed_dict)
     return interval_list
 

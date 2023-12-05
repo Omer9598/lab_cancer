@@ -59,7 +59,7 @@ def filter_dict_sibling_reference(dictionary):
                          (child == '0|0' and parent == '1|1')
 
         if result_parent and result_child or result_sibling:
-            filtered_dict[key] = (parent, child)
+            filtered_dict[key] = value
 
     return filtered_dict
 
@@ -143,11 +143,15 @@ def add_confidence(my_dict):
         values.append(count)
 
 
-def process_dict(data_dict):
+def process_dict(data_dict, reference_type):
     """
     This function will process the dicts to be plotted
     """
-    add_haplotype_parent_reference(data_dict)
+    if reference_type == PARENT_REFERENCE:
+        add_haplotype_parent_reference(data_dict)
+    if reference_type == SIBLING_REFERENCE:
+        pass
+        # todo - add_haplotype_sibling_reference
     add_confidence(data_dict)
     filtered_dict = filter_low_score(data_dict)
     return filtered_dict
