@@ -140,7 +140,7 @@ def invert_reference_genome_haplotype(input_file, output_file):
 
         for line in file:
             columns = line.strip().split('\t')
-            btn1, btn2 = columns[2], columns[3]
+            btn1, btn2 = columns[4], columns[5]
 
             # Process the reference and child genotypes
             ref_genotype = btn1.split('|')
@@ -149,10 +149,10 @@ def invert_reference_genome_haplotype(input_file, output_file):
             # Check if the conditions for inversion are met
             if ref_genotype[0] == '0' and ref_genotype[1] == '1' and child_genotype[0] == '1' and child_genotype[1] == '1':
                 # Invert the reference genotype to 1|0
-                columns[2] = '1|0'
+                columns[4] = '1|0'
             elif ref_genotype[0] == '1' and ref_genotype[1] == '0' and child_genotype[0] == '0' and child_genotype[1] == '0':
                 # Invert the reference genotype to 0|1
-                columns[2] = '0|1'
+                columns[4] = '0|1'
 
             # Append the modified or original line to inverted_lines
             inverted_lines.append('\t'.join(columns))
