@@ -62,8 +62,9 @@ def create_tables_and_plots(input_file):
     """
     This function will create interval table from the given family.txt file
     """
+    invert_reference_genome_haplotype(input_file, r"inverted.txt")
     # preprocessing the all chromosome file
-    preprocess_file(input_file,
+    preprocess_file(r"inverted.txt",
                     r"preprocess.genotypes.generation1.txt")
     # splitting the file to separate chromosome files
     split_file_to_chromosomes(r"preprocess.genotypes.generation1.txt",
@@ -81,8 +82,8 @@ def create_tables_and_plots(input_file):
             interval_children_list.append(interval_list)
 
         shared_interval_list = shared_interval(interval_children_list)
-        plot_title = f'Chromosome: {chrom_num} interval plot'
-        # plot_interval(shared_interval_list, plot_title, save_dir='interval_plots')
+        plot_title = f'Chromosome {chrom_num} interval plot'
+        plot_interval(shared_interval_list, plot_title, save_dir='interval_plots')
 
         create_table(shared_interval_list, r"haplotype_interval_tables")
 
@@ -91,8 +92,8 @@ def create_tables_and_plots(input_file):
 
 
 def main():
-    # create_tables_and_plots(r"all_chromosomes_HR1.txt")
-    invert_reference_genome_haplotype(r"child_1.txt", r"child_1_inverted.txt")
+    create_tables_and_plots(r"all_chromosomes_HR1.txt")
+    # invert_reference_genome_haplotype(r"child_1.txt", r"child_1_inverted.txt")
 
 
 if __name__ == '__main__':
