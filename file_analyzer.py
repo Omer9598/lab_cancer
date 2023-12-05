@@ -93,7 +93,7 @@ def create_table(data_list, output_directory):
     start - the starting position of the interval in the row's chromosome
     end - the ending position
     haplotype - the haplotype of the current interval
-    the .txt file will be saved in the haplotype_interval_tables
+    the .txt file will be saved in the haplotype_interval_tables_family1
     directory
     """
     # Group data by chromosome
