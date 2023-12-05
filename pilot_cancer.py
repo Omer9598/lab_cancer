@@ -83,16 +83,28 @@ def create_tables_and_plots(input_file):
 
         shared_interval_list = shared_interval(interval_children_list)
         plot_title = f'Chromosome {chrom_num} interval plot'
-        plot_interval(shared_interval_list, plot_title, save_dir='interval_plots')
+        plot_interval(shared_interval_list, plot_title, save_dir='interval_plots_family1')
 
-        create_table(shared_interval_list, r"haplotype_interval_tables")
+        create_table(shared_interval_list, r"haplotype_interval_tables_family1")
 
     # merging the tables into a single long table
-    merge_haplotype_tables(r"haplotype_interval_tables")
+    merge_haplotype_tables(r"haplotype_interval_tables_family1")
 
 
 def main():
-    create_tables_and_plots(r"all_chromosomes_HR1.txt")
+    # create_tables_and_plots(r"all_chromosomes_HR1.txt")
+    num_of_children = open_and_split_children_files(r"HR3.chr13.genotypes.txt")
+    interval_children_list = []
+    for i in range(1, num_of_children + 1):
+        file_path = f'{"child_"}{i}{".txt"}'
+        interval_list = process_child_file(file_path)
+        interval_children_list.append(interval_list)
+
+    shared_interval_list = shared_interval(interval_children_list)
+    plot_title = f'Chromosome 13 interval plot'
+    # plot_interval(shared_interval_list, plot_title, save_dir='interval_plots_family2')
+
+    create_table(shared_interval_list, r"haplotype_interval_tables_family2")
 
 
 if __name__ == '__main__':
