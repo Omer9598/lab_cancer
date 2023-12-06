@@ -58,7 +58,7 @@ def process_child_file(file_path, reference_type):
     return interval_list
 
 
-def create_tables_and_plots(input_file, reference_type):
+def create_tables_and_plots(input_file, reference_type, save_directory):
     """
     This function will create interval table from the given family.txt file
     """
@@ -83,7 +83,7 @@ def create_tables_and_plots(input_file, reference_type):
 
         shared_interval_list = shared_interval(interval_children_list)
         plot_title = f'Chromosome {chrom_num} interval plot'
-        plot_interval(shared_interval_list, plot_title, save_dir='interval_plots_family1')
+        plot_interval(shared_interval_list, plot_title, save_dir=save_directory)
 
         create_table(shared_interval_list, r"haplotype_interval_tables_family1")
 
@@ -93,18 +93,20 @@ def create_tables_and_plots(input_file, reference_type):
 
 def main():
     # create_tables_and_plots(r"all_chromosomes_HR1.txt")
-    num_of_children = open_and_split_children_files(r"HR3.chr13.genotypes.txt")
-    interval_children_list = []
-    for i in range(1, num_of_children + 1):
-        file_path = f'{"child_"}{i}{".txt"}'
-        interval_list = process_child_file(file_path, SIBLING_REFERENCE)
-        interval_children_list.append(interval_list)
+    # num_of_children = open_and_split_children_files(r"HR3.chr13.genotypes.txt")
+    # interval_children_list = []
+    # for i in range(1, num_of_children + 1):
+    #     file_path = f'{"child_"}{i}{".txt"}'
+    #     interval_list = process_child_file(file_path, SIBLING_REFERENCE)
+    #     interval_children_list.append(interval_list)
+    #
+    # shared_interval_list = shared_interval(interval_children_list)
+    # plot_title = f'Chromosome 13 interval plot'
+    # # plot_interval(shared_interval_list, plot_title, save_dir='interval_plots_family2')
+    #
+    # create_table(shared_interval_list, r"haplotype_interval_tables_family2")
 
-    shared_interval_list = shared_interval(interval_children_list)
-    plot_title = f'Chromosome 13 interval plot'
-    # plot_interval(shared_interval_list, plot_title, save_dir='interval_plots_family2')
-
-    create_table(shared_interval_list, r"haplotype_interval_tables_family2")
+    preprocess_file('HR3.genotypes.tab', 'HR3.genotypes.tab')
 
 
 if __name__ == '__main__':
