@@ -2,7 +2,7 @@ import os
 import pandas as pd
 
 
-def preprocess_file(input_file_path, output_file_path):
+def preprocess_file(input_file_path, output_directory):
     """
     This function will preprocess the file given:
     Changing "./." to 0/0, or "./1" to 0/1 etc, and save the result in a new
@@ -47,9 +47,17 @@ def preprocess_file(input_file_path, output_file_path):
         # Join the processed lines into a string
         result = '\n'.join(processed_lines)
 
+        # Create the output file path in the specified output directory
+        input_file_name = os.path.basename(input_file_path)
+        output_file_name = "processed_" + input_file_name
+        output_file_path = os.path.join(output_directory, output_file_name)
+
         # Write the processed data to the output file
         with open(output_file_path, 'w') as output_file:
             output_file.write(result)
+
+        # Return the output file path
+        return output_file_path
 
 
 def merge_haplotype_tables(input_directory):
@@ -102,7 +110,7 @@ def create_table(data_list, output_directory):
     start - the starting position of the interval in the row's chromosome
     end - the ending position
     haplotype - the haplotype of the current interval
-    the .txt file will be saved in the haplotype_interval_tables_family1
+    the .txt file will be saved in the interval_tables
     directory
     """
     # Group data by chromosome
@@ -130,7 +138,7 @@ def create_table(data_list, output_directory):
                            f"{entry['end']}\t{entry['haplotype']}\n")
 
 
-def invert_reference_genome_haplotype(input_file, output_file):
+def invert_reference_genome_haplotype(input_file, output_directory):
     """
     This function will create a new file from the file given, that will contain
     the inverted variants (if needed) of the reference genotype
@@ -143,6 +151,7 @@ def invert_reference_genome_haplotype(input_file, output_file):
     1)
     """
     inverted_lines = []
+
     with open(input_file, 'r') as file:
         header = file.readline().strip()
         inverted_lines.append(header)
@@ -156,19 +165,27 @@ def invert_reference_genome_haplotype(input_file, output_file):
             child_genotype = btn2.split('|')
 
             # Check if the conditions for inversion are met
-            if ref_genotype[0] == '0' and ref_genotype[1] == '1' and child_genotype[0] == '1' and child_genotype[1] == '1':
+            if ref_genotype[0] == '0' and ref_genotype[1] == '1' and\
+                    child_genotype[0] == '1' and child_genotype[1] == '1':
                 # Invert the reference genotype to 1|0
                 columns[4] = '1|0'
-            elif ref_genotype[0] == '1' and ref_genotype[1] == '0' and child_genotype[0] == '0' and child_genotype[1] == '0':
+            elif ref_genotype[0] == '1' and ref_genotype[1] == '0' and\
+                    child_genotype[0] == '0' and child_genotype[1] == '0':
                 # Invert the reference genotype to 0|1
                 columns[4] = '0|1'
 
             # Append the modified or original line to inverted_lines
             inverted_lines.append('\t'.join(columns))
 
+    # Create the output file path in the specified output directory
+    output_file_name = "inverted_" + os.path.basename(input_file)
+    output_file_path = os.path.join(output_directory, output_file_name)
+
     # Write the inverted lines to the output file
-    with open(output_file, 'w') as output_file:
+    with open(output_file_path, 'w') as output_file:
         output_file.write('\n'.join(inverted_lines))
+
+    return output_file_path
 
 
 def open_and_split_children_files(file_path):

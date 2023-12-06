@@ -1,6 +1,6 @@
-from interval_analyze import *
-from dict_analyzer import *
-from file_analyzer import *
+from code_files.interval_analyze import *
+from code_files.dict_analyzer import *
+from code_files.file_analyzer import *
 
 
 def plot_data(child_1_dict, child_2_dict, plot_title):
@@ -58,22 +58,26 @@ def process_child_file(file_path, reference_type):
     return interval_list
 
 
-def create_tables_and_plots(input_file, reference_type, save_directory):
+def create_tables_and_plots(input_file, reference_type, save_directory, invert):
     """
     This function will create interval table from the given family.txt file
     """
-    invert_reference_genome_haplotype(input_file, r"generation1_inverted.txt")
-    # preprocessing the all chromosome file
-    preprocess_file(r"inverted.txt",
-                    r"preprocess.genotypes.generation1.txt")
+    if invert:
+        file_to_split = invert_reference_genome_haplotype(input_file,
+                                                          save_directory)
+        path_to_save_interval_table = save_directory + "/inverted_interval_tables"
+    else:
+        file_to_split = input_file
+        path_to_save_interval_table = save_directory + "/interval_tables"
+
     # splitting the file to separate chromosome files
-    split_file_to_chromosomes(r"preprocess.genotypes.generation1.txt",
-                              r"genotypes_generation1_chromosomes")
+    split_file_to_chromosomes(file_to_split,
+                              save_directory + "/chromosomes")
 
     # creating interval table for each chromosome
     for chrom_num in range(1, 23):
         num_of_children = open_and_split_children_files \
-            (f"genotypes_generation1_chromosomes/chromosome_{chrom_num}.txt")
+            (save_directory + f"/chromosomes/chromosome_{chrom_num}.txt")
 
         interval_children_list = []
         for i in range(1, num_of_children + 1):
@@ -82,18 +86,25 @@ def create_tables_and_plots(input_file, reference_type, save_directory):
             interval_children_list.append(interval_list)
 
         shared_interval_list = shared_interval(interval_children_list)
-        plot_title = f'Chromosome {chrom_num} interval plot'
-        plot_interval(shared_interval_list, plot_title, save_dir=save_directory)
+        # plot_title = f'Chromosome {chrom_num} interval plot'
+        # plot_interval(shared_interval_list, plot_title,
+        #               save_dir=save_directory + "/interval_plots")
 
-        create_table(shared_interval_list, r"haplotype_interval_tables_family1")
+        create_table(shared_interval_list, path_to_save_interval_table)
 
-    # merging the tables into a single long table
-    merge_haplotype_tables(r"haplotype_interval_tables_family1")
+    merge_haplotype_tables(path_to_save_interval_table)
 
 
 def main():
-    # create_tables_and_plots(r"all_chromosomes_HR1.txt")
-    # num_of_children = open_and_split_children_files(r"HR3.chr13.genotypes.txt")
+    # Analyzing family1 - call the function after preprocess
+    create_tables_and_plots(r"data_files/preprocess.genotypes.generation1.txt",
+                            PARENT_REFERENCE, r"family1", False)
+
+    # Analyzing family2 - after
+    # create_tables_and_plots()
+
+
+    # num_of_children = open_and_split_children_files(r"../HR3.chr13.genotypes.txt")
     # interval_children_list = []
     # for i in range(1, num_of_children + 1):
     #     file_path = f'{"child_"}{i}{".txt"}'
@@ -102,11 +113,12 @@ def main():
     #
     # shared_interval_list = shared_interval(interval_children_list)
     # plot_title = f'Chromosome 13 interval plot'
-    # # plot_interval(shared_interval_list, plot_title, save_dir='interval_plots_family2')
+    # plot_interval(shared_interval_list, plot_title,
+    #               save_dir='../interval_plots_family2')
     #
     # create_table(shared_interval_list, r"haplotype_interval_tables_family2")
 
-    preprocess_file('HR3.genotypes.tab', 'HR3.genotypes.tab')
+    # preprocess_file('HR3.genotypes.tab', 'HR3.genotypes.tab')
 
 
 if __name__ == '__main__':
