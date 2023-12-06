@@ -66,9 +66,11 @@ def create_tables_and_plots(input_file, reference_type, save_directory, invert):
         file_to_split = invert_reference_genome_haplotype(input_file,
                                                           save_directory)
         path_to_save_interval_table = save_directory + "/inverted_interval_tables"
+        path_to_save_interval_plots = save_directory + "/inverted_interval_plots"
     else:
         file_to_split = input_file
         path_to_save_interval_table = save_directory + "/interval_tables"
+        path_to_save_interval_plots = save_directory + "/interval_plots"
 
     # splitting the file to separate chromosome files
     split_file_to_chromosomes(file_to_split,
@@ -87,8 +89,7 @@ def create_tables_and_plots(input_file, reference_type, save_directory, invert):
 
         shared_interval_list = shared_interval(interval_children_list)
         plot_title = f'Chromosome {chrom_num} interval plot'
-        plot_interval(shared_interval_list, plot_title,
-                      save_dir=save_directory + "/interval_plots")
+        plot_interval(shared_interval_list, plot_title, save_dir=path_to_save_interval_plots)
 
         create_table(shared_interval_list, path_to_save_interval_table)
 
@@ -116,7 +117,7 @@ def main():
     shared_interval_list = shared_interval(interval_children_list)
     create_table(shared_interval_list, r"family2/inverted_interval_tables")
 
-    plot_title = f'Chromosome 13 interval plot'
+    plot_title = f'Chromosome 22 interval plot'
     plot_interval(shared_interval_list, plot_title,
                   save_dir="family2/interval_plots")
 
