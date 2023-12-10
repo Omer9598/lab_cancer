@@ -1,8 +1,10 @@
 In this file we will explain what we did in the lab so far and
 the difficulties on the way
 
+
 Main goal:
 filter non-relevant variants in cancer patients DNA sequencing
+
 
 Approach:
 comparing the haplotype inheritance in different families.
@@ -19,6 +21,7 @@ common haplotype inheritance - where in the example above, this area (in chromos
 mentioned), is from positions:
 15M-30M for haplotype 1
 35M-end of chromosome for haplotype 2.
+
 
 Problems & Solutions:
 

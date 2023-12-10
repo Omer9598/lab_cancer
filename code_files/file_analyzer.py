@@ -5,7 +5,7 @@ import pandas as pd
 def preprocess_file(input_file_path, output_directory):
     """
     This function will preprocess the file given:
-    Changing "./." to 0/0, or "./1" to 0/1 etc, and save the result in a new
+    Changing "./." to 0/0, or "./1" to 0/1 etc. and save the result in a new
     file.
     """
     # Read the input file and process each line
@@ -60,7 +60,7 @@ def preprocess_file(input_file_path, output_directory):
         return output_file_path
 
 
-def merge_haplotype_tables(input_directory):
+def merge_haplotype_tables(input_directory, cancer_genes_dict):
     """
     This function will merge all the tables given in the input_directory
     The format will be as follows:
@@ -74,7 +74,6 @@ def merge_haplotype_tables(input_directory):
     for chrom_num in range(1, 23):
         # Read each haplotype interval table file
         file_path = f"{input_directory}/haplotype_interval_table_{chrom_num}.txt"
-
         try:
             with open(file_path, 'r') as file:
                 # Skip the header line
@@ -89,7 +88,6 @@ def merge_haplotype_tables(input_directory):
                     merged_intervals.append(columns)
         except FileNotFoundError:
             print(f"File not found: {file_path}")
-
     # Write the merged intervals to a new file in the input directory
     output_path = f"{input_directory}/merged_haplotype_intervals.txt"
     with open(output_path, 'w') as output_file:
@@ -99,6 +97,11 @@ def merge_haplotype_tables(input_directory):
         # Write each merged interval to the output file
         for interval in merged_intervals:
             output_file.write('\t'.join(interval) + '\n')
+
+        # Add common cancer genes information
+        output_file.write("\nCommon cancer genes in shared intervals: \n")
+        for variant_name, variant_info in cancer_genes_dict.items():
+            output_file.write(f"{variant_name} - {variant_info[3]}\n")
 
 
 def create_table(data_list, output_directory):
@@ -236,7 +239,7 @@ def open_and_split_children_files(file_path):
 def split_file_to_chromosomes(input_file, output_directory):
     """
     This function will split the input_file to different files, according to the
-    number of chromosomes (e.g 23 chromosomes in the input file)
+    number of chromosomes (e.g. 23 chromosomes in the input file)
     The files the function creates will be placed in the output_directory
     """
     # Read the input file into a df, specifying datatype for 'CHROM' as str

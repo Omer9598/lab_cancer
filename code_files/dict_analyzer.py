@@ -95,6 +95,61 @@ def create_and_filter_dictionary(file_path, reference_type):
         return filter_dict_sibling_reference(result_dict)
 
 
+def create_common_cancer_genes_dict(file_path):
+    """
+    This function will create the mentioned dict in the following format:
+    variant name (key): [chromosome, start position, end position] (value)
+    All the variants will be initiated with False, and updated when
+    running update_cancer_variant_dict function
+    """
+    common_genes_dict = dict()
+
+    with open(file_path, 'r') as file:
+        for line in file:
+            # Split the columns in the file
+            columns = line.strip().split('\t')
+
+            chromosome = columns[0]
+            start_pos = int(columns[1])
+            end_pos = int(columns[2])
+            variant_name = columns[3]
+
+            # Adding the variant to the dict
+            common_genes_dict[variant_name] = [chromosome, start_pos,
+                                               end_pos, False]
+
+    return common_genes_dict
+
+
+def update_cancer_variant_dict(shared_interval_list, variants_dict):
+    """
+    This function will update the dict that contains known genes related
+    to cancer.
+    If one of the genes is in one of the common intervals of the patients
+    in a family given, it will update the gene to True in value[3]
+    """
+    for variant_name, variant_info in variants_dict.items():
+        chromosome, variant_start_position, variant_end_position, is_in_common_interval\
+            = variant_info
+
+        # Skip irrelevant chromosomes- all intervals have the same chromosome
+        cur_chromosome = int(shared_interval_list[0]['chromosome'])
+        if cur_chromosome in [1, range(3, 11), 12, 14, 15, range(18, 22)]:
+            break
+
+        # Check if the variant is in any common interval
+        is_in_common_interval = any(
+            interval['chromosome'] == chromosome and
+            interval['start'] <= variant_start_position <= variant_end_position
+            <= interval['end']
+            for interval in shared_interval_list
+        )
+
+        # Update the boolean value in the variant_info
+        variants_dict[variant_name] = [chromosome, variant_start_position,
+                                       variant_end_position, is_in_common_interval]
+
+
 def add_haplotype_parent_reference(my_dict):
     """
     This function will add the haplotype of each variant to the child_dict

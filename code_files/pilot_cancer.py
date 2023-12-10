@@ -62,6 +62,10 @@ def create_tables_and_plots(input_file, reference_type, save_directory, invert):
     """
     This function will create interval table from the given family.txt file
     """
+    # Creating the common cancer variants dict
+    common_cancer_variants_dict = (
+        create_common_cancer_genes_dict(r"data_files/BROCA.genes.tsv"))
+
     if invert:
         file_to_split = invert_reference_genome_haplotype(input_file,
                                                           save_directory)
@@ -93,34 +97,44 @@ def create_tables_and_plots(input_file, reference_type, save_directory, invert):
 
         create_table(shared_interval_list, path_to_save_interval_table)
 
-    merge_haplotype_tables(path_to_save_interval_table)
+        update_cancer_variant_dict(shared_interval_list,
+                                   common_cancer_variants_dict)
+
+    merge_haplotype_tables(path_to_save_interval_table, common_cancer_variants_dict)
 
 
 def main():
     # Analyzing family1 - call the function after preprocess
-    # create_tables_and_plots(r"data_files/preprocess.genotypes.generation1.txt",
-    #                         PARENT_REFERENCE, r"family1", False)
+    create_tables_and_plots(r"data_files/preprocess.genotypes.generation1.txt",
+                            PARENT_REFERENCE, r"family1", False)
 
     # Analyzing family2 - after preprocess
-    # create_tables_and_plots(r"data_files/HR3.genotypes.tab", SIBLING_REFERENCE,
-    #                         "family2", True)
-
-    # running on a single chromosome - 22
-    num_of_children = open_and_split_children_files(r"family2/chromosomes/chromosome_22.txt")
-
-    interval_children_list = []
-    for i in range(1, num_of_children + 1):
-        file_path = f'{"child_"}{i}{".txt"}'
-        interval_list = process_child_file(file_path, SIBLING_REFERENCE)
-        interval_children_list.append(interval_list)
-
-    shared_interval_list = shared_interval(interval_children_list)
-    create_table(shared_interval_list, r"family2/inverted_interval_tables")
-
-    plot_title = f'Chromosome 22 interval plot'
-    plot_interval(shared_interval_list, plot_title,
-                  save_dir="family2/interval_plots")
+    create_tables_and_plots(r"data_files/HR3.genotypes.tab", SIBLING_REFERENCE,
+                            "family2", True)
 
 
 if __name__ == '__main__':
     main()
+
+# shared_interval_list = [
+#     {'chromosome': '2', 'start': 215590369, 'end': 3000000000000},  # True
+#     {'chromosome': '17', 'start': 59756546, 'end': 8000000000000},  # False
+#     {'chromosome': '11', 'start': 108093558, 'end': 108239826},  # True
+#     {'chromosome': '13', 'start': 32889616, 'end': 32973808}  # False
+# ]
+
+    # # running on a single chromosome - 22
+    # num_of_children = open_and_split_children_files(r"family2/chromosomes/chromosome_22.txt")
+    #
+    # interval_children_list = []
+    # for i in range(1, num_of_children + 1):
+    #     file_path = f'{"child_"}{i}{".txt"}'
+    #     interval_list = process_child_file(file_path, SIBLING_REFERENCE)
+    #     interval_children_list.append(interval_list)
+    #
+    # shared_interval_list = shared_interval(interval_children_list)
+    # create_table(shared_interval_list, r"family2/inverted_interval_tables")
+    #
+    # plot_title = f'Chromosome 22 interval plot'
+    # plot_interval(shared_interval_list, plot_title,
+    #               save_dir="family2/interval_plots")
