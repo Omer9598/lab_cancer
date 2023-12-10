@@ -1,0 +1,38 @@
+In this file we will explain what we did in the lab so far and
+the difficulties on the way
+
+Main goal:
+filter non-relevant variants in cancer patients DNA sequencing
+
+Approach:
+comparing the haplotype inheritance in different families.
+This way, we will only consider the variants in the areas where all the siblings/ children
+have the same haplotype.
+For example, say we have 3 cancer patients - a mother and her 2 children.
+For simplicity, we will focus on chromosome 13 (chosen arbitrary).
+Now, say that child 1 inherited haplotype 1 from position 1 to 30M in chromosome 13,
+and inherited haplotype 2 from position 30M to the end of the chromosome (due to recombination)
+In addition, child 2 inherited haplotype 2 from position 1 to 15M, and from position 35M to the
+end of the chromosome, and inherited haplotype 1 from position 15M to 35M.
+We want to create an algorithm that filters the chromosomes such that it will show us the
+common haplotype inheritance - where in the example above, this area (in chromosome 13 as
+mentioned), is from positions:
+15M-30M for haplotype 1
+35M-end of chromosome for haplotype 2.
+
+Problems & Solutions:
+
+Problem - the information regarding the haplotype inheritance can be mixed - the haplotype order
+can be inverted in the given file, although in reality the haplotype shouldn't be inverted (there
+was no recombination).
+Solution - taking one of the patients, and assuming that the reference patient inherited one of
+the haplotypes (in our case - haplotype 1). Afterward, inverting the reference patient's
+information on haplotypes, such that it will be seen as the reference actually inherited only
+haplotype 1 to one of the patients in his family. Then, we find the haplotype inheritance of all
+the other cancer patients in the family, and compare the results.
+What we will see - only the parts of the chromosome (haplotypes) that all the patients share.
+
+Problem - the sequenced patients in some families are siblings and not mother-children, we don't
+have a reference genome to compare haplotypes.
+Solution - picking one of the siblings arbitrary as reference. In addition, we can change the
+referenced sibling if needed.
