@@ -2,7 +2,7 @@ In this file we will explain what we did in the lab so far and
 the difficulties on the way
 
 
-Main goal:
+Main Goal
 filter non-relevant variants in cancer patients DNA sequencing
 
 
@@ -23,7 +23,19 @@ mentioned), is from positions:
 35M-end of chromosome for haplotype 2.
 
 
-Problems & Solutions:
+The Algorithm
+
+After given a processed family file, the algorithm will split it to each of the chromosomes, and
+analyze each of them separately, as mentioned above.
+it will create directories containing the output data:
+chromosomes - 23 files of the different chromosomes
+haplotype_interval_tables - tables of all the chromosomes, and a merged excell file. The tables
+and the file contain the information about the common haplotype locations in the non-reference
+patients (children\ siblings).
+interval_plots - plotted interval tables, a plot for each chromosome.
+
+
+Problems & Solutions
 
 Problem - the information regarding the haplotype inheritance can be mixed - the haplotype order
 can be inverted in the given file, although in reality the haplotype shouldn't be inverted (there
