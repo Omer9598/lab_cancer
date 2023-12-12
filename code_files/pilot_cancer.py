@@ -67,6 +67,7 @@ def create_tables_and_plots(input_file, reference_type, save_directory, invert):
         create_common_cancer_genes_dict(r"data_files/BROCA.genes.tsv"))
 
     if invert:
+        # Inverting the file and saving the new path
         file_to_split = invert_reference_genome_haplotype(input_file,
                                                           save_directory)
         path_to_save_interval_table = save_directory + "/inverted_interval_tables"
@@ -76,7 +77,7 @@ def create_tables_and_plots(input_file, reference_type, save_directory, invert):
         path_to_save_interval_table = save_directory + "/interval_tables"
         path_to_save_interval_plots = save_directory + "/interval_plots"
 
-    # splitting the file to separate chromosome files
+    # Splitting the file to separate chromosome files
     split_file_to_chromosomes(file_to_split,
                               save_directory + "/chromosomes")
 
@@ -108,9 +109,9 @@ def main():
     create_tables_and_plots(r"data_files/preprocess.genotypes.generation1.txt",
                             PARENT_REFERENCE, r"family1", False)
 
-    # Analyzing family2 - after preprocess
-    create_tables_and_plots(r"data_files/HR3.genotypes.tab", SIBLING_REFERENCE,
-                            "family2", True)
+    # # Analyzing family2 - after preprocess
+    # create_tables_and_plots(r"data_files/HR3.genotypes.tab", SIBLING_REFERENCE,
+    #                         "family2", True)
 
 
 if __name__ == '__main__':

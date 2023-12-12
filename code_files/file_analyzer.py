@@ -248,6 +248,9 @@ def split_file_to_chromosomes(input_file, output_directory):
     # Group the DataFrame by the 'CHROM' column
     grouped = df.groupby('CHROM')
 
+    # Create the output directory if it doesn't exist
+    os.makedirs(output_directory, exist_ok=True)
+
     # Iterate through each group and write to separate files
     for chrom, group in grouped:
         # Define the output file path for each chromosome
