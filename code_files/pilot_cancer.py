@@ -93,11 +93,10 @@ def create_tables_and_plots(input_file, reference_type, save_directory, invert):
             interval_children_list.append(interval_list)
 
         shared_interval_list = shared_interval(interval_children_list)
-        plot_title = f'Chromosome {chrom_num} interval plot'
-        plot_interval(shared_interval_list, plot_title, save_dir=path_to_save_interval_plots)
+        # plot_title = f'Chromosome {chrom_num} interval plot'
+        # plot_interval(shared_interval_list, plot_title, save_dir=path_to_save_interval_plots)
 
         create_table(shared_interval_list, path_to_save_interval_table)
-
         update_cancer_variant_dict(shared_interval_list,
                                    common_cancer_variants_dict)
 
@@ -107,7 +106,7 @@ def create_tables_and_plots(input_file, reference_type, save_directory, invert):
 def main():
     # Analyzing family1 - call the function after preprocess
     create_tables_and_plots(r"data_files/preprocess.genotypes.generation1.txt",
-                            PARENT_REFERENCE, r"family1", False)
+                            PARENT_REFERENCE, r"family1", True)
 
     # # Analyzing family2 - after preprocess
     # create_tables_and_plots(r"data_files/HR3.genotypes.tab", SIBLING_REFERENCE,

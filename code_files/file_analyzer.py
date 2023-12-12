@@ -116,6 +116,9 @@ def create_table(data_list, output_directory):
     the .txt file will be saved in the interval_tables
     directory
     """
+    # Create the output directory if it doesn't exist
+    os.makedirs(output_directory, exist_ok=True)
+
     # Group data by chromosome
     grouped_data = {}
     for entry in data_list:
@@ -179,6 +182,9 @@ def invert_reference_genome_haplotype(input_file, output_directory):
 
             # Append the modified or original line to inverted_lines
             inverted_lines.append('\t'.join(columns))
+
+    # Create the output directory if it doesn't exist
+    os.makedirs(output_directory, exist_ok=True)
 
     # Create the output file path in the specified output directory
     output_file_name = "inverted_" + os.path.basename(input_file)
