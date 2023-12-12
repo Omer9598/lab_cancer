@@ -69,7 +69,6 @@ def merge_haplotype_tables(input_directory, cancer_genes_dict):
     """
     # Initialize a list to store the merged intervals
     merged_intervals = []
-
     # Loop through chromosomes 1 to 22
     for chrom_num in range(1, 23):
         # Read each haplotype interval table file
@@ -78,16 +77,15 @@ def merge_haplotype_tables(input_directory, cancer_genes_dict):
             with open(file_path, 'r') as file:
                 # Skip the header line
                 next(file)
-
                 # Process each line in the file
                 for line in file:
                     # Split the line into columns
                     columns = line.strip().split()
-
                     # Append the columns to the merged intervals list
                     merged_intervals.append(columns)
         except FileNotFoundError:
             print(f"File not found: {file_path}")
+
     # Write the merged intervals to a new file in the input directory
     output_path = f"{input_directory}/merged_haplotype_intervals.txt"
     with open(output_path, 'w') as output_file:
@@ -102,6 +100,10 @@ def merge_haplotype_tables(input_directory, cancer_genes_dict):
         output_file.write("\nCommon cancer genes in shared intervals: \n")
         for variant_name, variant_info in cancer_genes_dict.items():
             output_file.write(f"{variant_name} - {variant_info[3]}\n")
+
+    # Convert the txt output file to excel
+    output_path_excel = f"{input_directory}/_haplotype_interval_Excel.xlsx"
+    convert_txt_to_excel(output_path, output_path_excel)
 
 
 def create_table(data_list, output_directory):
@@ -264,3 +266,11 @@ def split_file_to_chromosomes(input_file, output_directory):
 
         # Write the group to the output file
         group.to_csv(output_file, sep='\t', index=False)
+
+
+def convert_txt_to_excel(input_file, output_excel):
+    # Read the text file into a DataFrame
+    df = pd.read_csv(input_file, sep='\t')  # Adjust the separator if needed
+
+    # Write the DataFrame to an Excel file
+    df.to_excel(output_excel, index=False)
