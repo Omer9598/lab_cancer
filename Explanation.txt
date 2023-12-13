@@ -42,6 +42,22 @@ inheritance type (the numbers 1 or 2) of the next 19 variants. Only if 19 (out o
 more variants are classified the same as the current variant, the variant won't be filtered out.
 
 
+Intervals & Inverted Intervals
+
+After all the filters applied, we wanted to create plots and tables that depict the common
+haplotype inheritance in all the non-reference patients.
+First, we start with "regular" intervals - we created interval tables and plots for each of
+the chromosomes.
+An interval is created as follows:
+1. Find the first variant's position where all the non-reference patients have the same haplotype
+(1 or 2), this position will be the start of a new interval. Afterward, move to the following
+variants until the opposing haplotype is seen in one of the patients (E.G start with 1 and
+encounter 2). The end of the current interval will be the position of the previous variant.
+Second, we created "inverted" intervals - the process is the same as explained above, but in
+this case we first inverted the reference haplotype data, as explained in Problems & solutions
+section. In this case, all the intervals will be classified as haplotype 1 (arbitrary).
+
+
 The Algorithm
 
 After given a processed family file, the algorithm will split it to each of the chromosomes, and
