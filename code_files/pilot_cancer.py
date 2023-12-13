@@ -103,13 +103,22 @@ def create_tables_and_plots(input_file, reference_type, save_directory, invert):
 
 
 def main():
-    # Analyzing family1 - call the function after preprocess
-    create_tables_and_plots(r"data_files/preprocess.genotypes.generation1.txt",
-                            PARENT_REFERENCE, r"family1", True)
+    # # Analyzing family1 - call the function after preprocess
+    # create_tables_and_plots(r"data_files/preprocess.genotypes.generation1.txt",
+    #                         PARENT_REFERENCE, r"family1", True)
+    #
+    # # Analyzing family2 - after preprocess
+    # create_tables_and_plots(r"data_files/HR3.genotypes.tab", SIBLING_REFERENCE,
+    #                         "family2", True)
 
-    # Analyzing family2 - after preprocess
-    create_tables_and_plots(r"data_files/HR3.genotypes.tab", SIBLING_REFERENCE,
-                            "family2", True)
+    # analyzing chromosome 13 only
+    num_of_children = open_and_split_children_files("data_files/HR7.chr13.genotypes.tab")
+
+    interval_children_list = []
+    for i in range(1, num_of_children + 1):
+        file_path = f'{"child_"}{i}{".txt"}'
+        interval_list = process_child_file(file_path, SIBLING_REFERENCE)
+        interval_children_list.append(interval_list)
 
 
 if __name__ == '__main__':

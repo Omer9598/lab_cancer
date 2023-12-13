@@ -7,6 +7,7 @@ filter non-relevant variants in cancer patients DNA sequencing
 
 
 Approach:
+
 comparing the haplotype inheritance in different families.
 This way, we will only consider the variants in the areas where all the siblings/ children
 have the same haplotype.
@@ -21,6 +22,18 @@ common haplotype inheritance - where in the example above, this area (in chromos
 mentioned), is from positions:
 15M-30M for haplotype 1
 35M-end of chromosome for haplotype 2.
+
+
+Filtering Process & Example
+
+The data given is DNA sequencing of cancer patients, which consists only from variants -
+each row depicts information on a single variant, including the haplotype information for
+each variant.
+The haplotype information is in the following format:
+1|0, 0|1, 1|1, 0|0 where 1|0 depicts heterozygous variant and 1|1 depicts homozygous variant.
+the first filter
+We filtered according to the haplotype data given.
+The data contains a row for each variant
 
 
 The Algorithm
