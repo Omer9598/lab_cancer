@@ -120,6 +120,12 @@ def main():
         interval_list = process_child_file(file_path, SIBLING_REFERENCE)
         interval_children_list.append(interval_list)
 
+    shared_interval_list = shared_interval(interval_children_list)
+    plot_title = f'Chromosome {13} interval plot'
+    plot_interval(shared_interval_list, plot_title, save_dir="family3")
+
+    create_table(shared_interval_list, "family3")
+
 
 if __name__ == '__main__':
     main()
