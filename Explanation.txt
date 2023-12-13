@@ -31,9 +31,15 @@ each row depicts information on a single variant, including the haplotype inform
 each variant.
 The haplotype information is in the following format:
 1|0, 0|1, 1|1, 0|0 where 1|0 depicts heterozygous variant and 1|1 depicts homozygous variant.
-the first filter
-We filtered according to the haplotype data given.
-The data contains a row for each variant
+The first filter - delete all the rows that the reference is homozygous (1|1 or 0|0), and
+the non-reference are heterozygous.
+This way we can determine which haplotype inherited, for example:
+reference - 1|0 non-reference - 1|1, in this case the inheritance type is 1 (arbitrary number
+to indicate that the reference inherited its left haplotype).
+reference - 1|0 non-reference - 0|0, the inheritance type is 2.
+The second filter deals with sequencing errors - for each variant, we check the haplotype
+inheritance type (the numbers 1 or 2) of the next 19 variants. Only if 19 (out of 20) or
+more variants are classified the same as the current variant, the variant won't be filtered out.
 
 
 The Algorithm
