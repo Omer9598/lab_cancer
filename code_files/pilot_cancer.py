@@ -110,10 +110,9 @@ def single_chromosome_process(input_path, reference_type,
     update_cancer_variant_dict(shared_interval_list,
                                create_common_cancer_genes_dict(r"data_files/BROCA.genes.tsv"))
 
-    # todo - delete the comment when finish
     plot_title = f'chromosome {chromosome_number} interval plot'
-    # plot_interval(shared_interval_list, plot_title,
-    #               save_dir=output_directory_plots)
+    plot_interval(shared_interval_list, plot_title,
+                  save_dir=output_directory_plots)
 
 
 def main():
