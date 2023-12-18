@@ -1,6 +1,7 @@
 from code_files.interval_analyze import *
 from code_files.dict_analyzer import *
 from code_files.file_analyzer import *
+import sys
 
 
 def plot_data(child_1_dict, child_2_dict, plot_title):
@@ -103,28 +104,19 @@ def create_tables_and_plots(input_file, reference_type, save_directory, invert):
 
 
 def main():
-    # # Analyzing family1 - call the function after preprocess
-    # create_tables_and_plots(r"data_files/preprocess.genotypes.generation1.txt",
-    #                         PARENT_REFERENCE, r"family1", True)
-    #
-    # # Analyzing family2 - after preprocess
-    # create_tables_and_plots(r"data_files/HR3.genotypes.tab", SIBLING_REFERENCE,
-    #                         "family2", True)
+    # Check valid input
+    if len(sys.argv) != 5:
+        print("Usage: python script_name.py input_file"
+              " parent_reference output_directory inverted_or_not")
+        sys.exit(1)
 
-    # analyzing chromosome 13 only
-    num_of_children = open_and_split_children_files("data_files/HR7.chr13.genotypes.tab")
+    input_file = sys.argv[1]
+    parent_reference = sys.argv[2]
+    output_directory = sys.argv[3]
+    inverted = sys.argv[4]
 
-    interval_children_list = []
-    for i in range(1, num_of_children + 1):
-        file_path = f'{"child_"}{i}{".txt"}'
-        interval_list = process_child_file(file_path, SIBLING_REFERENCE)
-        interval_children_list.append(interval_list)
-
-    shared_interval_list = shared_interval(interval_children_list)
-    # plot_title = f'Chromosome {13} interval plot'
-    # plot_interval(shared_interval_list, plot_title, save_dir="family3")
-
-    create_table(shared_interval_list, "family3")
+    # Running the code on the given arguments
+    create_tables_and_plots(input_file, parent_reference, output_directory, inverted)
 
 
 if __name__ == '__main__':
@@ -152,3 +144,27 @@ if __name__ == '__main__':
 # plot_title = f'Chromosome 22 interval plot'
 # plot_interval(shared_interval_list, plot_title,
 #               save_dir="family2/interval_plots")
+
+
+    # # analyzing chromosome 13 only
+    # num_of_children = open_and_split_children_files("data_files/HR7.chr13.genotypes.tab")
+    #
+    # interval_children_list = []
+    # for i in range(1, num_of_children + 1):
+    #     file_path = f'{"child_"}{i}{".txt"}'
+    #     interval_list = process_child_file(file_path, SIBLING_REFERENCE)
+    #     interval_children_list.append(interval_list)
+    #
+    # shared_interval_list = shared_interval(interval_children_list)
+    # # plot_title = f'Chromosome {13} interval plot'
+    # # plot_interval(shared_interval_list, plot_title, save_dir="family3")
+    #
+    # create_table(shared_interval_list, "family3")
+
+    # # Analyzing family1 - call the function after preprocess
+    # create_tables_and_plots(r"data_files/preprocess.genotypes.generation1.txt",
+    #                         PARENT_REFERENCE, r"family1", True)
+
+    # # Analyzing family2 - after preprocess
+    # create_tables_and_plots(r"data_files/HR3.genotypes.tab", SIBLING_REFERENCE,
+    #                         "family2", True)
