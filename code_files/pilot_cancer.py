@@ -83,14 +83,15 @@ def create_tables_and_plots(input_file, reference_type, save_directory, invert):
 
     # creating interval table for each chromosome
     for chrom_num in range(1, 23):
-        single_chromosome_process(save_directory + f"/chromosomes/chromosome_{chrom_num}.txt", reference_type,
-                                  save_directory + path_to_save_interval_table,
-                                  save_directory + path_to_save_interval_plots)
+        single_chromosome_process(save_directory + f"/chromosomes/chromosome_{chrom_num}.txt",
+                                  reference_type, common_cancer_variants_dict,
+                                  path_to_save_interval_table, path_to_save_interval_plots)
 
     merge_haplotype_tables(path_to_save_interval_table, common_cancer_variants_dict)
 
 
 def single_chromosome_process(input_path, reference_type,
+                              variants_dict,
                               output_directory_tables,
                               output_directory_plots):
     """
@@ -106,16 +107,18 @@ def single_chromosome_process(input_path, reference_type,
 
     shared_interval_list = shared_interval(interval_children_list)
     create_table(shared_interval_list, output_directory_tables)
+    update_cancer_variant_dict(shared_interval_list, variants_dict)
 
+    # todo - delete the comment when finish
     plot_title = f'interval plot'
-    plot_interval(shared_interval_list, plot_title,
-                  save_dir=output_directory_plots)
+    # plot_interval(shared_interval_list, plot_title,
+    #               save_dir=output_directory_plots)
 
 
 def main():
 
     create_tables_and_plots(r"data_files/preprocess.genotypes.generation1.txt",
-                            PARENT_REFERENCE, r"family1", True)
+                            PARENT_REFERENCE, r"family1", False)
 
     # # Check valid input
     # if len(sys.argv) != 5:
