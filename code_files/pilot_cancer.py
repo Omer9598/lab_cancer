@@ -69,7 +69,7 @@ def create_tables_and_plots(input_file, reference_type, save_directory, invert):
 
     if invert:
         # Inverting the file and saving the new path
-        file_to_split = invert_reference_genome_haplotype(input_file,"data_files")
+        file_to_split = invert_reference_genome_haplotype(input_file, "data_files")
         path_to_save_interval_table = save_directory + "/inverted_interval_tables"
         path_to_save_interval_plots = save_directory + "/inverted_interval_plots"
     else:
@@ -83,40 +83,53 @@ def create_tables_and_plots(input_file, reference_type, save_directory, invert):
 
     # creating interval table for each chromosome
     for chrom_num in range(1, 23):
-        num_of_children = open_and_split_children_files(save_directory +
-                                                        f"/chromosomes/chromosome_{chrom_num}.txt")
-
-        interval_children_list = []
-        for i in range(1, num_of_children + 1):
-            file_path = f'{"child_"}{i}{".txt"}'
-            interval_list = process_child_file(file_path, reference_type)
-            interval_children_list.append(interval_list)
-
-        shared_interval_list = shared_interval(interval_children_list)
-        # plot_title = f'Chromosome {chrom_num} interval plot'
-        # plot_interval(shared_interval_list, plot_title, save_dir=path_to_save_interval_plots)
-
-        create_table(shared_interval_list, path_to_save_interval_table)
-        update_cancer_variant_dict(shared_interval_list,
-                                   common_cancer_variants_dict)
+        single_chromosome_process(save_directory + f"/chromosomes/chromosome_{chrom_num}.txt", reference_type,
+                                  save_directory + path_to_save_interval_table,
+                                  save_directory + path_to_save_interval_plots)
 
     merge_haplotype_tables(path_to_save_interval_table, common_cancer_variants_dict)
 
 
+def single_chromosome_process(input_path, reference_type,
+                              output_directory_tables,
+                              output_directory_plots):
+    """
+    This function will process a single chromosome given.
+    """
+    num_of_children = open_and_split_children_files(input_path)
+
+    interval_children_list = []
+    for i in range(1, num_of_children + 1):
+        file_path = f'{"child_"}{i}{".txt"}'
+        interval_list = process_child_file(file_path, reference_type)
+        interval_children_list.append(interval_list)
+
+    shared_interval_list = shared_interval(interval_children_list)
+    create_table(shared_interval_list, output_directory_tables)
+
+    plot_title = f'interval plot'
+    plot_interval(shared_interval_list, plot_title,
+                  save_dir=output_directory_plots)
+
+
 def main():
-    # Check valid input
-    if len(sys.argv) != 5:
-        print("Usage: python script_name.py input_file"
-              " parent_reference output_directory inverted_or_not")
-        sys.exit(1)
 
-    input_file = sys.argv[1]
-    parent_reference = sys.argv[2]
-    output_directory = sys.argv[3]
-    inverted = sys.argv[4]
+    create_tables_and_plots(r"data_files/preprocess.genotypes.generation1.txt",
+                            PARENT_REFERENCE, r"family1", True)
 
-    # Running the code on the given arguments
-    create_tables_and_plots(input_file, parent_reference, output_directory, inverted)
+    # # Check valid input
+    # if len(sys.argv) != 5:
+    #     print("Usage: python script_name.py input_file"
+    #           " parent_reference output_directory inverted_or_not")
+    #     sys.exit(1)
+    #
+    # input_file = sys.argv[1]
+    # parent_reference = sys.argv[2]
+    # output_directory = sys.argv[3]
+    # inverted = sys.argv[4]
+    #
+    # # Running the code on the given arguments
+    # create_tables_and_plots(input_file, parent_reference, output_directory, inverted)
 
 
 if __name__ == '__main__':
@@ -129,7 +142,7 @@ if __name__ == '__main__':
 #     {'chromosome': '13', 'start': 32889616, 'end': 32973808}  # False
 # ]
 
-# # running on a single chromosome - 22
+# running on a single chromosome - 22
 # num_of_children = open_and_split_children_files(r"family2/chromosomes/chromosome_22.txt")
 #
 # interval_children_list = []
@@ -144,7 +157,6 @@ if __name__ == '__main__':
 # plot_title = f'Chromosome 22 interval plot'
 # plot_interval(shared_interval_list, plot_title,
 #               save_dir="family2/interval_plots")
-
 
     # # analyzing chromosome 13 only
     # num_of_children = open_and_split_children_files("data_files/HR7.chr13.genotypes.tab")
@@ -168,3 +180,20 @@ if __name__ == '__main__':
     # # Analyzing family2 - after preprocess
     # create_tables_and_plots(r"data_files/HR3.genotypes.tab", SIBLING_REFERENCE,
     #                         "family2", True)
+
+# num_of_children = open_and_split_children_files(save_directory +
+#                                                 f"/chromosomes/chromosome_{chrom_num}.txt")
+#
+# interval_children_list = []
+# for i in range(1, num_of_children + 1):
+#     file_path = f'{"child_"}{i}{".txt"}'
+#     interval_list = process_child_file(file_path, reference_type)
+#     interval_children_list.append(interval_list)
+#
+# shared_interval_list = shared_interval(interval_children_list)
+# # plot_title = f'Chromosome {chrom_num} interval plot'
+# # plot_interval(shared_interval_list, plot_title, save_dir=path_to_save_interval_plots)
+#
+# create_table(shared_interval_list, path_to_save_interval_table)
+# update_cancer_variant_dict(shared_interval_list,
+#                            common_cancer_variants_dict)
