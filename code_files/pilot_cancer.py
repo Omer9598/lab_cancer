@@ -85,7 +85,7 @@ def create_tables_and_plots(input_file, reference_type, save_directory, invert):
     for chrom_num in range(1, 23):
         single_chromosome_process(save_directory + f"/chromosomes/chromosome_{chrom_num}.txt",
                                   reference_type, path_to_save_interval_table,
-                                  path_to_save_interval_plots, chrom_num)
+                                  path_to_save_interval_plots, False, chrom_num)
 
     merge_haplotype_tables(path_to_save_interval_table, common_cancer_variants_dict)
 
@@ -93,11 +93,17 @@ def create_tables_and_plots(input_file, reference_type, save_directory, invert):
 def single_chromosome_process(input_path, reference_type,
                               output_directory_tables,
                               output_directory_plots,
+                              inverted,
                               chromosome_number):
     """
     This function will process a single chromosome given.
     """
-    num_of_children = open_and_split_children_files(input_path)
+    if inverted:
+        file_to_process = (
+            invert_reference_genome_haplotype(input_path, output_directory_tables))
+    else:
+        file_to_process = input_path
+    num_of_children = open_and_split_children_files(file_to_process)
 
     interval_children_list = []
     for i in range(1, num_of_children + 1):
@@ -111,34 +117,36 @@ def single_chromosome_process(input_path, reference_type,
                                create_common_cancer_genes_dict(r"data_files/BROCA.genes.tsv"))
 
     plot_title = f'chromosome {chromosome_number} interval plot'
-    plot_interval(shared_interval_list, plot_title,
-                  save_dir=output_directory_plots)
+    # plot_interval(shared_interval_list, plot_title,
+    #               save_dir=output_directory_plots)
 
 
 def main():
-    if len(sys.argv) not in [5, 6]:
+    if len(sys.argv) not in [5, 7]:
         print("Invalid number of arguments")
         sys.exit(1)
 
     input_file = sys.argv[1]
     reference = sys.argv[2]
+    inverted = bool(sys.argv[3])
 
     # Whole genome process
     if len(sys.argv) == 5:
-        output_directory = sys.argv[3]
-        inverted = bool(sys.argv[4])
+        output_directory = sys.argv[4]
         # Running the code on the given arguments
         create_tables_and_plots(input_file, reference, output_directory, inverted)
 
     # One chromosome process
-    if len(sys.argv) == 6:
-        output_directory_tables = sys.argv[3]
-        output_directory_plots = sys.argv[4]
-        chromosome_number = int(sys.argv[5])
+    if len(sys.argv) == 7:
+        output_directory_tables = sys.argv[4]
+        output_directory_plots = sys.argv[5]
+        chromosome_number = int(sys.argv[6])
 
-        single_chromosome_process(input_file, reference,
+        single_chromosome_process(input_file,
+                                  reference,
                                   output_directory_tables,
                                   output_directory_plots,
+                                  inverted,
                                   chromosome_number)
 
 
