@@ -138,12 +138,13 @@ def update_cancer_variant_dict(shared_interval_list, variants_dict):
             break
 
         # Check if the variant is in any common interval
-        is_in_common_interval = any(
-            interval['chromosome'] == chromosome and
-            (variant_start_position <= interval['end'] or
-             variant_end_position >= interval['start'])
-            for interval in shared_interval_list
-        )
+        if not is_in_common_interval:
+            is_in_common_interval = any(
+                interval['chromosome'] == chromosome and
+                (variant_start_position <= interval['end'] or
+                 variant_end_position >= interval['start'])
+                for interval in shared_interval_list
+            )
 
         # Update the boolean value in the variant_info
         variants_dict[variant_name] = [chromosome, variant_start_position,

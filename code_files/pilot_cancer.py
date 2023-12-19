@@ -87,9 +87,12 @@ def create_tables_and_plots(input_file, reference_type, save_directory, invert):
             save_directory + f"/chromosomes/chromosome_{chrom_num}.txt",
             reference_type, path_to_save_interval_table,
             path_to_save_interval_plots, False, chrom_num)
-        update_cancer_variant_dict(interval_list, common_cancer_variants_dict)
+        update_cancer_variant_dict(interval_list,
+                                   common_cancer_variants_dict)
 
-    merge_haplotype_tables(path_to_save_interval_table, common_cancer_variants_dict)
+    merge_haplotype_tables(path_to_save_interval_table)
+    write_common_genes_to_file(path_to_save_interval_table,
+                               common_cancer_variants_dict)
 
 
 def single_chromosome_process(input_path, reference_type,

@@ -60,7 +60,7 @@ def preprocess_file(input_file_path, output_directory):
         return output_file_path
 
 
-def merge_haplotype_tables(input_directory, cancer_genes_dict):
+def merge_haplotype_tables(input_directory):
     """
     This function will merge all the tables given in the input_directory
     The format will be as follows:
@@ -87,8 +87,8 @@ def merge_haplotype_tables(input_directory, cancer_genes_dict):
             print(f"File not found: {file_path}")
 
     # Write the merged intervals to a new file in the input directory
-    output_path = f"{input_directory}/merged_haplotype_intervals.txt"
-    with open(output_path, 'w') as output_file:
+    output_path_merged = f"{input_directory}/merged_haplotype_intervals.txt"
+    with open(output_path_merged, 'w') as output_file:
         # Write the header line
         output_file.write("CHROM\tSTART\tEND\tHAPLOTYPE\n")
 
@@ -96,27 +96,39 @@ def merge_haplotype_tables(input_directory, cancer_genes_dict):
         for interval in merged_intervals:
             output_file.write('\t'.join(interval) + '\n')
 
-        # Add common cancer genes information
-        output_file.write("\nCommon cancer genes in shared intervals: \n")
+    # Convert the merged intervals txt file to excel
+    output_path_excel = f"{input_directory}/merged_haplotype_Excel.xlsx"
+    convert_txt_to_excel(output_path_merged, output_path_excel)
+
+
+def write_common_genes_to_file(output_directory, cancer_genes_dict):
+    """
+    Writes common cancer genes information to a .txt file and
+    to Excel afterward in the specified output directory.
+    """
+    output_path_txt = f"{output_directory}/common_cancer_genes.txt"
+
+    with open(output_path_txt, 'w') as output_file:
+        output_file.write("Common cancer genes in shared intervals: \n")
         for variant_name, variant_info in cancer_genes_dict.items():
             output_file.write(f"{variant_name} - {variant_info[3]}\n")
 
-    # Convert the txt output file to excel
-    output_path_excel = f"{input_directory}/_haplotype_interval_Excel.xlsx"
-    convert_txt_to_excel(output_path, output_path_excel)
+    # Convert the common genes txt file to Excel
+    df = pd.read_csv(output_path_txt, delimiter='\t')
+    excel_output_path = f"{output_directory}/common_cancer_genes_Excel.xlsx"
+    df.to_excel(excel_output_path, index=False)
 
 
 def create_table(data_list, output_directory):
     """
     This function will create the shared haplotype intervals table
-    The table will be in a new .txt file, ordered in the following format - each
-    row represents an interval, and will be as follows:
+    The table will be in a new .txt file, ordered in the following format -
+    each row represents an interval, and will be as follows:
     chromosome - the chromosome number
     start - the starting position of the interval in the row's chromosome
     end - the ending position
     haplotype - the haplotype of the current interval
-    the .txt file will be saved in the interval_tables
-    directory
+    the .txt file will be saved in the interval_tables directory
     """
     # Create the output directory if it doesn't exist
     os.makedirs(output_directory, exist_ok=True)
