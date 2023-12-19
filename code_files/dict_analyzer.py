@@ -134,14 +134,14 @@ def update_cancer_variant_dict(shared_interval_list, variants_dict):
 
         # Skip irrelevant chromosomes- all intervals have the same chromosome
         cur_chromosome = int(shared_interval_list[0]['chromosome'])
-        if cur_chromosome in [1, range(3, 11), 12, 14, 15, range(18, 22)]:
+        if cur_chromosome in [1, *range(3, 11), 12, 14, 15, range(18, 22)]:
             break
 
         # Check if the variant is in any common interval
         is_in_common_interval = any(
             interval['chromosome'] == chromosome and
-            interval['start'] <= variant_start_position <= variant_end_position
-            <= interval['end']
+            (variant_start_position <= interval['end'] or
+             variant_end_position >= interval['start'])
             for interval in shared_interval_list
         )
 

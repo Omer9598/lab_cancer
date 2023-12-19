@@ -83,9 +83,11 @@ def create_tables_and_plots(input_file, reference_type, save_directory, invert):
 
     # creating interval table for each chromosome
     for chrom_num in range(1, 23):
-        single_chromosome_process(save_directory + f"/chromosomes/chromosome_{chrom_num}.txt",
-                                  reference_type, path_to_save_interval_table,
-                                  path_to_save_interval_plots, False, chrom_num)
+        interval_list = single_chromosome_process(
+            save_directory + f"/chromosomes/chromosome_{chrom_num}.txt",
+            reference_type, path_to_save_interval_table,
+            path_to_save_interval_plots, False, chrom_num)
+        update_cancer_variant_dict(interval_list, common_cancer_variants_dict)
 
     merge_haplotype_tables(path_to_save_interval_table, common_cancer_variants_dict)
 
@@ -113,12 +115,12 @@ def single_chromosome_process(input_path, reference_type,
 
     shared_interval_list = shared_interval(interval_children_list)
     create_table(shared_interval_list, output_directory_tables)
-    update_cancer_variant_dict(shared_interval_list,
-                               create_common_cancer_genes_dict(r"data_files/BROCA.genes.tsv"))
 
     plot_title = f'chromosome {chromosome_number} interval plot'
     # plot_interval(shared_interval_list, plot_title,
     #               save_dir=output_directory_plots)
+
+    return shared_interval_list
 
 
 def main():
@@ -128,7 +130,7 @@ def main():
 
     input_file = sys.argv[1]
     reference = sys.argv[2]
-    inverted = bool(sys.argv[3])
+    inverted = bool(int(sys.argv[3]))
 
     # Whole genome process
     if len(sys.argv) == 5:
@@ -152,6 +154,11 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+    # single_chromosome_process("family3/chromosomes/chromosome_17.txt",
+    #                           "parent",
+    #                           "temp", "temp",
+    #                           True, 17)
 
     # # analyzing chromosome 13 only
     # num_of_children = open_and_split_children_files("data_files/HR7.chr13.genotypes.tab")
