@@ -83,6 +83,7 @@ def merge_haplotype_tables(input_directory, chromosome_coverage_dict):
                 # Append the columns to the merged intervals list
                 merged_intervals.append(columns)
 
+        # Adding chromosome coverage to the end of each chromosome
         chrom_coverage = round(chromosome_coverage_dict[chrom_num] * 100, 1)
         columns.append(str(chrom_coverage) + "%")
 
