@@ -8,7 +8,7 @@ def create_intervals(haplotype_dict):
     """
     This function will create a list for each child in the following format:
     [(interval number is the index) {start position: , end position: ,
-    haplotype: (1 or 2)]
+    haplotype: (1 or 2)}
     each interval starts with the position of a variant from haplotype 1 or 2,
     and ends when the next variant is from the opposite haplotype, where a new
     interval will start
@@ -34,7 +34,6 @@ def create_intervals(haplotype_dict):
                               "chromosome": chromosome})
             current_interval = {"start": position, "end": position,
                                 "haplotype": cur_haplotype}
-
     # Add the last interval
     if current_interval is not None:
         intervals.append({"start": current_interval["start"],

@@ -49,17 +49,18 @@ def plot_data(child_1_dict, child_2_dict, plot_title):
     fig.show()
 
 
-def process_child_file(file_path, reference_type):
+def process_child_file(file_path, reference_type, window_size, error_size):
     """
     Process a child file and return the processed dictionary.
     """
     child_dict = create_and_filter_dictionary(file_path, reference_type)
-    windowed_dict = process_dict(child_dict, reference_type)
+    windowed_dict = process_dict(child_dict, reference_type, window_size, error_size)
     interval_list = create_intervals(windowed_dict)
     return interval_list
 
 
-def create_tables_and_plots(input_file, reference_type, save_directory, invert):
+def create_tables_and_plots(input_file, reference_type, save_directory, invert,
+                            window_size, error_size):
     """
     This function will create interval table from the given family.txt file
     """
@@ -86,7 +87,8 @@ def create_tables_and_plots(input_file, reference_type, save_directory, invert):
         interval_list = single_chromosome_process(
             save_directory + f"/chromosomes/chromosome_{chrom_num}.txt",
             reference_type, path_to_save_interval_table,
-            path_to_save_interval_plots, False, chrom_num)
+            path_to_save_interval_plots, False, chrom_num,
+            window_size, error_size)
         update_cancer_variant_dict(interval_list,
                                    common_cancer_variants_dict)
 
@@ -99,7 +101,8 @@ def single_chromosome_process(input_path, reference_type,
                               output_directory_tables,
                               output_directory_plots,
                               inverted,
-                              chromosome_number):
+                              chromosome_number,
+                              window_size, error_size):
     """
     This function will process a single chromosome given.
     """
@@ -113,7 +116,8 @@ def single_chromosome_process(input_path, reference_type,
     interval_children_list = []
     for i in range(1, num_of_children + 1):
         file_path = f'{"child_"}{i}{".txt"}'
-        interval_list = process_child_file(file_path, reference_type)
+        interval_list = process_child_file(file_path, reference_type,
+                                           window_size, error_size)
         interval_children_list.append(interval_list)
 
     shared_interval_list = shared_interval(interval_children_list)
@@ -127,32 +131,44 @@ def single_chromosome_process(input_path, reference_type,
 
 
 def main():
-    if len(sys.argv) not in [5, 7]:
-        print("Invalid number of arguments")
+    args = sys.argv
+    if len(args) not in [5, 7]:
+        print("Invalid number of arguments \n "
+              "for all chromosomes: \n"
+              "input_file reference inverted(0 or 1) window_size error_size"
+              " output_directory \n"
+              "for a single chromosome: \n"
+              "input_file reference inverted(0 or 1) window_size error_size"
+              " output_directory_tables output_directory_plots"
+              " chromosome_number ")
         sys.exit(1)
 
-    input_file = sys.argv[1]
-    reference = sys.argv[2]
-    inverted = bool(int(sys.argv[3]))
+    input_file = args[1]
+    reference = args[2]
+    inverted = bool(int(args[3]))
+    window_size = int(args[4])
+    error_size = int(args[5])
 
     # Whole genome process
-    if len(sys.argv) == 5:
-        output_directory = sys.argv[4]
+    if len(args) == 7:
+        output_directory = args[6]
         # Running the code on the given arguments
-        create_tables_and_plots(input_file, reference, output_directory, inverted)
+        create_tables_and_plots(input_file, reference, output_directory,
+                                inverted, window_size, error_size)
 
     # One chromosome process
-    if len(sys.argv) == 7:
-        output_directory_tables = sys.argv[4]
-        output_directory_plots = sys.argv[5]
-        chromosome_number = int(sys.argv[6])
+    if len(args) == 9:
+        output_directory_tables = args[6]
+        output_directory_plots = args[7]
+        chromosome_number = int(args[8])
 
         single_chromosome_process(input_file,
                                   reference,
                                   output_directory_tables,
                                   output_directory_plots,
                                   inverted,
-                                  chromosome_number)
+                                  chromosome_number,
+                                  window_size, error_size)
 
 
 if __name__ == '__main__':

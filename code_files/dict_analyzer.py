@@ -1,7 +1,5 @@
 from itertools import islice
 
-WINDOW_NUM = 20
-WINDOW_ERR = 18
 PARENT_REFERENCE = "parent"
 SIBLING_REFERENCE = "sibling"
 
@@ -191,7 +189,7 @@ def add_haplotype_children_reference(my_dict):
             values.append(2)
 
 
-def add_confidence(my_dict):
+def add_confidence(my_dict, window_size):
     """
     This function will add the confidence value to the dict
     the confidence is the number of variants that similar to the current
@@ -210,8 +208,8 @@ def add_confidence(my_dict):
         while next_position != position:
             next_position = next(keys_iterator)
 
-        for next_position in islice(keys_iterator, WINDOW_NUM):
-            if count_10 == WINDOW_NUM:
+        for next_position in islice(keys_iterator, window_size):
+            if count_10 == window_size:
                 break
             else:
                 count_10 += 1
@@ -223,7 +221,7 @@ def add_confidence(my_dict):
         values.append(count)
 
 
-def process_dict(data_dict, reference_type):
+def process_dict(data_dict, reference_type, window_size, error_size):
     """
     This function will process the dicts to be plotted
     """
@@ -231,12 +229,12 @@ def process_dict(data_dict, reference_type):
         add_haplotype_parent_reference(data_dict)
     if reference_type == SIBLING_REFERENCE:
         add_haplotype_children_reference(data_dict)
-    add_confidence(data_dict)
-    filtered_dict = filter_low_score(data_dict)
+    add_confidence(data_dict, window_size)
+    filtered_dict = filter_low_score(data_dict, error_size)
     return filtered_dict
 
 
-def filter_low_score(data_dict):
+def filter_low_score(data_dict, error_size):
     """
     This function will filter the variants (keys in the dict) which their
     score is under 8
@@ -244,6 +242,6 @@ def filter_low_score(data_dict):
     """
     filtered_dict = dict()
     for key, value in data_dict.items():
-        if value[-1] > WINDOW_ERR:
+        if value[-1] > error_size:
             filtered_dict[key] = value
     return filtered_dict
