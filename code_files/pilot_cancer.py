@@ -59,6 +59,27 @@ def process_child_file(file_path, reference_type, window_size, error_size):
     return interval_list
 
 
+def calc_coverage(interval_list, chrom_num):
+    """
+    This function will calculate the coverage of an interval list given
+    The coverage is the number of base pairs in all intervals, divided
+    by the whole chromosome
+    """
+    chromosome_sizes = {
+        1: 249250621, 2: 243199373, 3: 198022430, 4: 191154276,
+        5: 180915260, 6: 171115067, 7: 159138663, 8: 146364022, 9: 141213431,
+        10: 135534747, 11: 135006516, 12: 133851895, 13: 115169878,
+        14: 107349540, 15: 102531392, 16: 90354753, 17: 81195210,
+        18: 78077248, 19: 59128983, 20: 63025520, 21: 48129895,
+        22: 51304566
+    }
+    interval_coverage_sum = 0
+    for interval in interval_list:
+        interval_coverage_sum += interval["end"] - interval["start"]
+
+    return interval_coverage_sum / chromosome_sizes[chrom_num]
+
+
 def create_tables_and_plots(input_file, reference_type, save_directory, invert,
                             window_size, error_size):
     """
@@ -82,6 +103,7 @@ def create_tables_and_plots(input_file, reference_type, save_directory, invert,
     split_file_to_chromosomes(file_to_split,
                               save_directory + "/chromosomes")
 
+    chromosome_coverage_dict = {}
     # creating interval table for each chromosome
     for chrom_num in range(1, 23):
         interval_list = single_chromosome_process(
@@ -91,8 +113,11 @@ def create_tables_and_plots(input_file, reference_type, save_directory, invert,
             window_size, error_size)
         update_cancer_variant_dict(interval_list,
                                    common_cancer_variants_dict)
+        # Adding the interval coverage of the current chromosome
+        chromosome_coverage_dict[chrom_num] = calc_coverage(interval_list,
+                                                            chrom_num)
 
-    merge_haplotype_tables(path_to_save_interval_table)
+    merge_haplotype_tables(path_to_save_interval_table, chromosome_coverage_dict)
     write_common_genes_to_file(path_to_save_interval_table,
                                common_cancer_variants_dict)
 
@@ -104,7 +129,8 @@ def single_chromosome_process(input_path, reference_type,
                               chromosome_number,
                               window_size, error_size):
     """
-    This function will process a single chromosome given.
+    This function will process a single chromosome given, creating an
+    interval table, and a plot.
     """
     if inverted:
         file_to_process = (

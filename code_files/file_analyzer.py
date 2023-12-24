@@ -60,7 +60,7 @@ def preprocess_file(input_file_path, output_directory):
         return output_file_path
 
 
-def merge_haplotype_tables(input_directory):
+def merge_haplotype_tables(input_directory, chromosome_coverage_dict):
     """
     This function will merge all the tables given in the input_directory
     The format will be as follows:
@@ -73,24 +73,24 @@ def merge_haplotype_tables(input_directory):
     for chrom_num in range(1, 23):
         # Read each haplotype interval table file
         file_path = f"{input_directory}/haplotype_interval_table_{chrom_num}.txt"
-        try:
-            with open(file_path, 'r') as file:
-                # Skip the header line
-                next(file)
-                # Process each line in the file
-                for line in file:
-                    # Split the line into columns
-                    columns = line.strip().split()
-                    # Append the columns to the merged intervals list
-                    merged_intervals.append(columns)
-        except FileNotFoundError:
-            print(f"File not found: {file_path}")
+        with open(file_path, 'r') as file:
+            # Skip the header line
+            next(file)
+            # Process each line in the file
+            for line in file:
+                # Split the line into columns
+                columns = line.strip().split()
+                # Append the columns to the merged intervals list
+                merged_intervals.append(columns)
+
+        chrom_coverage = round(chromosome_coverage_dict[chrom_num] * 100, 1)
+        columns.append(str(chrom_coverage) + "%")
 
     # Write the merged intervals to a new file in the input directory
     output_path_merged = f"{input_directory}/merged_haplotype_intervals.txt"
     with open(output_path_merged, 'w') as output_file:
         # Write the header line
-        output_file.write("CHROM\tSTART\tEND\tHAPLOTYPE\n")
+        output_file.write("CHROM\tSTART\tEND\tHAPLOTYPE\tCOVERAGE\n")
 
         # Write each merged interval to the output file
         for interval in merged_intervals:
