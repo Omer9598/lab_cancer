@@ -1,53 +1,9 @@
+import os
+
 from interval_analyze import *
 from dict_analyzer import *
 from file_analyzer import *
 import sys
-import plotly.express as px
-
-
-def plot_data(child_1_dict, child_2_dict, plot_title):
-    """
-    This function will plot data from two dictionaries (child_1 and child_2).
-    The x-axis will be the chromosome position, and the y-axis will be the
-    haplotype value of the current variant (position).
-    Red dots will be added at positions 1.05 and 1.95 for child_1.
-    """
-    # Extract relevant information for child_1
-    positions_child_1 = list(child_1_dict.keys())
-    haplotypes_child_1 = [entry[2] for entry in child_1_dict.values()]
-
-    # Extract relevant information for child_2
-    positions_child_2 = list(child_2_dict.keys())
-    haplotypes_child_2 = [(entry[2] - 0.015) for entry in child_2_dict.values()]
-
-    # Create DataFrames for Plotly Express
-    data_child_1 = {"Chromosome Position": positions_child_1,
-                    "Haplotype": haplotypes_child_1}
-    data_child_2 = {"Chromosome Position": positions_child_2,
-                    "Haplotype": haplotypes_child_2}
-
-    df_child_1 = pd.DataFrame(data_child_1)
-    df_child_2 = pd.DataFrame(data_child_2)
-
-    # Create an interactive scatter plot for child_1
-    fig = px.scatter(df_child_1, x="Chromosome Position", y="Haplotype",
-                     labels={'Chromosome Position': 'Chromosome Position',
-                             'Haplotype': 'Haplotype'},
-                     color_discrete_sequence=['blue'],  # Set color for child_1
-                     title=plot_title)
-
-    # Add data for child_2 to the same plot with red color
-    fig.add_trace(px.scatter(df_child_2, x="Chromosome Position", y="Haplotype",
-                             color_discrete_sequence=['red'],
-                             # Set color for child_2
-                             labels={'Haplotype': 'Haplotype (Child 2)'})
-                  .data[0])
-
-    # Adjust legend position
-    fig.update_layout(showlegend=True)
-
-    # Show the plot in an HTML window
-    fig.show()
 
 
 def process_child_file(file_path, reference_type, window_size, error_size):
@@ -138,14 +94,16 @@ def single_chromosome_process(input_path, reference_type,
             invert_reference_genome_haplotype(input_path, output_directory_tables))
     else:
         file_to_process = input_path
-    num_of_children = open_and_split_children_files(file_to_process)
+    num_of_children = open_and_split_children_files(file_to_process, chromosome_number)
 
     interval_children_list = []
     for i in range(1, num_of_children + 1):
-        file_path = f'{"child_"}{i}{".txt"}'
+        file_path = f"child_{i}_chrom_{chromosome_number}.txt"
         interval_list = process_child_file(file_path, reference_type,
                                            window_size, error_size)
         interval_children_list.append(interval_list)
+        # Delete temp child file
+        os.remove(file_path)
 
     shared_interval_list = shared_interval(interval_children_list)
     create_table(shared_interval_list, output_directory_tables)

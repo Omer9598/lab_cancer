@@ -212,7 +212,7 @@ def invert_reference_genome_haplotype(input_file, output_directory):
     return output_file_path
 
 
-def open_and_split_children_files(file_path):
+def open_and_split_children_files(file_path, chromosome_number):
     """
     This function will open the file and split it into n files.
     Each file will contain column[0] column[1], column[4], and subsequent
@@ -230,7 +230,7 @@ def open_and_split_children_files(file_path):
 
         # Iterate through each child file
         for child_num in range(1, num_children + 1):
-            child_filename = f'child_{child_num}.txt'
+            child_filename = f'child_{child_num}_chrom_{chromosome_number}.txt'
 
             # Open the child file for writing
             with open(child_filename, 'w') as child_file:
@@ -253,7 +253,6 @@ def open_and_split_children_files(file_path):
 
                     # Write the line to the child file
                     child_file.write(child_line)
-
     return num_children
 
 
@@ -283,7 +282,7 @@ def split_file_to_chromosomes(input_file, output_directory):
 
 def convert_txt_to_excel(input_file, output_excel):
     # Read the text file into a DataFrame
-    df = pd.read_csv(input_file, sep='\t')  # Adjust the separator if needed
+    df = pd.read_csv(input_file, sep='\t')
 
     # Write the DataFrame to an Excel file
     df.to_excel(output_excel, index=False)

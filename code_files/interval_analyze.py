@@ -130,4 +130,6 @@ def plot_interval(interval_list, plot_title, save_dir):
 
     # Save the plot
     save_path = os.path.join(save_dir, f'{plot_title.replace(" ", "_")}_plot.png')
+    # Create the directory if it doesn't exist
+    os.makedirs(save_dir, exist_ok=True)
     plt.savefig(save_path)
