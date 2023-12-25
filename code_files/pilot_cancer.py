@@ -2,6 +2,7 @@ from interval_analyze import *
 from dict_analyzer import *
 from file_analyzer import *
 import sys
+import plotly.express as px
 
 
 def plot_data(child_1_dict, child_2_dict, plot_title):
