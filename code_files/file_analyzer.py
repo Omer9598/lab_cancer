@@ -152,7 +152,7 @@ def create_table(data_list, output_directory):
         file_path = os.path.join(output_directory,
                                  f'haplotype_interval_table_{chromosome}.txt')
 
-        # Write the data to a text file without any table formatting
+        # Write the data to a text file
         with open(file_path, 'w') as file:
             for entry in data_list_reordered:
                 file.write(f"{entry['chromosome']}\t{entry['start']}\t"

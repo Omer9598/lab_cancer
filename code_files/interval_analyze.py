@@ -1,7 +1,5 @@
 import os
-
-import pandas as pd
-import plotly.express as px
+import matplotlib.pyplot as plt
 
 
 def create_intervals(haplotype_dict):
@@ -80,36 +78,56 @@ def shared_interval(interval_lists):
     return shared_intervals
 
 
+# def plot_interval(interval_list, plot_title, save_dir):
+#     """
+#     This function plots intervals as straight lines, where each interval is
+#     represented by a line starting from the "start" to "end" keys on the
+#     x-axis,
+#     and the height determined by the "haplotype" key on the y-axis.
+#     """
+#     # Create a DataFrame for Plotly Express
+#     data = {"Start": [], "End": [], "Haplotype": [], "Interval": []}
+#
+#     for i, interval in enumerate(interval_list):
+#         start_position = interval["start"]
+#         end_position = interval["end"]
+#         haplotype = interval["haplotype"]
+#
+#         # Append data to the DataFrame
+#         data["Start"].extend([start_position, end_position])
+#         data["End"].extend([start_position, end_position])
+#         data["Haplotype"].extend([haplotype, haplotype])
+#         data["Interval"].extend([f'Interval {i + 1}', f'Interval {i + 1}'])
+#
+#     # Create a DataFrame
+#     df = pd.DataFrame(data)
+#
+#     # Create an interactive line plot using Plotly Express
+#     fig = px.line(df, x="Start", y="Haplotype", color="Interval",
+#                   labels={'Start': 'Chromosome Position',
+#                           'Haplotype': 'Haplotype'},
+#                   title=plot_title)
+#
+#     # Show the plot in an HTML window
+#     save_path = os.path.join(save_dir, f'{plot_title.replace(" ", "_")}_plot.png')
+#     fig.write_image(save_path)
+
 def plot_interval(interval_list, plot_title, save_dir):
     """
-    This function plots intervals as straight lines, where each interval is
-    represented by a line starting from the "start" to "end" keys on the
-    x-axis,
-    and the height determined by the "haplotype" key on the y-axis.
+    This function plots intervals as straight lines using Matplotlib.
     """
-    # Create a DataFrame for Plotly Express
-    data = {"Start": [], "End": [], "Haplotype": [], "Interval": []}
+    fig, ax = plt.subplots()
 
     for i, interval in enumerate(interval_list):
         start_position = interval["start"]
         end_position = interval["end"]
         haplotype = interval["haplotype"]
 
-        # Append data to the DataFrame
-        data["Start"].extend([start_position, end_position])
-        data["End"].extend([start_position, end_position])
-        data["Haplotype"].extend([haplotype, haplotype])
-        data["Interval"].extend([f'Interval {i + 1}', f'Interval {i + 1}'])
+        # Plot lines for each interval
+        ax.plot([start_position, end_position], [haplotype, haplotype], label=f'Interval {i + 1}')
 
-    # Create a DataFrame
-    df = pd.DataFrame(data)
+    ax.set(xlabel='Chromosome Position', ylabel='Haplotype', title=plot_title)
 
-    # Create an interactive line plot using Plotly Express
-    fig = px.line(df, x="Start", y="Haplotype", color="Interval",
-                  labels={'Start': 'Chromosome Position',
-                          'Haplotype': 'Haplotype'},
-                  title=plot_title)
-
-    # Show the plot in an HTML window
+    # Save the plot
     save_path = os.path.join(save_dir, f'{plot_title.replace(" ", "_")}_plot.png')
-    fig.write_image(save_path)
+    plt.savefig(save_path)
