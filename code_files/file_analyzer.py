@@ -74,8 +74,6 @@ def merge_haplotype_tables(input_directory, chromosome_coverage_dict):
         # Read each haplotype interval table file
         file_path = f"{input_directory}/haplotype_interval_table_{chrom_num}.txt"
         with open(file_path, 'r') as file:
-            # Skip the header line
-            next(file)
             # Process each line in the file
             for line in file:
                 # Split the line into columns

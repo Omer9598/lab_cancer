@@ -109,8 +109,8 @@ def single_chromosome_process(input_path, reference_type,
     create_table(shared_interval_list, output_directory_tables)
 
     plot_title = f'chromosome {chromosome_number} interval plot'
-    plot_interval(shared_interval_list, plot_title,
-                  save_dir=output_directory_plots)
+    # plot_interval(shared_interval_list, plot_title,
+    #               save_dir=output_directory_plots)
 
     return shared_interval_list
 
