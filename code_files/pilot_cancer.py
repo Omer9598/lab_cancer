@@ -94,23 +94,25 @@ def single_chromosome_process(input_path, reference_type,
             invert_reference_genome_haplotype(input_path, output_directory_tables))
     else:
         file_to_process = input_path
-    num_of_children = open_and_split_children_files(file_to_process, chromosome_number)
+    num_of_children, child_filename = open_and_split_children_files(file_to_process)
 
     interval_children_list = []
     for i in range(1, num_of_children + 1):
+        # Use the unique temporary file name for processing
         file_path = f"child_{i}_chrom_{chromosome_number}.txt"
-        interval_list = process_child_file(file_path, reference_type,
+        interval_list = process_child_file(child_filename, reference_type,
                                            window_size, error_size)
         interval_children_list.append(interval_list)
-        # Delete temp child file
-        os.remove(file_path)
+
+    # Delete the last child file after processing
+    os.remove(child_filename)
 
     shared_interval_list = shared_interval(interval_children_list)
     create_table(shared_interval_list, output_directory_tables)
 
     plot_title = f'chromosome {chromosome_number} interval plot'
-    # plot_interval(shared_interval_list, plot_title,
-    #               save_dir=output_directory_plots)
+    plot_interval(shared_interval_list, plot_title,
+                  save_dir=output_directory_plots)
 
     return shared_interval_list
 

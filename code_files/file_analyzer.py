@@ -1,4 +1,6 @@
 import os
+import tempfile
+
 import pandas as pd
 
 
@@ -210,7 +212,7 @@ def invert_reference_genome_haplotype(input_file, output_directory):
     return output_file_path
 
 
-def open_and_split_children_files(file_path, chromosome_number):
+def open_and_split_children_files(file_path):
     """
     This function will open the file and split it into n files.
     Each file will contain column[0] column[1], column[4], and subsequent
@@ -218,20 +220,15 @@ def open_and_split_children_files(file_path, chromosome_number):
     The number of child files will be determined based on the available
     columns.
     """
-    # Open the input file
     with open(file_path, 'r') as infile:
-        # Get header columns
         header_columns = infile.readline().strip().split('\t')
-
         # Determine the number of child files based on available columns
         num_children = len(header_columns) - 5
-
         # Iterate through each child file
         for child_num in range(1, num_children + 1):
-            child_filename = f'child_{child_num}_chrom_{chromosome_number}.txt'
+            with tempfile.NamedTemporaryFile(mode='w+', delete=False) as child_file:
+                child_filename = child_file.name
 
-            # Open the child file for writing
-            with open(child_filename, 'w') as child_file:
                 # Write the header columns to the child file
                 header_line = '\t'.join([header_columns[0], header_columns[1],
                                          header_columns[4],
@@ -246,12 +243,13 @@ def open_and_split_children_files(file_path, chromosome_number):
                     columns = line.strip().split('\t')
 
                     # Extract the desired columns for the current child file
-                    child_line = f"{columns[0]}\t{columns[1]}\t{columns[4]}\t"\
+                    child_line = f"{columns[0]}\t{columns[1]}\t{columns[4]}\t" \
                                  f"{columns[child_num + 4]}\n"
 
                     # Write the line to the child file
                     child_file.write(child_line)
-    return num_children
+
+    return num_children, child_filename
 
 
 def split_file_to_chromosomes(input_file, output_directory):
