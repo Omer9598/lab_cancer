@@ -94,20 +94,18 @@ def single_chromosome_process(input_path, reference_type,
             invert_reference_genome_haplotype(input_path, output_directory_tables))
     else:
         file_to_process = input_path
-    num_of_children, child_filename = open_and_split_children_files(file_to_process)
+    num_of_children, children_filenames = open_and_split_children_files(file_to_process)
 
     interval_children_list = []
     for i in range(1, num_of_children + 1):
-        # Use the unique temporary file name for processing
-        file_path = f"child_{i}_chrom_{chromosome_number}.txt"
+        child_filename = children_filenames[i - 1]
         interval_list = process_child_file(child_filename, reference_type,
                                            window_size, error_size)
         interval_children_list.append(interval_list)
-
-    # Delete the last child file after processing
-    os.remove(child_filename)
-
+        # Delete the last child file after processing
+        os.remove(child_filename)
     shared_interval_list = shared_interval(interval_children_list)
+    # non_shared_interval_list = non_shared_intervals(interval_children_list)
     create_table(shared_interval_list, output_directory_tables)
 
     plot_title = f'chromosome {chromosome_number} interval plot'
@@ -160,6 +158,17 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+    # # Example usage
+    # list1 = [{"haplotype": 1, "start": 1, "end": 5, "chromosome": 1}]
+    # list2 = [{"haplotype": 1, "start": 1, "end": 2, "chromosome": 1},
+    #          {"haplotype": 1, "start": 3, "end": 4, "chromosome": 1},
+    #          {"haplotype": 1, "start": 6, "end": 7, "chromosome": 1}]
+    # list3 = [{"haplotype": 1, "start": 1, "end": 2, "chromosome": 1},
+    #          {"haplotype": 1, "start": 3, "end": 7, "chromosome": 1}]
+    #
+    # result = shared_interval([list1, list2, list3])
+    # print(result)
 
     # single_chromosome_process("family3/chromosomes/chromosome_17.txt",
     #                           "parent",

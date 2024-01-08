@@ -220,6 +220,7 @@ def open_and_split_children_files(file_path):
     The number of child files will be determined based on the available
     columns.
     """
+    child_filenames = []
     with open(file_path, 'r') as infile:
         header_columns = infile.readline().strip().split('\t')
         # Determine the number of child files based on available columns
@@ -227,29 +228,24 @@ def open_and_split_children_files(file_path):
         # Iterate through each child file
         for child_num in range(1, num_children + 1):
             with tempfile.NamedTemporaryFile(mode='w+', delete=False) as child_file:
-                child_filename = child_file.name
-
+                child_filenames.append(child_file.name)
                 # Write the header columns to the child file
                 header_line = '\t'.join([header_columns[0], header_columns[1],
                                          header_columns[4],
                                          header_columns[child_num + 4]])
                 child_file.write(header_line + '\n')
-
                 # Iterate through each line in the input file
                 infile.seek(0)  # Reset file pointer to the beginning
                 next(infile)  # Skip the header line
                 for line in infile:
                     # Split the line into columns
                     columns = line.strip().split('\t')
-
                     # Extract the desired columns for the current child file
                     child_line = f"{columns[0]}\t{columns[1]}\t{columns[4]}\t" \
                                  f"{columns[child_num + 4]}\n"
-
                     # Write the line to the child file
                     child_file.write(child_line)
-
-    return num_children, child_filename
+    return num_children, child_filenames
 
 
 def split_file_to_chromosomes(input_file, output_directory):
