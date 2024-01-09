@@ -1,0 +1,90 @@
+In this file we will explain what we did in the lab so far and
+the difficulties on the way
+
+
+Main Goal
+filter non-relevant variants in cancer patients DNA sequencing
+
+
+Approach:
+
+comparing the haplotype inheritance in different families.
+This way, we will only consider the variants in the areas where all the siblings/ children
+have the same haplotype.
+For example, say we have 3 cancer patients - a mother and her 2 children.
+For simplicity, we will focus on chromosome 13 (chosen arbitrary).
+Now, say that child 1 inherited haplotype 1 from position 1 to 30M in chromosome 13,
+and inherited haplotype 2 from position 30M to the end of the chromosome (due to recombination)
+In addition, child 2 inherited haplotype 2 from position 1 to 15M, and from position 35M to the
+end of the chromosome, and inherited haplotype 1 from position 15M to 35M.
+We want to create an algorithm that filters the chromosomes such that it will show us the
+common haplotype inheritance - where in the example above, this area (in chromosome 13 as
+mentioned), is from positions:
+15M-30M for haplotype 1
+35M-end of chromosome for haplotype 2.
+
+
+Filtering Process & Example
+
+The data given is DNA sequencing of cancer patients, which consists only from variants -
+each row depicts information on a single variant, including the haplotype information for
+each variant.
+The haplotype information is in the following format:
+1|0, 0|1, 1|1, 0|0 where 1|0 depicts heterozygous variant and 1|1 depicts homozygous variant.
+The first filter - delete all the rows that the reference is homozygous (1|1 or 0|0), and
+the non-reference are heterozygous.
+This way we can determine which haplotype inherited, for example:
+reference - 1|0 non-reference - 1|1, in this case the inheritance type is 1 (arbitrary number
+to indicate that the reference inherited its left haplotype).
+reference - 1|0 non-reference - 0|0, the inheritance type is 2.
+The second filter deals with sequencing errors - for each variant, we check the haplotype
+inheritance type (the numbers 1 or 2) of the next 19 variants. Only if 19 (out of 20) or
+more variants are classified the same as the current variant, the variant won't be filtered out.
+
+
+Intervals & Inverted Intervals
+
+After all the filters applied, we wanted to create plots and tables that depict the common
+haplotype inheritance in all the non-reference patients.
+
+First, we start with "regular" intervals - we created interval tables and plots for each of
+the chromosomes.
+An interval is created as follows:
+Find the first variant's position where all the non-reference patients have the same haplotype
+(1 or 2), this position will be the start of a new interval. Afterward, move to the following
+variants until the opposing haplotype is seen in one of the patients (E.G start with 1 and
+encounter 2). The end of the current interval will be the position of the previous variant.
+
+Second, we created "inverted" intervals - the process is the same as explained above, but in
+this case we first inverted the reference haplotype data, as explained in Problems & solutions
+section. In this case, all the intervals will be classified as haplotype 1 (arbitrary).
+
+
+The Algorithm
+
+After given a processed family file, the algorithm will split it to each of the chromosomes, and
+analyze each of them separately, as mentioned above.
+it will create directories containing the output data:
+chromosomes - 23 files of the different chromosomes
+haplotype_interval_tables - tables of all the chromosomes, and a merged excell file. The tables
+and the file contain the information about the common haplotype locations in the non-reference
+patients (children\ siblings).
+interval_plots - plotted interval tables, a plot for each chromosome.
+
+
+Problems & Solutions
+
+Problem - the information regarding the haplotype inheritance can be mixed - the haplotype order
+can be inverted in the given file, although in reality the haplotype shouldn't be inverted (there
+was no recombination).
+Solution - taking one of the patients, and assuming that the reference patient inherited one of
+the haplotypes (in our case - haplotype 1). Afterward, inverting the reference patient's
+information on haplotypes, such that it will be seen as the reference actually inherited only
+haplotype 1 to one of the patients in his family. Then, we find the haplotype inheritance of all
+the other cancer patients in the family, and compare the results.
+What we will see - only the parts of the chromosome (haplotypes) that all the patients share.
+
+Problem - the sequenced patients in some families are siblings and not mother-children, we don't
+have a reference genome to compare haplotypes.
+Solution - picking one of the siblings arbitrary as reference. In addition, we can change the
+referenced sibling if needed.
