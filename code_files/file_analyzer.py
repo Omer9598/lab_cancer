@@ -91,7 +91,7 @@ def merge_haplotype_tables(input_directory, chromosome_coverage_dict):
     output_path_merged = f"{input_directory}/merged_haplotype_intervals.txt"
     with open(output_path_merged, 'w') as output_file:
         # Write the header line
-        output_file.write("CHROM\tSTART\tEND\tHAPLOTYPE\tCOVERAGE\n")
+        output_file.write("CHROM\tSTART\tEND\tHAPLOTYPE\tCERTAINTY\tCOVERAGE\n")
 
         # Write each merged interval to the output file
         for interval in merged_intervals:
@@ -129,6 +129,8 @@ def create_table(data_list, output_directory):
     start - the starting position of the interval in the row's chromosome
     end - the ending position
     haplotype - the haplotype of the current interval
+    certainty_level - 1 for areas with the same haplotype,
+    -1 for areas with opposing haplotypes
     the .txt file will be saved in the interval_tables directory
     """
     # Create the output directory if it doesn't exist
@@ -149,6 +151,10 @@ def create_table(data_list, output_directory):
             {k: entry[k] for k in ['chromosome', 'start', 'end', 'haplotype']} for
             entry in chromosome_data]
 
+        # Calculate certainty level
+        for entry in data_list_reordered:
+            entry['certainty_level'] = 1 if entry['haplotype'] == chromosome_data[0]['haplotype'] else -1
+
         file_path = os.path.join(output_directory,
                                  f'haplotype_interval_table_{chromosome}.txt')
 
@@ -156,7 +162,8 @@ def create_table(data_list, output_directory):
         with open(file_path, 'w') as file:
             for entry in data_list_reordered:
                 file.write(f"{entry['chromosome']}\t{entry['start']}\t"
-                           f"{entry['end']}\t{entry['haplotype']}\n")
+                           f"{entry['end']}\t{entry['haplotype']}\t"
+                           f"{entry['certainty_level']}\n")
 
 
 def invert_reference_genome_haplotype(input_file, output_directory):

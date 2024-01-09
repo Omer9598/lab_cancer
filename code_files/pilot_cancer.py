@@ -105,7 +105,6 @@ def single_chromosome_process(input_path, reference_type,
         # Delete the last child file after processing
         os.remove(child_filename)
     shared_interval_list = shared_interval(interval_children_list)
-    # non_shared_interval_list = non_shared_intervals(interval_children_list)
     create_table(shared_interval_list, output_directory_tables)
 
     plot_title = f'chromosome {chromosome_number} interval plot'

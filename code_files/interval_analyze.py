@@ -57,6 +57,7 @@ def shared_interval(interval_lists):
         # Iterate through each interval in the current list
         for interval_1 in shared_intervals:
             for interval_2 in interval_list:
+                # Shared interval case
                 if (
                         interval_1["haplotype"] == interval_2["haplotype"]
                         and interval_1["start"] <= interval_2["end"]
@@ -70,6 +71,20 @@ def shared_interval(interval_lists):
                                                   "haplotype": interval_1["haplotype"],
                                                   "chromosome": interval_1["chromosome"],
                                                   "certainty_level": 1})
+                # Non-shared interval case
+                if (
+                        interval_1["haplotype"] != interval_2["haplotype"]
+                        and interval_1["start"] <= interval_2["end"]
+                        and interval_1["end"] >= interval_2["start"]
+                ):
+                    # Calculate the intersection of intervals
+                    start = max(interval_1["start"], interval_2["start"])
+                    end = min(interval_1["end"], interval_2["end"])
+                    temp_shared_intervals.append({"start": start,
+                                                  "end": end,
+                                                  "haplotype": interval_1["haplotype"],
+                                                  "chromosome": interval_1["chromosome"],
+                                                  "certainty_level": -1})
         # Update shared_intervals with the current shared intervals
         shared_intervals = temp_shared_intervals
     return shared_intervals
@@ -102,6 +117,24 @@ def non_shared_intervals(interval_lists):
     return result
 
 
+# def plot_interval(interval_list, plot_title, save_dir):
+#     """
+#     This function plots intervals as straight lines using Matplotlib.
+#     """
+#     fig, ax = plt.subplots()
+#     for i, interval in enumerate(interval_list):
+#         start_position = interval["start"]
+#         end_position = interval["end"]
+#         haplotype = interval["haplotype"]
+#         # Plot lines for each interval
+#         ax.plot([start_position, end_position], [haplotype, haplotype], label=f'Interval {i + 1}')
+#     ax.set(xlabel='Chromosome Position', ylabel='Haplotype', title=plot_title)
+#     # Save the plot
+#     save_path = os.path.join(save_dir, f'{plot_title.replace(" ", "_")}_plot.png')
+#     # Create the directory if it doesn't exist
+#     os.makedirs(save_dir, exist_ok=True)
+#     plt.savefig(save_path)
+
 def plot_interval(interval_list, plot_title, save_dir):
     """
     This function plots intervals as straight lines using Matplotlib.
@@ -111,8 +144,14 @@ def plot_interval(interval_list, plot_title, save_dir):
         start_position = interval["start"]
         end_position = interval["end"]
         haplotype = interval["haplotype"]
+        certainty_level = interval.get("certainty_level", None)
+
+        # Determine color based on certainty level
+        color = 'red' if certainty_level == -1 else 'green'
+
         # Plot lines for each interval
-        ax.plot([start_position, end_position], [haplotype, haplotype], label=f'Interval {i + 1}')
+        ax.plot([start_position, end_position], [haplotype, haplotype], label=f'Interval {i + 1}', color=color)
+
     ax.set(xlabel='Chromosome Position', ylabel='Haplotype', title=plot_title)
     # Save the plot
     save_path = os.path.join(save_dir, f'{plot_title.replace(" ", "_")}_plot.png')
