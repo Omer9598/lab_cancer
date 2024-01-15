@@ -114,18 +114,20 @@ def single_chromosome_process(input_path, reference_type,
     return shared_interval_list
 
 
-def analyze_single_chromosome(chromosome_data_file, chrom_num,
-                              reference):
+def analyze_single_chromosome(chromosome_data_file, chrom_num, reference):
     """
     This function will analyze a single chromosome,
     create interval tables for:
     Window sizes 20, 30, 50
     Error sizes 5%, 10%, 15%
     for all the permutations of the values above, we will create
-    a line in the final plot
+    two plots - one with error percent vs coverage and another with
+    window size vs coverage
     """
     window_size_dict = {}
     error_coverage_dict = {}
+    window_coverage_dict = {}
+
     # Creating all the interval tables
     for i in range(2):
         for window_size in [20, 30, 50]:
@@ -134,30 +136,49 @@ def analyze_single_chromosome(chromosome_data_file, chrom_num,
                     chromosome_data_file, reference,
                     "temp_script", "temp_script",
                     i, chrom_num, window_size, window_size * error)
-                # Updating the window size and error dict
+                # Updating the window size and error dicts
                 key = f'chrom_{chrom_num}_window_{window_size}_error_{error}'
-                window_size_dict.setdefault(window_size, []).append((error, calc_coverage(interval_list, chrom_num)))
-                # window_size_dict[key] = [window_size, error]
-                # error_coverage_dict[key] = calc_coverage(interval_list, chrom_num)
+                window_size_dict[key] = [window_size, error]
+                error_coverage_dict[key] = calc_coverage(interval_list, chrom_num)
 
-    plt.figure(figsize=(10, 6))
-    for window_size, points in window_size_dict.items():
-        points.sort()  # Sort by error size
-        x, y = zip(*points)
-        plt.plot(x, y, marker='o', label=f'Window Size {window_size}')
+                # Add window size and coverage to window_coverage_dict
+                if window_size not in window_coverage_dict:
+                    window_coverage_dict[window_size] = []
+                window_coverage_dict[window_size].append(calc_coverage(interval_list, chrom_num))
 
-        # Connect points with the same window size
-        plt.plot(x, y, linestyle='-', color='grey', alpha=0.5)
+    # Plot for Error Percent vs Coverage
+    plt.figure(figsize=(12, 6))
+
+    # Iterate through window sizes and plot lines for each
+    for window_size in [20, 30, 50]:
+        window_data = [(values[1], error_coverage_dict[key])
+                       for key, values in window_size_dict.items()
+                       if values[0] == window_size]
+        error_percents, coverages = zip(*window_data)
+        plt.plot(error_percents, coverages, marker='o', label=f'Window Size {window_size}')
 
     plt.title(f'Error Percent vs Coverage for Chromosome {chrom_num}')
     plt.xlabel('Error Percent')
     plt.ylabel('Coverage')
     plt.legend()
     plt.grid(True)
-    plt.show()
+    plot_path = "temp_script/error_coverage_chr{}.png".format(chrom_num)
+    plt.savefig(plot_path)
 
+    # Plot for Window Size vs Coverage
+    plt.figure(figsize=(12, 6))
+    for window_size, coverages in window_coverage_dict.items():
+        avg_coverage = sum(coverages) / len(coverages)
+        plt.plot(window_size, avg_coverage, marker='o', label=f'Window Size {window_size}')
 
-# plot_window_size(window_size_dict, chrom_num)
+    plt.title(f'Window Size vs Average Coverage for Chromosome {chrom_num}')
+    plt.xlabel('Window Size')
+    plt.ylabel('Average Coverage')
+    plt.legend()
+    plt.grid(True)
+    plot_path = "temp_script/window_coverage_chr{}.png".format(chrom_num)
+    plt.savefig(plot_path)
+
 
 
 def main():
@@ -203,5 +224,5 @@ def main():
 
 if __name__ == '__main__':
     # main()
-    analyze_single_chromosome("family1/chromosomes/chromosome_13.txt",
+    analyze_single_chromosome("/Users/dahansarah/PycharmProjects/lab_cancer/data_files/chromosome_13.txt",
                               13, "parent")
