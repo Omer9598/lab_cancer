@@ -120,7 +120,7 @@ def write_common_genes_to_file(output_directory, cancer_genes_dict):
     df.to_excel(excel_output_path, index=False)
 
 
-def create_table(data_list, output_directory):
+def create_table(data_list, output_directory, window_size, error_size):
     """
     This function will create the shared haplotype intervals table
     The table will be in a new .txt file, ordered in the following format -
@@ -156,7 +156,8 @@ def create_table(data_list, output_directory):
             entry['certainty_level'] = 1 if entry['haplotype'] == chromosome_data[0]['haplotype'] else -1
 
         file_path = os.path.join(output_directory,
-                                 f'haplotype_interval_table_{chromosome}.txt')
+                                 f'interval_table_{chromosome}_window_{window_size}'
+                                 f'_error{error_size}.txt')
 
         # Write the data to a text file
         with open(file_path, 'w') as file:

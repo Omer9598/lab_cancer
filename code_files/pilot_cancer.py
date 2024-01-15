@@ -105,13 +105,32 @@ def single_chromosome_process(input_path, reference_type,
         # Delete the last child file after processing
         os.remove(child_filename)
     shared_interval_list = shared_interval(interval_children_list)
-    create_table(shared_interval_list, output_directory_tables)
+    create_table(shared_interval_list, output_directory_tables, window_size, error_size)
 
-    plot_title = f'chromosome {chromosome_number} interval plot'
+    plot_title = f'chromosome {chromosome_number} interval'
     plot_interval(shared_interval_list, plot_title,
                   save_dir=output_directory_plots)
 
     return shared_interval_list
+
+
+def analyze_single_chromosome(chromosome_data_file, chrom_num,
+                              reference):
+    """
+    This function will analyze a single chromosome,
+    create interval tables for:
+    Window sizes 20, 30, 50
+    Error sizes 5%, 10%, 15%
+    for all the permutations of the values above, we will create
+    a line in the final plot
+    """
+    # Inverted and not inverted
+    for i in range(2):
+        for window_size in [20, 30, 50]:
+            for error in [0.95, 0.9, 0.85]:
+                single_chromosome_process(chromosome_data_file, reference,
+                                          "temp_script", "temp_script",
+                                          i, chrom_num, window_size, window_size * error)
 
 
 def main():
@@ -156,7 +175,9 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    # main()
+    analyze_single_chromosome("family1/chromosomes/chromosome_13.txt",
+                              13, "parent")
 
     # # Example usage
     # list1 = [{"haplotype": 1, "start": 1, "end": 3, "chromosome": 1},
