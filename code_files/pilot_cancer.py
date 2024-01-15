@@ -105,7 +105,8 @@ def single_chromosome_process(input_path, reference_type,
         # Delete the last child file after processing
         os.remove(child_filename)
     shared_interval_list = shared_interval(interval_children_list)
-    create_table(shared_interval_list, output_directory_tables, window_size, error_size)
+    create_table(shared_interval_list, output_directory_tables, window_size,
+                 error_size, inverted)
 
     plot_title = f'chromosome {chromosome_number} interval'
     plot_interval(shared_interval_list, plot_title,
@@ -146,10 +147,10 @@ def analyze_single_chromosome(chromosome_data_file, chrom_num, reference):
                     window_coverage_dict[window_size] = []
                 window_coverage_dict[window_size].append(calc_coverage(interval_list, chrom_num))
 
-    plot_chromosome_analyze(chrom_num, error_coverage_dict, window_size_dict)
+        plot_chromosome_analyze(chrom_num, error_coverage_dict, window_size_dict, i)
 
 
-def plot_chromosome_analyze(chrom_num, error_coverage_dict, window_size_dict):
+def plot_chromosome_analyze(chrom_num, error_coverage_dict, window_size_dict, inverted):
     # Plot for Error Percent vs Coverage
     plt.figure(figsize=(12, 6))
     # Iterate through window sizes and plot lines for each
@@ -164,7 +165,7 @@ def plot_chromosome_analyze(chrom_num, error_coverage_dict, window_size_dict):
     plt.ylabel('Coverage')
     plt.legend()
     plt.grid(True)
-    plot_path = "temp_script/error_coverage_chr{}.png".format(chrom_num)
+    plot_path = "temp_script/error_coverage_chr{}inverted{}.png".format(chrom_num, inverted)
     plt.savefig(plot_path)
 
 
