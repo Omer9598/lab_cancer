@@ -136,12 +136,13 @@ def analyze_single_chromosome(chromosome_data_file, chrom_num,
                     i, chrom_num, window_size, window_size * error)
                 # Updating the window size and error dict
                 key = f'chrom_{chrom_num}_window_{window_size}_error_{error}'
-                window_size_dict[key] = [window_size, error]
-                error_coverage_dict[key] = calc_coverage(interval_list, chrom_num)
+                window_size_dict.setdefault(window_size, []).append((error, calc_coverage(interval_list, chrom_num)))
 
     plt.figure(figsize=(10, 6))
-    for key, values in window_size_dict.items():
-        plt.plot(values[1], error_coverage_dict[key], marker='o', label=key)
+    for window_size, points in window_size_dict.items():
+        points.sort()  # Sort by error size
+        x, y = zip(*points)
+        plt.plot(x, y, marker='o', label=f'Window Size {window_size}')
 
     plt.title(f'Error Percent vs Coverage for Chromosome {chrom_num}')
     plt.xlabel('Error Percent')
