@@ -146,9 +146,12 @@ def analyze_single_chromosome(chromosome_data_file, chrom_num, reference):
                     window_coverage_dict[window_size] = []
                 window_coverage_dict[window_size].append(calc_coverage(interval_list, chrom_num))
 
+    plot_chromosome_analyze(chrom_num, error_coverage_dict, window_size_dict)
+
+
+def plot_chromosome_analyze(chrom_num, error_coverage_dict, window_size_dict):
     # Plot for Error Percent vs Coverage
     plt.figure(figsize=(12, 6))
-
     # Iterate through window sizes and plot lines for each
     for window_size in [20, 30, 50]:
         window_data = [(values[1], error_coverage_dict[key])
@@ -156,7 +159,6 @@ def analyze_single_chromosome(chromosome_data_file, chrom_num, reference):
                        if values[0] == window_size]
         error_percents, coverages = zip(*window_data)
         plt.plot(error_percents, coverages, marker='o', label=f'Window Size {window_size}')
-
     plt.title(f'Error Percent vs Coverage for Chromosome {chrom_num}')
     plt.xlabel('Error Percent')
     plt.ylabel('Coverage')
@@ -164,21 +166,6 @@ def analyze_single_chromosome(chromosome_data_file, chrom_num, reference):
     plt.grid(True)
     plot_path = "temp_script/error_coverage_chr{}.png".format(chrom_num)
     plt.savefig(plot_path)
-
-    # Plot for Window Size vs Coverage
-    plt.figure(figsize=(12, 6))
-    for window_size, coverages in window_coverage_dict.items():
-        avg_coverage = sum(coverages) / len(coverages)
-        plt.plot(window_size, avg_coverage, marker='o', label=f'Window Size {window_size}')
-
-    plt.title(f'Window Size vs Average Coverage for Chromosome {chrom_num}')
-    plt.xlabel('Window Size')
-    plt.ylabel('Average Coverage')
-    plt.legend()
-    plt.grid(True)
-    plot_path = "temp_script/window_coverage_chr{}.png".format(chrom_num)
-    plt.savefig(plot_path)
-
 
 
 def main():
@@ -224,5 +211,5 @@ def main():
 
 if __name__ == '__main__':
     # main()
-    analyze_single_chromosome("/Users/dahansarah/PycharmProjects/lab_cancer/data_files/chromosome_13.txt",
+    analyze_single_chromosome("family1/chromosomes/chromosome_13.txt",
                               13, "parent")
