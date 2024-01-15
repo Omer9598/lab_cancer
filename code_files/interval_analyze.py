@@ -1,5 +1,4 @@
 import os
-from collections import defaultdict
 
 import matplotlib.pyplot as plt
 
@@ -47,9 +46,11 @@ def shared_interval(interval_lists):
     This function creates a new list containing intervals that are shared
     in all the lists given, according to the haplotype.
     It also adds certainty level of 1 to the shared intervals.
+    If haplotypes are different, haplotype is set to 0 and certainty level to -1.
     """
     # Initialize shared_intervals with the intervals from the first list
     shared_intervals = interval_lists[0]
+
     # Iterate through the remaining lists
     for interval_list in interval_lists[1:]:
         # Use a list comprehension to find shared intervals
@@ -57,13 +58,15 @@ def shared_interval(interval_lists):
             {
                 "start": max(interval_1["start"], interval_2["start"]),
                 "end": min(interval_1["end"], interval_2["end"]),
-                "haplotype": interval_1["haplotype"],
+                "haplotype": 0 if interval_1["haplotype"] != interval_2["haplotype"] else interval_1["haplotype"],
                 "chromosome": interval_1["chromosome"],
-                "certainty_level": 1 if interval_1["haplotype"] == interval_2["haplotype"] else -1
+                "certainty_level": -1 if interval_1["haplotype"] != interval_2["haplotype"] else 1
             }
             for interval_1 in shared_intervals
             for interval_2 in interval_list
-            if interval_1["start"] <= interval_2["end"] and interval_1["end"] >= interval_2["start"]]
+            if interval_1["start"] <= interval_2["end"] and interval_1["end"] >= interval_2["start"]
+        ]
+
     return shared_intervals
 
 

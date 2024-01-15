@@ -159,6 +159,15 @@ if __name__ == '__main__':
     main()
 
     # # Example usage
+    # list1 = [{"haplotype": 1, "start": 1, "end": 3, "chromosome": 1},
+    #          {"haplotype": 1, "start": 6, "end": 7, "chromosome": 1}]
+    # list2 = [{"haplotype": 1, "start": 1, "end": 3, "chromosome": 1}]
+    # list3 = [{"haplotype": 1, "start": 2, "end": 4, "chromosome": 1}]
+    #
+    # result = shared_interval_with_certainty([list1, list2, list3])
+    # print(result)
+
+    # # Example usage
     # list1 = [{"haplotype": 1, "start": 1, "end": 5, "chromosome": 1}]
     # list2 = [{"haplotype": 1, "start": 1, "end": 2, "chromosome": 1},
     #          {"haplotype": 1, "start": 3, "end": 4, "chromosome": 1},
