@@ -114,6 +114,40 @@ def single_chromosome_process(input_path, reference_type,
     return shared_interval_list
 
 
+def plot_error_percentage(window_size_dict, chrom_num):
+    error_percentages = []
+    common_haplotype_percentages = []
+
+    for key, values in window_size_dict.items():
+        error_percentages.append(values[1])
+        common_haplotype_percentages.append(values[2] * 100)
+
+    plt.figure(figsize=(8, 6))
+    plt.plot(error_percentages, common_haplotype_percentages, marker='o')
+    plt.title(f'Error Percentage vs. Common Haplotype Percentage - Chromosome {chrom_num}')
+    plt.xlabel('Error Percentage')
+    plt.ylabel('Common Haplotype Percentage')
+    plt.grid(True)
+    plt.show()
+
+
+def plot_window_size(window_size_dict, chrom_num):
+    window_sizes = []
+    common_haplotype_percentages = []
+
+    for key, values in window_size_dict.items():
+        window_sizes.append(values[0])
+        common_haplotype_percentages.append(values[2] * 100)
+
+    plt.figure(figsize=(8, 6))
+    plt.plot(window_sizes, common_haplotype_percentages, marker='o')
+    plt.title(f'Window Size vs. Common Haplotype Percentage - Chromosome {chrom_num}')
+    plt.xlabel('Window Size')
+    plt.ylabel('Common Haplotype Percentage')
+    plt.grid(True)
+    plt.show()
+
+
 def analyze_single_chromosome(chromosome_data_file, chrom_num,
                               reference):
     """
@@ -136,6 +170,9 @@ def analyze_single_chromosome(chromosome_data_file, chrom_num,
                 # Updating the window size and error dict
                 window_size_dict[f'chrom_{chrom_num}_window_{window_size}_error_{error}']\
                     = [window_size, error, calc_coverage(interval_list, chrom_num)]
+
+    plot_error_percentage(window_size_dict, chrom_num)
+    plot_window_size(window_size_dict, chrom_num)
 
 
 def main():
