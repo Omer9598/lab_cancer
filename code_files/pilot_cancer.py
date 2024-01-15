@@ -124,13 +124,18 @@ def analyze_single_chromosome(chromosome_data_file, chrom_num,
     for all the permutations of the values above, we will create
     a line in the final plot
     """
-    # Inverted and not inverted
+    window_size_dict = {}
+    # Creating all the interval tables
     for i in range(2):
         for window_size in [20, 30, 50]:
             for error in [0.95, 0.9, 0.85]:
-                single_chromosome_process(chromosome_data_file, reference,
-                                          "temp_script", "temp_script",
-                                          i, chrom_num, window_size, window_size * error)
+                interval_list = single_chromosome_process(
+                    chromosome_data_file, reference,
+                    "temp_script", "temp_script",
+                    i, chrom_num, window_size, window_size * error)
+                # Updating the window size and error dict
+                window_size_dict[f'chrom_{chrom_num}_window_{window_size}_error_{error}']\
+                    = [window_size, error, calc_coverage(interval_list, chrom_num)]
 
 
 def main():
