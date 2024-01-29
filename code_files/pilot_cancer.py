@@ -44,7 +44,7 @@ def create_tables_and_plots(input_file, reference_type, save_directory, invert,
     """
     # Creating the common cancer variants dict
     common_cancer_variants_dict = (
-        create_common_cancer_genes_dict(r"data_files/BROCA.genes.tsv"))
+        create_common_cancer_genes_dict(r"/Users/dahansarah/PycharmProjects/lab_cancer_new/data_files/BROCA.genes.tsv"))
 
     if invert:
         # Inverting the file and saving the new path
@@ -90,11 +90,12 @@ def single_chromosome_process(input_path, reference_type,
     This function will process a single chromosome given, creating an
     interval table, and a plot.
     """
+    file_to_process = input_path
+
     if inverted:
-        file_to_process = (
-            invert_reference_genome_haplotype(input_path, output_directory_tables))
-    else:
-        file_to_process = input_path
+        # Avoid inverting the file when inverted is True
+        pass
+
     num_of_children, children_filenames = open_and_split_children_files(file_to_process)
 
     interval_children_list = []
@@ -213,8 +214,8 @@ def main():
 
 if __name__ == '__main__':
     # main()
-    create_tables_and_plots("test_data_files/processed_GP_3siblings.tab",
+    create_tables_and_plots("/Users/dahansarah/PycharmProjects/lab_cancer_new/test_data_files/processed_GP_3siblings.tab",
                             "parent",
-                            "tests/family1",
+                            "/Users/dahansarah/PycharmProjects/lab_cancer_new/tests/family1",
                             1, 20, 18)
     # preprocess_file("test_data_files/processed_GP_3siblings.tab", "test_data_files")
