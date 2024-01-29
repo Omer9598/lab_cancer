@@ -74,7 +74,8 @@ def create_tables_and_plots(input_file, reference_type, save_directory, invert,
         chromosome_coverage_dict[chrom_num] = calc_coverage(interval_list,
                                                             chrom_num)
 
-    merge_haplotype_tables(path_to_save_interval_table, chromosome_coverage_dict)
+    merge_haplotype_tables(path_to_save_interval_table, chromosome_coverage_dict,
+                           window_size, error_size, invert)
     write_common_genes_to_file(path_to_save_interval_table,
                                common_cancer_variants_dict)
 
@@ -211,6 +212,7 @@ def main():
 
 if __name__ == '__main__':
     # main()
-    # analyze_single_chromosome("family1/chromosomes/chromosome_13.txt",
-    #                           13, "parent", "temp_script")
-    preprocess_file("test_data_files/GP_3siblings.tab", "test_data_files")
+    create_tables_and_plots("test_data_files/processed_GP_3siblings.tab",
+                            "parent",
+                            "tests/family1",
+                            0, 20, 18)

@@ -62,7 +62,8 @@ def preprocess_file(input_file_path, output_directory):
         return output_file_path
 
 
-def merge_haplotype_tables(input_directory, chromosome_coverage_dict):
+def merge_haplotype_tables(input_directory, chromosome_coverage_dict,
+                           window_size, error_size, invert):
     """
     This function will merge all the tables given in the input_directory
     The format will be as follows:
@@ -74,7 +75,9 @@ def merge_haplotype_tables(input_directory, chromosome_coverage_dict):
     # Loop through chromosomes 1 to 22
     for chrom_num in range(1, 23):
         # Read each haplotype interval table file
-        file_path = f"{input_directory}/haplotype_interval_table_{chrom_num}.txt"
+        file_path = (f"{input_directory}/table_{chrom_num}_"
+                     f"{window_size}_error_{error_size}_inverted_"
+                     f"{bool(invert)}.txt")
         with open(file_path, 'r') as file:
             # Process each line in the file
             for line in file:
