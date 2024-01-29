@@ -48,7 +48,7 @@ def create_tables_and_plots(input_file, reference_type, save_directory, invert,
 
     if invert:
         # Inverting the file and saving the new path
-        file_to_split = invert_reference_genome_haplotype(input_file, "data_files")
+        file_to_split = invert_reference_genome_haplotype(input_file, save_directory)
         path_to_save_interval_table = save_directory + "/inverted_interval_tables"
         path_to_save_interval_plots = save_directory + "/inverted_interval_plots"
     else:
@@ -218,4 +218,3 @@ if __name__ == '__main__':
                             "parent",
                             "/Users/dahansarah/PycharmProjects/lab_cancer_new/tests/family1",
                             1, 20, 18)
-    # preprocess_file("test_data_files/processed_GP_3siblings.tab", "test_data_files")
