@@ -115,7 +115,7 @@ def single_chromosome_process(input_path, reference_type,
     return shared_interval_list
 
 
-def analyze_single_chromosome(chromosome_data_file, chrom_num, reference):
+def analyze_single_chromosome(chromosome_data_file, chrom_num, reference, output_directory):
     """
     This function will analyze a single chromosome,
     create interval tables for:
@@ -134,8 +134,7 @@ def analyze_single_chromosome(chromosome_data_file, chrom_num, reference):
         for window_size in [20, 30, 50]:
             for error in [0.95, 0.9, 0.85]:
                 interval_list = single_chromosome_process(
-                    chromosome_data_file, reference,
-                    "temp_script", "temp_script",
+                    chromosome_data_file, reference, output_directory, output_directory,
                     i, chrom_num, window_size, window_size * error)
                 # Updating the window size and error dicts
                 key = f'chrom_{chrom_num}_window_{window_size}_error_{error}'
@@ -212,5 +211,6 @@ def main():
 
 if __name__ == '__main__':
     # main()
-    analyze_single_chromosome("family1/chromosomes/chromosome_13.txt",
-                              13, "parent")
+    # analyze_single_chromosome("family1/chromosomes/chromosome_13.txt",
+    #                           13, "parent", "temp_script")
+    preprocess_file("test_data_files/GP_3siblings.tab", "test_data_files")

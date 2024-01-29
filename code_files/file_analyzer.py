@@ -19,7 +19,7 @@ def preprocess_file(input_file_path, output_directory):
     # Find the header line and process it separately
     header_index = None
     for i, line in enumerate(lines):
-        if line.startswith("CHROM"):
+        if line.startswith("#CHROM"):
             header_index = i
             break
 
