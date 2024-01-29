@@ -66,7 +66,7 @@ def create_tables_and_plots(input_file, reference_type, save_directory, invert,
         interval_list = single_chromosome_process(
             save_directory + f"/chromosomes/chromosome_{chrom_num}.txt",
             reference_type, path_to_save_interval_table,
-            path_to_save_interval_plots, False, chrom_num,
+            path_to_save_interval_plots, invert, chrom_num,
             window_size, error_size)
         update_cancer_variant_dict(interval_list,
                                    common_cancer_variants_dict)
@@ -105,6 +105,7 @@ def single_chromosome_process(input_path, reference_type,
         interval_children_list.append(interval_list)
         # Delete the last child file after processing
         os.remove(child_filename)
+
     shared_interval_list = shared_interval(interval_children_list)
     create_table(shared_interval_list, output_directory_tables, window_size,
                  error_size, inverted)
@@ -215,4 +216,5 @@ if __name__ == '__main__':
     create_tables_and_plots("test_data_files/processed_GP_3siblings.tab",
                             "parent",
                             "tests/family1",
-                            0, 20, 18)
+                            1, 20, 18)
+    # preprocess_file("test_data_files/processed_GP_3siblings.tab", "test_data_files")

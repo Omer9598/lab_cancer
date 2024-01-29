@@ -76,7 +76,7 @@ def merge_haplotype_tables(input_directory, chromosome_coverage_dict,
     for chrom_num in range(1, 23):
         # Read each haplotype interval table file
         file_path = (f"{input_directory}/table_{chrom_num}_"
-                     f"{window_size}_error_{error_size}_inverted_"
+                     f"window_{window_size}_error_{error_size}_inverted_"
                      f"{bool(invert)}.txt")
         with open(file_path, 'r') as file:
             # Process each line in the file
@@ -160,7 +160,7 @@ def create_table(data_list, output_directory, window_size, error_size, inverted)
 
         file_path = os.path.join(output_directory,
                                  f'table_{chromosome}_window_{window_size}'
-                                 f'_error_{error_size}_inverted_{inverted}.txt')
+                                 f'_error_{error_size}_inverted_{bool(inverted)}.txt')
 
         # Write the data to a text file
         with open(file_path, 'w') as file:
