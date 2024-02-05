@@ -3,7 +3,7 @@ import os
 import matplotlib.pyplot as plt
 
 
-def create_intervals(haplotype_dict):
+def create_intervals(haplotype_dict, interval_len=1000000000000000000000000000):
     """
     This function will create a list for each child in the following format:
     [(interval number is the index) {start position: , end position: ,
@@ -15,29 +15,40 @@ def create_intervals(haplotype_dict):
     intervals = []
     current_interval = None
     for position, value in haplotype_dict.items():
-        chromosome = haplotype_dict[position][-3]
+        chromosome = value[-3]
         cur_haplotype = value[-2]
+
         if current_interval is None:
             # Start a new interval
-            current_interval = {"start": position, "end": position,
-                                "haplotype": cur_haplotype}
-        elif cur_haplotype == current_interval["haplotype"]:
-            # Continue the current interval
-            current_interval["end"] = position
+            current_interval = {"start": position, "end": position, "haplotype": cur_haplotype}
         else:
-            # Start a new interval as haplotype changed
-            intervals.append({"start": current_interval["start"],
-                              "end": current_interval["end"],
-                              "haplotype": current_interval["haplotype"],
-                              "chromosome": chromosome})
-            current_interval = {"start": position, "end": position,
-                                "haplotype": cur_haplotype}
+            # Check conditions to close the interval
+            next_variant_position = position
+            while next_variant_position - current_interval["start"] <= interval_len:
+                next_variant_position += 1
+                if next_variant_position not in haplotype_dict:
+                    break
+                if haplotype_dict[next_variant_position][-2] == current_interval["haplotype"]:
+                    break
+
+            # Start a new interval if conditions are not met
+            if next_variant_position - current_interval["start"] > interval_len:
+                intervals.append({"start": current_interval["start"],
+                                  "end": current_interval["start"] + interval_len,
+                                  "haplotype": current_interval["haplotype"],
+                                  "chromosome": chromosome})
+                current_interval = {"start": position, "end": position, "haplotype": cur_haplotype}
+            else:
+                # Continue the current interval
+                current_interval["end"] = position
+
     # Add the last interval
     if current_interval is not None:
         intervals.append({"start": current_interval["start"],
                           "end": current_interval["end"],
                           "haplotype": current_interval["haplotype"],
                           "chromosome": chromosome})
+
     return intervals
 
 

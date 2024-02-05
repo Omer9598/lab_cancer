@@ -138,7 +138,6 @@ def create_table(data_list, output_directory, window_size, error_size, inverted)
     """
     # Create the output directory if it doesn't exist
     os.makedirs(output_directory, exist_ok=True)
-
     # Group data by chromosome
     grouped_data = {}
     for entry in data_list:
