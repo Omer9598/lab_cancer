@@ -3,7 +3,7 @@ import os
 import matplotlib.pyplot as plt
 
 
-def create_intervals(haplotype_dict, interval_len=1000000000000000000000000000):
+def create_intervals(haplotype_dict, interval_len=1000000):
     """
     This function will create a list for each child in the following format:
     [(interval number is the index) {start position: , end position: ,
