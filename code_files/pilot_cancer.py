@@ -210,9 +210,13 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    # main()
     # preprocess_file("test_data_files/GP_3siblings.HET.tab", "test_data_files")
-    # create_tables_and_plots("test_data_files/processed_GP_3siblings.HET.tab",
+    # create_tables_and_plots("test_data_files/simulated.family.genotypes.tsv",
     #                         "parent",
     #                         "tests/family1",
     #                         1, 10, 8)
+
+    single_chromosome_process("tests/family1/chromosomes/chromosome_22.txt", "parent",
+                              "tests/family1/inverted_tables", "tests/family1/inverted_plots",
+                              0, 22, 50, 45)

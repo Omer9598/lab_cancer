@@ -24,11 +24,15 @@ def create_intervals(haplotype_dict, interval_len=1000000):
         else:
             # Check conditions to close the interval
             next_variant_position = position
+            next_positions = list(haplotype_dict.keys())
             while next_variant_position - current_interval["start"] <= interval_len:
-                next_variant_position += 1
-                if next_variant_position not in haplotype_dict:
+                next_index = next_positions.index(next_variant_position)
+                if next_index == len(next_positions) - 1:
+                    # If it's the last position in the dictionary, break
                     break
-                if haplotype_dict[next_variant_position][-2] == current_interval["haplotype"]:
+                next_variant_position = next_positions[next_index + 1]
+                # Check the same haplotype
+                if haplotype_dict[next_variant_position][-2] != current_interval["haplotype"]:
                     break
 
             # Start a new interval if conditions are not met
