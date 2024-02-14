@@ -219,4 +219,4 @@ if __name__ == '__main__':
 
     single_chromosome_process("tests/family1/chromosomes/chromosome_22.txt", "parent",
                               "tests/family1/inverted_tables", "tests/family1/inverted_plots",
-                              0, 22, 50, 45)
+                              1, 22, 50, 45)
