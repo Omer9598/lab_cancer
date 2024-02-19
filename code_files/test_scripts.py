@@ -25,6 +25,9 @@ def parse_expected_data(expected_data_file):
 
 def calculate_coverage(real_data, expected_data):
     coverage = {}
+    all_chrom_coverage = 0
+    all_chrom_true = 0
+
     for chromosome in real_data.keys():
         real_intervals = real_data[chromosome]
         expected_intervals = expected_data[str(chromosome)]
@@ -43,10 +46,13 @@ def calculate_coverage(real_data, expected_data):
         false_negative = (total_real_len - total_coverage) / total_real_len * 100
         false_positive = (total_expected_len - total_coverage) / total_expected_len * 100
         coverage[chromosome] = (coverage_percentage, false_negative, false_positive)
-    return coverage
+        all_chrom_coverage += total_coverage
+        all_chrom_true += total_real_len
+    return coverage, all_chrom_coverage / all_chrom_true
 
 
-def write_results(output_file, expected_coverage, inverted_coverage):
+def write_results(output_file, expected_coverage, inverted_coverage,
+                  total_coverage, total_coverage_inverted):
     with open(output_file, 'w') as f:
         f.write("Chromosome\tRight Coverage\tFalse Negative\tFalse Positive\n")
         for chromosome in sorted(expected_coverage.keys()):
@@ -55,14 +61,18 @@ def write_results(output_file, expected_coverage, inverted_coverage):
             f.write(f"{chromosome}i\t{inverted_coverage[chromosome][0]:.2f}%\t{inverted_coverage[chromosome][1]:.2f}%"
                     f"\t{inverted_coverage[chromosome][2]:.2f}%\n\n")
 
+        f.write(f"Total Coverage Regular: {100 * total_coverage:.2f}%\n"
+                f"Total Coverage Inverted: {100 * total_coverage_inverted:.2f}%")
+
 
 def check_right_coverage(real_data_file, expected_data_file, expected_inverted_data_file, output_file):
     real_data = parse_real_data(real_data_file)
     expected_data = parse_expected_data(expected_data_file)
     expected_inverted_data = parse_expected_data(expected_inverted_data_file)
 
-    expected_coverage = calculate_coverage(real_data, expected_data)
-    inverted_coverage = calculate_coverage(real_data, expected_inverted_data)
+    expected_coverage, total_coverage = calculate_coverage(real_data, expected_data)
+    inverted_coverage, total_coverage_inverted = calculate_coverage(real_data, expected_inverted_data)
 
-    write_results(output_file, expected_coverage, inverted_coverage)
+    write_results(output_file, expected_coverage, inverted_coverage,
+                  total_coverage, total_coverage_inverted)
 
