@@ -3,6 +3,7 @@ import os
 from interval_analyze import *
 from dict_analyzer import *
 from file_analyzer import *
+from test_scripts import *
 import sys
 
 
@@ -210,6 +211,12 @@ def main():
 
 
 if __name__ == '__main__':
+
+    check_right_coverage("tests/family1/real.shared.tsv",
+                         "tests/family1/interval_tables/merged_haplotype_intervals.txt",
+                         "tests/family1/inverted_interval_tables/merged_haplotype_intervals.txt",
+                         "tests/family1/coverage_results")
+
     # main()
     # preprocess_file("test_data_files/GP_3siblings.HET.tab", "test_data_files")
     # create_tables_and_plots("test_data_files/simulated.family.genotypes.tsv",
@@ -217,6 +224,8 @@ if __name__ == '__main__':
     #                         "tests/family1",
     #                         1, 10, 8)
 
-    single_chromosome_process("tests/family1/chromosomes/chromosome_22.txt", "parent",
-                              "tests/family1/inverted_tables", "tests/family1/inverted_plots",
-                              1, 22, 20, 18)
+    # single_chromosome_process("tests/family1/chromosomes/chromosome_22.txt", "parent",
+    #                           "tests/family1/inverted_tables", "tests/family1/inverted_plots",
+    #                           1, 22, 20, 18)
+
+
