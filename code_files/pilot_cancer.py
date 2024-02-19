@@ -217,6 +217,9 @@ if __name__ == '__main__':
                          "tests/family1/inverted_interval_tables/merged_haplotype_intervals.txt",
                          "tests/family1/coverage_results")
 
+    # print(calculate_coverage({'1': [(0, 200)]},
+    #                    {'1': [(10, 20), (45, 300)]}))
+
     # main()
     # preprocess_file("test_data_files/GP_3siblings.HET.tab", "test_data_files")
     # create_tables_and_plots("test_data_files/simulated.family.genotypes.tsv",

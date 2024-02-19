@@ -27,20 +27,33 @@ def calculate_coverage(real_data, expected_data):
     coverage = {}
     for chromosome in real_data.keys():
         real_intervals = real_data[chromosome]
-        expected_intervals = expected_data.get(chromosome, [])
-        true_positive = sum(1 for interval in expected_intervals if any(start <= interval[0] and end >= interval[1] for start, end in real_intervals))
-        false_positive = sum(1 for interval in expected_intervals if all(start > interval[1] or end < interval[0] for start, end in real_intervals))
-        total_intervals = len(real_intervals)
-        coverage[chromosome] = (true_positive / total_intervals * 100, false_positive)
+        expected_intervals = expected_data[str(chromosome)]
+        total_coverage = 0
+        for expected_interval in expected_intervals:
+            interval_coverage = 0
+            for real_interval in real_intervals:
+                overlap_start = max(expected_interval[0], real_interval[0])
+                overlap_end = min(expected_interval[1], real_interval[1])
+                overlap_length = max(0, overlap_end - overlap_start)
+                interval_coverage += overlap_length
+            total_coverage += interval_coverage
+        total_real_len = sum(end - start for start, end in real_intervals)
+        total_expected_len = sum(end - start for start, end in expected_intervals)
+        coverage_percentage = total_coverage / total_real_len * 100 if total_real_len > 0 else 0
+        false_negative = (total_real_len - total_coverage) / total_real_len * 100
+        false_positive = (total_expected_len - total_coverage) / total_expected_len * 100
+        coverage[chromosome] = (coverage_percentage, false_negative, false_positive)
     return coverage
 
 
 def write_results(output_file, expected_coverage, inverted_coverage):
     with open(output_file, 'w') as f:
-        f.write("Chromosome\tRight Coverage\tWrong Coverage\n")
+        f.write("Chromosome\tRight Coverage\tFalse Negative\tFalse Positive\n")
         for chromosome in sorted(expected_coverage.keys()):
-            f.write(f"{chromosome}\t{expected_coverage[chromosome][0]:.2f}%\t{expected_coverage[chromosome][1]}\n")
-            f.write(f"{chromosome}_inv\t{inverted_coverage[chromosome][0]:.2f}%\t{inverted_coverage[chromosome][1]}\n")
+            f.write(f"{chromosome}\t{expected_coverage[chromosome][0]:.2f}%\t{expected_coverage[chromosome][1]:.2f}%"
+                    f"\t{expected_coverage[chromosome][2]:.2f}%\n")
+            f.write(f"{chromosome}i\t{inverted_coverage[chromosome][0]:.2f}%\t{inverted_coverage[chromosome][1]:.2f}%"
+                    f"\t{inverted_coverage[chromosome][2]:.2f}%\n\n")
 
 
 def check_right_coverage(real_data_file, expected_data_file, expected_inverted_data_file, output_file):
