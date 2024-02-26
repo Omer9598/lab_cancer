@@ -85,5 +85,5 @@ def check_right_coverage(real_data_file, expected_data_file, expected_inverted_d
     inverted_coverage, total_coverage_inverted = calculate_coverage(real_data, expected_inverted_data)
 
     write_results(output_file, expected_coverage, inverted_coverage,
-                  total_coverage, total_coverage_inverted, )
+                  total_coverage, total_coverage_inverted)
 
