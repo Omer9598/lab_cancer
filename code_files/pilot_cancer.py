@@ -212,26 +212,34 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    #
+    # single_chromosome_process("tests/family1/chromosomes/chromosome_22.txt", "parent",
+    #                           "tests/family1/chrom_22_analyze", "tests/family1/chrom_22_analyze",
+    #                           0, 22, 20, 16)
+    #
+    # single_chromosome_process("tests/family1/inverted_chromosomes/chromosome_22.txt", "parent",
+    #                           "tests/family1/chrom_22_analyze", "tests/family1/chrom_22_analyze",
+    #                           1, 22, 20, 16)
+    # main()
     # create_tables_and_plots("test_data_files/simulated.family.genotypes.tsv", "parent",
     #                         "tests/family1", 1, 50, 48)
 
-    # check_right_coverage("tests/family1/real.shared.tsv",
-    #                      "tests/family1/interval_tables/merged_haplotype_intervals.txt",
-    #                      "tests/family1/inverted_interval_tables/merged_haplotype_intervals.txt",
-    #                      "tests/family1/coverage_results")
+    check_right_coverage("tests/family1/real.shared.tsv",
+                         "tests/family1/interval_tables/merged_haplotype_intervals.txt",
+                         "tests/family1/inverted_interval_tables/merged_haplotype_intervals.txt",
+                         "tests/family1/coverage_results")
 
     # errors = {16: 20, 18: 20, 19: 20, 40: 50, 45: 50, 48: 50, 90: 100, 95: 100,
     #           98: 100, 145: 150, 190: 200}
     #
     # for error, window in errors.items():
-    #     single_chromosome_process("tests/family1/chromosomes/chromosome_1.txt", "parent",
-    #                               "tests/family1/chrom_1_analyze", "tests/family1/chrom_1_analyze",
-    #                               0, 1, window, error)
+    #     single_chromosome_process("tests/family1/chromosomes/chromosome_22.txt", "parent",
+    #                               "tests/family1/chrom_22_analyze", "tests/family1/chrom_22_analyze",
+    #                               0, 22, window, error)
     #
-    #     single_chromosome_process("tests/family1/chromosomes/chromosome_1.txt", "parent",
-    #                               "tests/family1/chrom_1_analyze", "tests/family1/chrom_1_analyze",
-    #                               1, 1, window, error)
+    #     single_chromosome_process("tests/family1/inverted_chromosomes/chromosome_22.txt", "parent",
+    #                               "tests/family1/chrom_22_analyze", "tests/family1/chrom_22_analyze",
+    #                               1, 22, window, error)
 
     # print(calculate_coverage({'1': [(0, 200)]},
     #                    {'1': [(10, 20), (45, 300)]}))
@@ -245,5 +253,3 @@ if __name__ == '__main__':
     # single_chromosome_process("tests/family1/chromosomes/chromosome_22.txt", "parent",
     #                           "tests/family1/inverted_tables", "tests/family1/inverted_plots",
     #                           1, 22, 20, 18)
-
-

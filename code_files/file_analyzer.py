@@ -155,7 +155,7 @@ def create_table(data_list, output_directory, window_size, error_size, inverted)
 
         # Calculate certainty level
         for entry in data_list_reordered:
-            entry['certainty_level'] = 1 if entry['haplotype'] == chromosome_data[0]['haplotype'] else -1
+            entry['certainty_level'] = -1 if entry['haplotype'] == chromosome_data[0]['haplotype'] else 1
 
         file_path = os.path.join(output_directory,
                                  f'table_{chromosome}_window_{window_size}'
