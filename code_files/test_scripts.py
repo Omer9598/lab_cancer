@@ -153,70 +153,46 @@ def plot_f1_score(data):
     y_values = []
     colors = []
 
-    # Conversion des valeurs de window et error en entiers
     for entry in data:
         entry['coverage'] = float(entry['coverage'].strip('%'))
 
-    # Tri des données en fonction de window-error
     sorted_data = sorted(data, key=lambda x: (x['window'], x['error']))
 
-    # Remplissage des listes x_values, y_values, et colors
     for entry in sorted_data:
         x_values.append(f"{entry['window']}-{entry['error']}")
         y_values.append(entry['f1_score'])
         colors.append('green' if colors.count('green') < colors.count('red') else 'red')
 
-    # Création du graphe avec des points seulement (scatter)
     plt.figure(figsize=(10, 6))
     plt.scatter(x_values, y_values, c=colors)
-
-    # Ajout de titres et libellés
-    plt.title('Graphique de F1 Score en fonction de window-error')
+    plt.title('Plot window-error f1_score')
     plt.xlabel('Window-Error')
     plt.ylabel('F1 Score')
-
-    # Définir les ticks de l'axe y pour représenter les pourcentages de 0 à 100 par intervalle de 5%
     plt.yticks(np.arange(0, 101, 5))
-
-    # Affichage du graphe
     plt.tight_layout()
     plt.show()
 
 
-
-
-
 def plot_coverage(data):
-    # Création des listes pour stocker les données
     x_values = []
     y_values = []
     colors = []
 
-    # Conversion des valeurs de window et error en entiers
     for entry in data:
         entry['coverage'] = float(entry['coverage'].strip('%'))
 
-    # Tri des données en fonction de window-error
     sorted_data = sorted(data, key=lambda x: (x['window'], x['error']))
 
-    # Remplissage des listes x_values, y_values, et colors
     for entry in sorted_data:
         x_values.append(f"{entry['window']}-{entry['error']}")
         y_values.append(entry['coverage'])
         colors.append('green' if colors.count('green') < colors.count('red') else 'red')
 
-    # Création du graphe avec des points seulement (scatter)
     plt.figure(figsize=(10, 6))
     plt.scatter(x_values, y_values, c=colors)
-
-    # Ajout de titres et libellés
-    plt.title('Graphique de couverture en fonction de window-error')
+    plt.title('Plot window-error coverage')
     plt.xlabel('Window-Error')
     plt.ylabel('Coverage (%)')
-
-    # Définir les ticks de l'axe y pour représenter les pourcentages de 0 à 100 par intervalle de 5%
     plt.yticks(np.arange(0, 101, 5))
-
-    # Affichage du graphe
     plt.tight_layout()
     plt.show()
