@@ -3,6 +3,7 @@ import os
 from interval_analyze import *
 from dict_analyzer import *
 from file_analyzer import *
+from test_scripts import *
 import sys
 
 
@@ -44,11 +45,11 @@ def create_tables_and_plots(input_file, reference_type, save_directory, invert,
     """
     # Creating the common cancer variants dict
     common_cancer_variants_dict = (
-        create_common_cancer_genes_dict(r"data_files/BROCA.genes.tsv"))
+        create_common_cancer_genes_dict("data_files/BROCA.genes.tsv"))
 
     if invert:
         # Inverting the file and saving the new path
-        file_to_split = invert_reference_genome_haplotype(input_file, "data_files")
+        file_to_split = invert_reference_genome_haplotype(input_file, save_directory)
         path_to_save_interval_table = save_directory + "/inverted_interval_tables"
         path_to_save_interval_plots = save_directory + "/inverted_interval_plots"
     else:
@@ -66,7 +67,7 @@ def create_tables_and_plots(input_file, reference_type, save_directory, invert,
         interval_list = single_chromosome_process(
             save_directory + f"/chromosomes/chromosome_{chrom_num}.txt",
             reference_type, path_to_save_interval_table,
-            path_to_save_interval_plots, False, chrom_num,
+            path_to_save_interval_plots, invert, chrom_num,
             window_size, error_size)
         update_cancer_variant_dict(interval_list,
                                    common_cancer_variants_dict)
@@ -74,7 +75,8 @@ def create_tables_and_plots(input_file, reference_type, save_directory, invert,
         chromosome_coverage_dict[chrom_num] = calc_coverage(interval_list,
                                                             chrom_num)
 
-    merge_haplotype_tables(path_to_save_interval_table, chromosome_coverage_dict)
+    merge_haplotype_tables(path_to_save_interval_table, chromosome_coverage_dict,
+                           window_size, error_size, invert)
     write_common_genes_to_file(path_to_save_interval_table,
                                common_cancer_variants_dict)
 
@@ -89,13 +91,11 @@ def single_chromosome_process(input_path, reference_type,
     This function will process a single chromosome given, creating an
     interval table, and a plot.
     """
+    file_to_process = input_path
     if inverted:
-        file_to_process = (
-            invert_reference_genome_haplotype(input_path, output_directory_tables))
-    else:
-        file_to_process = input_path
+        # Avoid inverting the file when inverted is True
+        pass
     num_of_children, children_filenames = open_and_split_children_files(file_to_process)
-
     interval_children_list = []
     for i in range(1, num_of_children + 1):
         child_filename = children_filenames[i - 1]
@@ -104,14 +104,70 @@ def single_chromosome_process(input_path, reference_type,
         interval_children_list.append(interval_list)
         # Delete the last child file after processing
         os.remove(child_filename)
-    shared_interval_list = shared_interval(interval_children_list)
-    create_table(shared_interval_list, output_directory_tables)
 
-    plot_title = f'chromosome {chromosome_number} interval plot'
-    plot_interval(shared_interval_list, plot_title,
-                  save_dir=output_directory_plots)
+    shared_interval_list = shared_interval(interval_children_list)
+    create_table(shared_interval_list, output_directory_tables, window_size,
+                 error_size, inverted)
+
+    # todo - uncomment when finish
+    # plot_title = f'chromosome {chromosome_number} interval'
+    # plot_interval(shared_interval_list, plot_title,
+    #               save_dir=output_directory_plots)
 
     return shared_interval_list
+
+
+def analyze_single_chromosome(chromosome_data_file, chrom_num, reference, output_directory):
+    """
+    This function will analyze a single chromosome,
+    create interval tables for:
+    Window sizes 20, 30, 50
+    Error sizes 5%, 10%, 15%
+    for all the permutations of the values above, we will create
+    two plots - one with error percent vs coverage and another with
+    window size vs coverage
+    """
+    window_size_dict = {}
+    error_coverage_dict = {}
+    window_coverage_dict = {}
+
+    # Creating all the interval tables
+    for i in range(2):
+        for window_size in [20, 30, 50]:
+            for error in [0.95, 0.9, 0.85]:
+                interval_list = single_chromosome_process(
+                    chromosome_data_file, reference, output_directory, output_directory,
+                    i, chrom_num, window_size, window_size * error)
+                # Updating the window size and error dicts
+                key = f'chrom_{chrom_num}_window_{window_size}_error_{error}'
+                window_size_dict[key] = [window_size, error]
+                error_coverage_dict[key] = calc_coverage(interval_list, chrom_num)
+
+                # Add window size and coverage to window_coverage_dict
+                if window_size not in window_coverage_dict:
+                    window_coverage_dict[window_size] = []
+                window_coverage_dict[window_size].append(calc_coverage(interval_list, chrom_num))
+
+        plot_chromosome_analyze(chrom_num, error_coverage_dict, window_size_dict, i)
+
+
+def plot_chromosome_analyze(chrom_num, error_coverage_dict, window_size_dict, inverted):
+    # Plot for Error Percent vs Coverage
+    plt.figure(figsize=(12, 6))
+    # Iterate through window sizes and plot lines for each
+    for window_size in [20, 30, 50]:
+        window_data = [(values[1], error_coverage_dict[key])
+                       for key, values in window_size_dict.items()
+                       if values[0] == window_size]
+        error_percents, coverages = zip(*window_data)
+        plt.plot(error_percents, coverages, marker='o', label=f'Window Size {window_size}')
+    plt.title(f'Error Percent vs Coverage for Chromosome {chrom_num}')
+    plt.xlabel('Error Percent')
+    plt.ylabel('Coverage')
+    plt.legend()
+    plt.grid(True)
+    plot_path = "temp_script/error_coverage_chr{}inverted{}.png".format(chrom_num, inverted)
+    plt.savefig(plot_path)
 
 
 def main():
@@ -156,60 +212,50 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
-
-    # # Example usage
-    # list1 = [{"haplotype": 1, "start": 1, "end": 5, "chromosome": 1}]
-    # list2 = [{"haplotype": 1, "start": 1, "end": 2, "chromosome": 1},
-    #          {"haplotype": 1, "start": 3, "end": 4, "chromosome": 1},
-    #          {"haplotype": 1, "start": 6, "end": 7, "chromosome": 1}]
-    # list3 = [{"haplotype": 1, "start": 1, "end": 2, "chromosome": 1},
-    #          {"haplotype": 1, "start": 3, "end": 7, "chromosome": 1}]
     #
-    # result = shared_interval([list1, list2, list3])
-    # print(result)
-
-    # single_chromosome_process("family3/chromosomes/chromosome_17.txt",
-    #                           "parent",
-    #                           "temp", "temp",
-    #                           True, 17)
-
-    # # analyzing chromosome 13 only
-    # num_of_children = open_and_split_children_files("data_files/HR7.chr13.genotypes.tab")
+    # single_chromosome_process("tests/family1/chromosomes/chromosome_22.txt", "parent",
+    #                           "tests/family1/chrom_22_analyze", "tests/family1/chrom_22_analyze",
+    #                           0, 22, 20, 16)
     #
-    # interval_children_list = []
-    # for i in range(1, num_of_children + 1):
-    #     file_path = f'{"child_"}{i}{".txt"}'
-    #     interval_list = process_child_file(file_path, SIBLING_REFERENCE)
-    #     interval_children_list.append(interval_list)
+    # single_chromosome_process("tests/family1/inverted_chromosomes/chromosome_22.txt", "parent",
+    #                           "tests/family1/chrom_22_analyze", "tests/family1/chrom_22_analyze",
+    #                           1, 22, 20, 16)
+    # main()
+    # create_tables_and_plots("test_data_files/simulated.family.genotypes.tsv", "parent",
+    #                         "tests/family1", 1, 50, 48)
+
+    errors = {16: 20, 18: 20, 19: 20, 40: 50, 45: 50, 48: 50, 90: 100, 95: 100,
+              98: 100, 145: 150, 190: 200}
+
+    # for error, window in errors.items():
+    #     check_right_coverage("tests/family1/real.shared.tsv",
+    #                          f"tests/family1/chrom_1_analyze/table_1_window_{window}_error_{error}_inverted_False.txt",
+    #                          f"tests/family1/chrom_1_analyze/table_1_window_{window}_error_{error}_inverted_True.txt",
+    #                          f"tests/family1/all_coverage_results/chrom_1_coverage_results/chrom_1_window_{window}_error_{error}")
     #
-    # shared_interval_list = shared_interval(interval_children_list)
-    # # plot_title = f'Chromosome {13} interval plot'
-    # # plot_interval(shared_interval_list, plot_title, save_dir="family3")
-    #
-    # create_table(shared_interval_list, "family3")
+    # merge_coverage_files("tests/family1/all_coverage_results/chrom_22_coverage_results",
+    #                      "tests/family1/all_coverage_results/chrom_22_coverage_results/chrom_22_merged")
 
-    # # Analyzing family1 - call the function after preprocess
-    # create_tables_and_plots(r"data_files/preprocess.genotypes.generation1.txt",
-    #                         PARENT_REFERENCE, r"family1", True)
+    # for error, window in errors.items():
+    #     single_chromosome_process("tests/family1/chromosomes/chromosome_1.txt", "parent",
+    #                               "tests/family1/chrom_1_analyze", "tests/family1/chrom_1_analyze",
+    #                               0, 1, window, error)
+    data = read_data_from_file('/Users/dahansarah/PycharmProjects/lab_cancer_new/tests/family1/all_coverage_results/chrom_22_coverage_results/chrom_22_merged')
+    plot_f1_score(data)
+    # plot_coverage(data)
+    #     single_chromosome_process("tests/family1/inverted_chromosomes/chromosome_22.txt", "parent",
+    #                               "tests/family1/chrom_22_analyze", "tests/family1/chrom_22_analyze",
+    #                               1, 22, window, error)
 
-    # # Analyzing family2 - after preprocess
-    # create_tables_and_plots(r"data_files/HR3.genotypes.tab", SIBLING_REFERENCE,
-    #                         "family2", True)
+    # print(calculate_coverage({'1': [(0, 200)]},
+    #                    {'1': [(10, 20), (45, 300)]}))
 
-# num_of_children = open_and_split_children_files(save_directory +
-#                                                 f"/chromosomes/chromosome_{chrom_num}.txt")
-#
-# interval_children_list = []
-# for i in range(1, num_of_children + 1):
-#     file_path = f'{"child_"}{i}{".txt"}'
-#     interval_list = process_child_file(file_path, reference_type)
-#     interval_children_list.append(interval_list)
-#
-# shared_interval_list = shared_interval(interval_children_list)
-# # plot_title = f'Chromosome {chrom_num} interval plot'
-# # plot_interval(shared_interval_list, plot_title, save_dir=path_to_save_interval_plots)
-#
-# create_table(shared_interval_list, path_to_save_interval_table)
-# update_cancer_variant_dict(shared_interval_list,
-#                            common_cancer_variants_dict)
+    # preprocess_file("test_data_files/GP_3siblings.HET.tab", "test_data_files")
+    # create_tables_and_plots("test_data_files/simulated.family.genotypes.tsv",
+    #                         "parent",
+    #                         "tests/family1",
+    #                         1, 10, 8)
+
+    # single_chromosome_process("tests/family1/chromosomes/chromosome_22.txt", "parent",
+    #                           "tests/family1/inverted_tables", "tests/family1/inverted_plots",
+    #                           1, 22, 20, 18)

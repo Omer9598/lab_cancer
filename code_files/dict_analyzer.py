@@ -127,6 +127,10 @@ def update_cancer_variant_dict(shared_interval_list, variants_dict):
     in a family given, it will update the gene to True in value[3]
     """
     for variant_name, variant_info in variants_dict.items():
+        # Checking that the interval list is not empty
+        if not shared_interval_list:
+            break
+
         chromosome, variant_start_position, variant_end_position, is_in_common_interval\
             = variant_info
 
