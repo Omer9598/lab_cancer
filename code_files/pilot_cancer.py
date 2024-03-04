@@ -93,7 +93,7 @@ def single_chromosome_process(input_path, reference_type,
     """
     file_to_process = input_path
     if inverted:
-        # Avoid inverting the file when inverted is True
+        file_to_process = invert_reference_genome_haplotype(input_path, input_path + "inverted")
         pass
     num_of_children, children_filenames = open_and_split_children_files(file_to_process)
     interval_children_list = []
@@ -212,20 +212,22 @@ def main():
 
 
 if __name__ == '__main__':
+
+    # single_chromosome_process("tests/family1/chromosomes/chromosome_22.txt", "parent",
+    #                           "tests/family1/inverted_tables", "tests/family1/inverted_plots",
+    #                           1, 22, 20, 18)
+
     #
     # single_chromosome_process("tests/family1/chromosomes/chromosome_22.txt", "parent",
     #                           "tests/family1/chrom_22_analyze", "tests/family1/chrom_22_analyze",
     #                           0, 22, 20, 16)
     #
-    # single_chromosome_process("tests/family1/inverted_chromosomes/chromosome_22.txt", "parent",
-    #                           "tests/family1/chrom_22_analyze", "tests/family1/chrom_22_analyze",
-    #                           1, 22, 20, 16)
-    # main()
-    # create_tables_and_plots("test_data_files/simulated.family.genotypes.tsv", "parent",
-    #                         "tests/family1", 1, 50, 48)
+    single_chromosome_process("tests/family1/inverted_chromosomes/chromosome_22.txt", "parent",
+                              "tests/family1/chrom_22_analyze", "tests/family1/chrom_22_analyze",
+                              1, 22, 20, 16)
 
-    errors = {16: 20, 18: 20, 19: 20, 40: 50, 45: 50, 48: 50, 90: 100, 95: 100,
-              98: 100, 145: 150, 190: 200}
+    # errors = {16: 20, 18: 20, 19: 20, 40: 50, 45: 50, 48: 50, 90: 100, 95: 100,
+    #           98: 100, 145: 150, 190: 200}
 
     # for error, window in errors.items():
     #     check_right_coverage("tests/family1/real.shared.tsv",
@@ -236,26 +238,8 @@ if __name__ == '__main__':
     # merge_coverage_files("tests/family1/all_coverage_results/chrom_22_coverage_results",
     #                      "tests/family1/all_coverage_results/chrom_22_coverage_results/chrom_22_merged")
 
-    # for error, window in errors.items():
-    #     single_chromosome_process("tests/family1/chromosomes/chromosome_1.txt", "parent",
-    #                               "tests/family1/chrom_1_analyze", "tests/family1/chrom_1_analyze",
-    #                               0, 1, window, error)
-    data = read_data_from_file('/Users/dahansarah/PycharmProjects/lab_cancer_new/tests/family1/all_coverage_results/chrom_22_coverage_results/chrom_22_merged')
-    plot_f1_score(data)
     # plot_coverage(data)
     #     single_chromosome_process("tests/family1/inverted_chromosomes/chromosome_22.txt", "parent",
     #                               "tests/family1/chrom_22_analyze", "tests/family1/chrom_22_analyze",
     #                               1, 22, window, error)
 
-    # print(calculate_coverage({'1': [(0, 200)]},
-    #                    {'1': [(10, 20), (45, 300)]}))
-
-    # preprocess_file("test_data_files/GP_3siblings.HET.tab", "test_data_files")
-    # create_tables_and_plots("test_data_files/simulated.family.genotypes.tsv",
-    #                         "parent",
-    #                         "tests/family1",
-    #                         1, 10, 8)
-
-    # single_chromosome_process("tests/family1/chromosomes/chromosome_22.txt", "parent",
-    #                           "tests/family1/inverted_tables", "tests/family1/inverted_plots",
-    #                           1, 22, 20, 18)
