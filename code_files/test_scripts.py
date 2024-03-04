@@ -1,5 +1,7 @@
 import os
 import re
+import numpy as np
+
 
 import pandas as pd
 from matplotlib import pyplot as plt
@@ -128,69 +130,93 @@ def merge_coverage_files(directory_path, output_file):
             f.write(formatted_entry + '\n')
 
 
-def plot_f1_score(table_data):
-    # Assuming table_data is a list of strings where each string represents a row in the table
-    # Split each row into columns using tab as a separator
-    data_rows = [row.split('\t') for row in table_data]
 
-    # Extract column names from the first row
-    column_names = data_rows[0]
+def read_data_from_file(file_path):
+    data = []
+    with open(file_path, 'r') as file:
+        # Skip the header line
+        next(file)
+        for line in file:
+            values = line.strip().split('\t')
+            entry = {
+                'chromosome': int(values[0]),
+                'window': int(values[1]),
+                'error': int(values[2]),
+                'f1_score': float(values[3]),
+                'coverage': values[4]
+            }
+            data.append(entry)
+    return data
 
-    # Find the index of the "f1_score" column
-    f1_score_index = column_names.index("f1_score")
+def plot_f1_score(data):
+    x_values = []
+    y_values = []
+    colors = []
 
-    # Extract data for plotting
-    points = [(int(row[1]), int(row[2]), float(row[f1_score_index])) for row in data_rows[1:]]
-    points_sorted = sorted(points, key=lambda x: (x[0], x[1]))  # Sort by window and then error
+    # Conversion des valeurs de window et error en entiers
+    for entry in data:
+        entry['coverage'] = float(entry['coverage'].strip('%'))
 
-    # Unpack sorted points
-    window_error_labels = [f"{window}-{error}" for window, error, _ in points_sorted]
-    f1_scores = [score for _, _, score in points_sorted]
+    # Tri des données en fonction de window-error
+    sorted_data = sorted(data, key=lambda x: (x['window'], x['error']))
 
-    # Plotting
-    plt.scatter(window_error_labels, f1_scores, color='green', s=10, edgecolors='black')
+    # Remplissage des listes x_values, y_values, et colors
+    for entry in sorted_data:
+        x_values.append(f"{entry['window']}-{entry['error']}")
+        y_values.append(entry['f1_score'])
+        colors.append('green' if colors.count('green') < colors.count('red') else 'red')
+
+    # Création du graphe avec des points seulement (scatter)
+    plt.figure(figsize=(10, 6))
+    plt.scatter(x_values, y_values, c=colors)
+
+    # Ajout de titres et libellés
+    plt.title('Graphique de F1 Score en fonction de window-error')
     plt.xlabel('Window-Error')
     plt.ylabel('F1 Score')
-    plt.title('F1 Score for Different Window-Error Combinations')
 
-    # Set y-axis limits to range from 0 to 100%
-    plt.ylim(0, 100)
+    # Définir les ticks de l'axe y pour représenter les pourcentages de 0 à 100 par intervalle de 5%
+    plt.yticks(np.arange(0, 101, 5))
 
-    # Add grid lines at every 5% interval on the y-axis
-    plt.yticks(range(0, 101, 5))
-    plt.grid(axis='y', linestyle='--', alpha=0.7)
-
-    plt.xticks(rotation=45, ha='right')  # Rotate x-axis labels for better visibility
+    # Affichage du graphe
+    plt.tight_layout()
     plt.show()
 
 
-def plot_coverage(file_path):
-    # Lecture des données depuis le fichier
-    df = pd.read_csv(file_path, delimiter='\t')
 
-    # Création d'une liste de tuples pour chaque point
-    points = list(zip(df['window'], df['error'], df['coverage']))
 
-    # Tri des points en fonction de la fenêtre et de l'erreur
-    points.sort(key=lambda x: (x[0], -x[1]))
 
-    # Séparation des points triés en listes distinctes
-    sorted_window, sorted_error, sorted_coverage = zip(*points)
+def plot_coverage(data):
+    # Création des listes pour stocker les données
+    x_values = []
+    y_values = []
+    colors = []
 
-    # Création du graphique
+    # Conversion des valeurs de window et error en entiers
+    for entry in data:
+        entry['coverage'] = float(entry['coverage'].strip('%'))
+
+    # Tri des données en fonction de window-error
+    sorted_data = sorted(data, key=lambda x: (x['window'], x['error']))
+
+    # Remplissage des listes x_values, y_values, et colors
+    for entry in sorted_data:
+        x_values.append(f"{entry['window']}-{entry['error']}")
+        y_values.append(entry['coverage'])
+        colors.append('green' if colors.count('green') < colors.count('red') else 'red')
+
+    # Création du graphe avec des points seulement (scatter)
     plt.figure(figsize=(10, 6))
-    plt.scatter(range(len(points)), sorted_coverage, marker='o')
+    plt.scatter(x_values, y_values, c=colors)
 
-    # Étiquetage des points avec les valeurs de la fenêtre et de l'erreur
-    for i, txt in enumerate(zip(sorted_window, sorted_error)):
-        plt.annotate(f'{txt[0]}-{txt[1]}', (i, sorted_coverage[i]), textcoords="offset points", xytext=(0, 5), ha='center')
-
-    # Ajout des étiquettes d'axe et du titre
+    # Ajout de titres et libellés
+    plt.title('Graphique de couverture en fonction de window-error')
     plt.xlabel('Window-Error')
     plt.ylabel('Coverage (%)')
-    plt.title('Graphique de Coverage en fonction de Window-Error')
-    plt.xticks(range(len(points)))
 
-    # Affichage du graphique
+    # Définir les ticks de l'axe y pour représenter les pourcentages de 0 à 100 par intervalle de 5%
+    plt.yticks(np.arange(0, 101, 5))
+
+    # Affichage du graphe
+    plt.tight_layout()
     plt.show()
-
