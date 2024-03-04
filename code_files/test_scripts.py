@@ -1,3 +1,5 @@
+import os
+import re
 
 
 def parse_real_data(real_data_file):
@@ -86,4 +88,39 @@ def check_right_coverage(real_data_file, expected_data_file, expected_inverted_d
 
     write_results(output_file, expected_coverage, inverted_coverage,
                   total_coverage, total_coverage_inverted)
+
+
+def merge_coverage_files(directory_path, output_file):
+    merged_data = []
+
+    # Iterate over all files in the directory
+    for file_name in os.listdir(directory_path):
+        file_path = os.path.join(directory_path, file_name)
+        if not os.path.isfile(file_path):
+            continue  # Skip directories
+
+        # Extract chromosome, window, and error from the file name
+        match = re.match(r'.*chrom_(\d+)_window_(\d+)_error_(\d+)', file_name)
+        if match:
+            chromosome, window, error = match.groups()
+        else:
+            print(f"Skipping file {file_name} as it doesn't match the pattern.")
+            continue
+
+        # Read data from the file
+        with open(file_path, 'r') as f:
+            for line in f:
+                if line.startswith('Chromosome'):
+                    continue  # Skip header
+                fields = line.strip().split('\t')
+                if len(fields) == 5:  # Check if the line has expected format
+                    _, right_coverage, false_negative, false_positive, f1_score = fields
+                    merged_data.append((chromosome, window, error, f1_score, right_coverage))
+
+    # Write merged data to output file
+    with open(output_file, 'w') as f:
+        f.write("chromosome\twindow\terror\tf1_score\tcoverage\n")
+        for entry in merged_data:
+            formatted_entry = '\t'.join('{:<10}'.format(str(item)) for item in entry)
+            f.write(formatted_entry + '\n')
 

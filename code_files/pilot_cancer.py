@@ -224,14 +224,17 @@ if __name__ == '__main__':
     # create_tables_and_plots("test_data_files/simulated.family.genotypes.tsv", "parent",
     #                         "tests/family1", 1, 50, 48)
 
-    errors = {16: 20, 18: 20, 19: 20, 40: 50, 45: 50, 48: 50, 90: 100, 95: 100,
-              98: 100, 145: 150, 190: 200}
+    # errors = {16: 20, 18: 20, 19: 20, 40: 50, 45: 50, 48: 50, 90: 100, 95: 100,
+    #           98: 100, 145: 150, 190: 200}
+    #
+    # for error, window in errors.items():
+    #     check_right_coverage("tests/family1/real.shared.tsv",
+    #                          f"tests/family1/chrom_22_analyze/table_22_window_{window}_error_{error}_inverted_False.txt",
+    #                          f"tests/family1/chrom_22_analyze/table_22_window_{window}_error_{error}_inverted_True.txt",
+    #                          f"tests/family1/all_coverage_results/chrom_22_coverage_results/chrom_22_window_{window}_error_{error}")
 
-    for error, window in errors.items():
-        check_right_coverage("tests/family1/real.shared.tsv",
-                             f"tests/family1/chrom_22_analyze/table_22_window_{window}_error_{error}_inverted_False.txt",
-                             f"tests/family1/chrom_22_analyze/table_22_window_{window}_error_{error}_inverted_True.txt",
-                             f"tests/family1/coverage_results_chrom_22_window_{window}_error_{error}")
+    merge_coverage_files("tests/family1/all_coverage_results/chrom_22_coverage_results",
+                         "tests/family1/all_coverage_results/chrom_22_coverage_results/chrom_22_merged")
 
     #
     # for error, window in errors.items():
