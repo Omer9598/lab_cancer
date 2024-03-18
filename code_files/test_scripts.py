@@ -148,7 +148,8 @@ def read_data_from_file(file_path):
             data.append(entry)
     return data
 
-def plot_f1_score(data):
+def plot_f1_score(file_path):
+    data = read_data_from_file(file_path)
     x_values = []
     y_values = []
     colors = []
@@ -173,7 +174,9 @@ def plot_f1_score(data):
     plt.show()
 
 
-def plot_coverage(data):
+def plot_coverage(file_path):
+    data = read_data_from_file(file_path)
+
     x_values = []
     y_values = []
     colors = []

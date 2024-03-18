@@ -240,9 +240,9 @@ if __name__ == '__main__':
     #     single_chromosome_process("tests/family1/chromosomes/chromosome_1.txt", "parent",
     #                               "tests/family1/chrom_1_analyze", "tests/family1/chrom_1_analyze",
     #                               0, 1, window, error)
-    data = read_data_from_file('/Users/dahansarah/PycharmProjects/lab_cancer_new/tests/family1/all_coverage_results/chrom_22_coverage_results/chrom_22_merged')
-    plot_f1_score(data)
-    # plot_coverage(data)
+    plot_f1_score('/Users/dahansarah/PycharmProjects/lab_cancer_new/tests/family1/all_coverage_results/chrom_22_coverage_results/chrom_22_merged')
+    plot_coverage('/Users/dahansarah/PycharmProjects/lab_cancer_new/tests/family1/all_coverage_results/chrom_22_coverage_results/chrom_22_merged')
+
     #     single_chromosome_process("tests/family1/inverted_chromosomes/chromosome_22.txt", "parent",
     #                               "tests/family1/chrom_22_analyze", "tests/family1/chrom_22_analyze",
     #                               1, 22, window, error)
