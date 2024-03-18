@@ -222,9 +222,11 @@ if __name__ == '__main__':
     #                           "tests/family1/chrom_22_analyze", "tests/family1/chrom_22_analyze",
     #                           0, 22, 20, 16)
     #
-    single_chromosome_process("tests/family1/inverted_chromosomes/chromosome_22.txt", "parent",
-                              "tests/family1/chrom_22_analyze", "tests/family1/chrom_22_analyze",
-                              1, 22, 20, 16)
+    # single_chromosome_process("tests/family1/inverted_chromosomes/chromosome_22.txt", "parent",
+    #                           "tests/family1/chrom_22_analyze", "tests/family1/chrom_22_analyze",
+    #                           1, 22, 20, 16)
+
+    plot_f1_score("tests/family1/all_coverage_results/chrom_1_coverage_results/chrom_1_merged")
 
     # errors = {16: 20, 18: 20, 19: 20, 40: 50, 45: 50, 48: 50, 90: 100, 95: 100,
     #           98: 100, 145: 150, 190: 200}

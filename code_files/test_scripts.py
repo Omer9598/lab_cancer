@@ -130,7 +130,6 @@ def merge_coverage_files(directory_path, output_file):
             f.write(formatted_entry + '\n')
 
 
-
 def read_data_from_file(file_path):
     data = []
     with open(file_path, 'r') as file:
@@ -148,7 +147,9 @@ def read_data_from_file(file_path):
             data.append(entry)
     return data
 
-def plot_f1_score(data):
+
+def plot_f1_score(file_path):
+    data = read_data_from_file(file_path)
     x_values = []
     y_values = []
     colors = []
