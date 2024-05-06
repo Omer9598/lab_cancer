@@ -172,16 +172,21 @@ def plot_chromosome_analyze(chrom_num, error_coverage_dict, window_size_dict, in
 
 def main():
     args = sys.argv
-    if len(args) not in [7, 9]:
-        print("Invalid number of arguments.\n "
-              "for all chromosomes: \n"
+    if len(args) not in [3, 7, 9]:
+        print("Invalid number of arguments.\n"
+              "For file split to chromosomes: \n"
+              "input_file_to_split output_directory \n"
+              "For all chromosomes: \n"
               "input_file reference inverted(0 or 1) window_size error_size"
               " output_directory \n"
-              "for a single chromosome: \n"
+              "For a single chromosome: \n"
               "input_file reference inverted(0 or 1) window_size error_size"
               " output_directory_tables output_directory_plots"
               " chromosome_number ")
         sys.exit(1)
+
+    if len(args) == 3:
+        split_file_to_chromosomes(args[1], args[2])
 
     input_file = args[1]
     reference = args[2]
@@ -210,6 +215,7 @@ def main():
                                   chromosome_number,
                                   window_size, error_size)
 
+
 def user_interface():
     from code_files.user_interface import handle_response
 
@@ -235,8 +241,13 @@ def user_interface():
 
 
 if __name__ == '__main__':
-    user_interface()
 
+    # create_tables_and_plots("tests/family2/sim.cousins.filtered.tab", "parent",
+    #                         "tests/family2", 0, 50, 48)
+
+    single_chromosome_process("tests/family2/chromosomes/chromosome_21.txt", "parent",
+                              "tests/family2/tables", "tests/family2/plots",
+                              0, 21, 50, 48)
 
 
 
@@ -277,4 +288,3 @@ if __name__ == '__main__':
     #     single_chromosome_process("tests/family1/inverted_chromosomes/chromosome_22.txt", "parent",
     #                               "tests/family1/chrom_22_analyze", "tests/family1/chrom_22_analyze",
     #                               1, 22, window, error)
-
