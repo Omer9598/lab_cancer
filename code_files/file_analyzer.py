@@ -19,7 +19,7 @@ def preprocess_file(input_file_path, output_directory):
     # Find the header line and process it separately
     header_index = None
     for i, line in enumerate(lines):
-        if line.startswith("#CHROM"):
+        if line.startswith("CHROM"):
             header_index = i
             break
 
@@ -155,7 +155,11 @@ def create_table(data_list, output_directory, window_size, error_size, inverted)
 
         # Calculate certainty level
         for entry in data_list_reordered:
+            # if inverted:
+            #     entry['certainty_level'] = 1 if entry['haplotype'] == chromosome_data[0]['haplotype'] else -1
+            # if not inverted:
             entry['certainty_level'] = -1 if entry['haplotype'] == chromosome_data[0]['haplotype'] else 1
+
 
         file_path = os.path.join(output_directory,
                                  f'table_{chromosome}_window_{window_size}'
@@ -200,10 +204,13 @@ def invert_reference_genome_haplotype(input_file, output_directory):
                     child_genotype[0] == '1' and child_genotype[1] == '1':
                 # Invert the reference genotype to 1|0
                 columns[4] = '1|0'
+
             elif ref_genotype[0] == '1' and ref_genotype[1] == '0' and\
                     child_genotype[0] == '0' and child_genotype[1] == '0':
                 # Invert the reference genotype to 0|1
                 columns[4] = '0|1'
+
+
 
             # Append the modified or original line to inverted_lines
             inverted_lines.append('\t'.join(columns))

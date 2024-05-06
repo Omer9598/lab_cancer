@@ -1,9 +1,9 @@
 import os
 
-from interval_analyze import *
-from dict_analyzer import *
-from file_analyzer import *
-from test_scripts import *
+from code_files.interval_analyze import *
+from code_files.dict_analyzer import *
+from code_files.file_analyzer import *
+from code_files.test_scripts import *
 import sys
 
 
@@ -45,7 +45,7 @@ def create_tables_and_plots(input_file, reference_type, save_directory, invert,
     """
     # Creating the common cancer variants dict
     common_cancer_variants_dict = (
-        create_common_cancer_genes_dict("data_files/BROCA.genes.tsv"))
+        create_common_cancer_genes_dict("/Users/dahansarah/PycharmProjects/lab_cancer_new/data_files/BROCA.genes.tsv"))
 
     if invert:
         # Inverting the file and saving the new path
@@ -211,12 +211,50 @@ def main():
                                   window_size, error_size)
 
 
+def single_run(file, output_dir1, output_dir2, chrom, inverted, window_size, error_size):
+    new_file = preprocess_file(file, output_dir1)
+    if inverted:
+        new_file = invert_reference_genome_haplotype(new_file, output_dir1)
+    single_chromosome_process(new_file, 'parent', output_dir2, output_dir2, inverted, chrom, window_size, error_size)
+
+
 if __name__ == '__main__':
+
+    # single_run('/Users]/dahansarah/PycharmProjects/lab_cancer_new/tests/family1/chromosomes/chromosome_8.txt',
+    #            '/Users/dahansarah/PycharmProjects/lab_cancer_new/tests/family1',
+    #            '/Users/dahansarah/PycharmProjects/lab_cancer_new/tests/family1/chrom_8_analyse',
+    #            8, 1, 20, 16)
     #
-    # single_chromosome_process("tests/family1/chromosomes/chromosome_22.txt", "parent",
-    #                           "tests/family1/chrom_22_analyze", "tests/family1/chrom_22_analyze",
-    #                           0, 22, 20, 16)
+    # print('good')
     #
+    # single_run('/Users/dahansarah/PycharmProjects/lab_cancer_new/tests/family1/chromosomes/chromosome_8.txt',
+    #            '/Users/dahansarah/PycharmProjects/lab_cancer_new/tests/family1',
+    #            '/Users/dahansarah/PycharmProjects/lab_cancer_new/tests/family1/chrom_8_analyse',
+    #            8, 0, 20, 16)
+    #
+    # print('good')
+    #
+    # check_right_coverage("/Users/dahansarah/PycharmProjects/lab_cancer_new/tests/family1/real.shared.tsv",
+    #                          f"/Users/dahansarah/PycharmProjects/lab_cancer_new/tests/family1/chrom_8_analyse/table_8_window_20_error_16_inverted_False.txt",
+    #                          f"/Users/dahansarah/PycharmProjects/lab_cancer_new/tests/family1/chrom_8_analyse/table_8_window_20_error_16_inverted_True.txt",
+    #                          f"/Users/dahansarah/PycharmProjects/lab_cancer_new/tests/family1/all_coverage_results/chrom_8_coverage_results/chrom_8_window_20_error_16")
+
+
+    # pre_file = preprocess_file("/Users/dahansarah/PycharmProjects/lab_cancer_new/tests/family1/chromosomes/chromosome_1.txt", "/Users/dahansarah/PycharmProjects/lab_cancer_new/tests/family1")
+    # print(pre_file)
+    # new_file = invert_reference_genome_haplotype('/Users/dahansarah/PycharmProjects/lab_cancer_new/tests/family1/processed_chromosome_1.txt',
+    #                                              '/Users/dahansarah/PycharmProjects/lab_cancer_new/tests/family1')
+    # print(new_file)
+    # single_chromosome_process('/Users/dahansarah/PycharmProjects/lab_cancer_new/tests/family1/inverted_processed_chromosome_1.txt', "parent",
+    #                           "/Users/dahansarah/PycharmProjects/lab_cancer_new/tests/family1/chrom_1_analyse",
+    #                           "/Users/dahansarah/PycharmProjects/lab_cancer_new/tests/family1/chrom_1_analyse",
+    #                           1, 1, 20, 17)
+
+    # check_right_coverage("/Users/dahansarah/PycharmProjects/lab_cancer_new/tests/family1/real.shared.tsv",
+    #                          f"/Users/dahansarah/PycharmProjects/lab_cancer_new/tests/family1/chrom_1_analyse/table_1_window_20_error_17_inverted_False.txt",
+    #                          f"/Users/dahansarah/PycharmProjects/lab_cancer_new/tests/family1/chrom_1_analyse/table_1_window_20_error_17_inverted_True.txt",
+    #                          f"/Users/dahansarah/PycharmProjects/lab_cancer_new/tests/family1/all_coverage_results/chrom_1_coverage_results/chrom_1_window_20_error_17")
+
     # single_chromosome_process("tests/family1/inverted_chromosomes/chromosome_22.txt", "parent",
     #                           "tests/family1/chrom_22_analyze", "tests/family1/chrom_22_analyze",
     #                           1, 22, 20, 16)
@@ -224,8 +262,8 @@ if __name__ == '__main__':
     # create_tables_and_plots("test_data_files/simulated.family.genotypes.tsv", "parent",
     #                         "tests/family1", 1, 50, 48)
 
-    errors = {16: 20, 18: 20, 19: 20, 40: 50, 45: 50, 48: 50, 90: 100, 95: 100,
-              98: 100, 145: 150, 190: 200}
+    # errors = {16: 20, 18: 20, 19: 20, 40: 50, 45: 50, 48: 50, 90: 100, 95: 100,
+    #           98: 100, 145: 150, 190: 200}
 
     # for error, window in errors.items():
     #     check_right_coverage("tests/family1/real.shared.tsv",
@@ -240,22 +278,23 @@ if __name__ == '__main__':
     #     single_chromosome_process("tests/family1/chromosomes/chromosome_1.txt", "parent",
     #                               "tests/family1/chrom_1_analyze", "tests/family1/chrom_1_analyze",
     #                               0, 1, window, error)
-    plot_f1_score('/Users/dahansarah/PycharmProjects/lab_cancer_new/tests/family1/all_coverage_results/chrom_22_coverage_results/chrom_22_merged')
-    plot_coverage('/Users/dahansarah/PycharmProjects/lab_cancer_new/tests/family1/all_coverage_results/chrom_22_coverage_results/chrom_22_merged')
+    # plot_f1_score('/Users/dahansarah/PycharmProjects/lab_cancer_new/tests/family1/all_coverage_results/chrom_22_coverage_results/chrom_22_merged')
+    # plot_coverage('/Users/dahansarah/PycharmProjects/lab_cancer_new/tests/family1/all_coverage_results/chrom_22_coverage_results/chrom_22_merged')
 
-    #     single_chromosome_process("tests/family1/inverted_chromosomes/chromosome_22.txt", "parent",
-    #                               "tests/family1/chrom_22_analyze", "tests/family1/chrom_22_analyze",
-    #                               1, 22, window, error)
+    # single_chromosome_process("tests/family1/inverted_chromosomes/chromosome_22.txt", "parent",
+    #                           "tests/family1/chrom_22_analyze", "tests/family1/chrom_22_analyze",
+    #                           1, 22, window, error)
 
     # print(calculate_coverage({'1': [(0, 200)]},
     #                    {'1': [(10, 20), (45, 300)]}))
 
     # preprocess_file("test_data_files/GP_3siblings.HET.tab", "test_data_files")
-    # create_tables_and_plots("test_data_files/simulated.family.genotypes.tsv",
+    # create_tables_and_plots("/Users/dahansarah/PycharmProjects/lab_cancer_new/test_data_files/simulated.family.genotypes.tsv",
     #                         "parent",
-    #                         "tests/family1",
+    #                         "/Users/dahansarah/PycharmProjects/lab_cancer_new/tests/family1",
     #                         1, 10, 8)
 
     # single_chromosome_process("tests/family1/chromosomes/chromosome_22.txt", "parent",
     #                           "tests/family1/inverted_tables", "tests/family1/inverted_plots",
     #                           1, 22, 20, 18)
+    pass
