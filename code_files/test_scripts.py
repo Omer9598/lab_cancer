@@ -67,18 +67,33 @@ def calculate_coverage(real_data, expected_data):
     return coverage, (all_chrom_coverage / all_chrom_true)
 
 
-def write_results(output_file, expected_coverage, inverted_coverage,
-                  total_coverage, total_coverage_inverted):
-    with open(output_file, 'w') as f:
-        f.write("Chromosome\tRight_Coverage\tFalse_Negative\tFalse_Positive\tF1_score\n")
-        for chromosome in sorted(expected_coverage.keys()):
-            f.write(f"{chromosome}\t{expected_coverage[chromosome][0]:.2f}%\t{expected_coverage[chromosome][1]:.2f}%"
-                    f"\t{expected_coverage[chromosome][2]:.2f}%\t{expected_coverage[chromosome][3]:.2f}\n")
-            f.write(f"{chromosome}i\t{inverted_coverage[chromosome][0]:.2f}%\t{inverted_coverage[chromosome][1]:.2f}%"
-                    f"\t{inverted_coverage[chromosome][2]:.2f}%\t{inverted_coverage[chromosome][3]:.2f}\n\n")
+def write_results(output_file, expected_coverage, inverted_coverage, total_coverage, total_coverage_inverted):
+    # Define the width for each column
+    col_widths = {"Chromosome": 12, "Right_Coverage": 15, "False_Negative": 15, "False_Positive": 15, "F1_score": 10}
 
-        f.write(f"Total Coverage Regular: {100 * total_coverage:.2f}%\n"
-                f"Total Coverage Inverted: {100 * total_coverage_inverted:.2f}%")
+    # Create a format string with appropriate column widths
+    header_fmt = "{:<{Chromosome}}{:<{Right_Coverage}}{:<{False_Negative}}{:<{False_Positive}}{:<{F1_score}}\n"
+    row_fmt = "{:<{Chromosome}}{:<{Right_Coverage}.2f}{:<{False_Negative}.2f}{:<{False_Positive}.2f}{:<{F1_score}.2f}\n"
+
+    # Open the file and write the formatted content
+    with open(output_file, 'w') as f:
+        # Write the header
+        f.write(header_fmt.format("Chromosome", "Right_Coverage", "False_Negative", "False_Positive", "F1_score",
+            **col_widths))
+
+        # Write the data rows
+        for chromosome in sorted(expected_coverage.keys()):
+            chromosome_str = str(chromosome)  # Ensure chromosome is a string
+            f.write(row_fmt.format(chromosome_str, expected_coverage[chromosome][0], expected_coverage[chromosome][1],
+                expected_coverage[chromosome][2], expected_coverage[chromosome][3], **col_widths))
+            f.write(
+                row_fmt.format(chromosome_str + "i", inverted_coverage[chromosome][0], inverted_coverage[chromosome][1],
+                    inverted_coverage[chromosome][2], inverted_coverage[chromosome][3], **col_widths))
+            f.write("\n")
+
+        # Write the total coverage
+        f.write(f"Total Coverage Regular: {100 * total_coverage:.2f}%\n")
+        f.write(f"Total Coverage Inverted: {100 * total_coverage_inverted:.2f}%\n")
 
 
 def check_right_coverage(real_data_file, expected_data_file, expected_inverted_data_file, output_file):
