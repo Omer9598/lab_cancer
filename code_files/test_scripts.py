@@ -20,11 +20,14 @@ def parse_expected_data(expected_data_file):
         next(f)  # skip header
         for line in f:
             if len(line.strip().split('\t')) == 6:
-                chromosome, start, end, haplotype, certainty, coverage = line.strip().split('\t')
+                chromosome, start, end, haplotype, certainty, coverage = line.strip().split(
+                    '\t')
             if len(line.strip().split('\t')) == 5:
-                chromosome, start, end, haplotype, certainty = line.strip().split('\t')
+                chromosome, start, end, haplotype, certainty = line.strip().split(
+                    '\t')
             if certainty == '1':
-                expected_data.setdefault(chromosome, []).append((int(start), int(end)))
+                expected_data.setdefault(chromosome, []).append(
+                    (int(start), int(end)))
     return expected_data
 
 
@@ -48,10 +51,13 @@ def calculate_coverage(real_data, expected_data):
                 interval_coverage += overlap_length
             total_coverage += interval_coverage
         total_real_len = sum(end - start for start, end in real_intervals)
-        total_expected_len = sum(end - start for start, end in expected_intervals)
+        total_expected_len = sum(
+            end - start for start, end in expected_intervals)
         coverage_percentage = total_coverage / total_real_len * 100 if total_real_len > 0 else 0
-        false_negative = (total_real_len - total_coverage) / total_real_len * 100
-        false_positive = (total_expected_len - total_coverage) / total_expected_len * 100
+        false_negative = (
+                                 total_real_len - total_coverage) / total_real_len * 100
+        false_positive = (
+                                 total_expected_len - total_coverage) / total_expected_len * 100
 
         precision = coverage_percentage / (coverage_percentage + false_positive)
         recall = coverage_percentage / (coverage_percentage + false_negative)
@@ -60,49 +66,65 @@ def calculate_coverage(real_data, expected_data):
         else:
             f1_score = 200 * (precision * recall / (precision + recall))
 
-        coverage[chromosome] = (coverage_percentage, false_negative, false_positive, f1_score)
+        coverage[chromosome] = (
+            coverage_percentage, false_negative, false_positive, f1_score)
         all_chrom_coverage += total_coverage
         all_chrom_true += total_real_len
 
     return coverage, (all_chrom_coverage / all_chrom_true)
 
 
-def write_results(output_file, expected_coverage, inverted_coverage, total_coverage, total_coverage_inverted):
+def write_results(output_file, expected_coverage, inverted_coverage,
+                  total_coverage, total_coverage_inverted):
     # Define the width for each column
-    col_widths = {"Chromosome": 12, "Right_Coverage": 15, "False_Negative": 15, "False_Positive": 15, "F1_score": 10}
+    col_widths = {"Chromosome": 12, "Right_Coverage": 15, "False_Negative": 15,
+                  "False_Positive": 15, "F1_score": 10}
 
     # Create a format string with appropriate column widths
-    header_fmt = "{:<{Chromosome}}{:<{Right_Coverage}}{:<{False_Negative}}{:<{False_Positive}}{:<{F1_score}}\n"
-    row_fmt = "{:<{Chromosome}}{:<{Right_Coverage}.2f}{:<{False_Negative}.2f}{:<{False_Positive}.2f}{:<{F1_score}.2f}\n"
+    header_fmt = ("{:<{Chromosome}}{:<{Right_Coverage}}{:<{False_Negative}}{"
+                  ":<{False_Positive}}{:<{F1_score}}\n")
+    row_fmt = ("{:<{Chromosome}}{:<{Right_Coverage}.2f}{:<{False_Negative}.2f}"
+               "{:<{False_Positive}.2f}{:<{F1_score}.2f}\n")
 
     # Open the file and write the formatted content
     with open(output_file, 'w') as f:
         # Write the header
-        f.write(header_fmt.format("Chromosome", "Right_Coverage", "False_Negative", "False_Positive", "F1_score",
-            **col_widths))
+        f.write(
+            header_fmt.format("Chromosome", "Right_Coverage", "False_Negative",
+                              "False_Positive", "F1_score", **col_widths))
 
         # Write the data rows
         for chromosome in sorted(expected_coverage.keys()):
             chromosome_str = str(chromosome)  # Ensure chromosome is a string
-            f.write(row_fmt.format(chromosome_str, expected_coverage[chromosome][0], expected_coverage[chromosome][1],
-                expected_coverage[chromosome][2], expected_coverage[chromosome][3], **col_widths))
             f.write(
-                row_fmt.format(chromosome_str + "i", inverted_coverage[chromosome][0], inverted_coverage[chromosome][1],
-                    inverted_coverage[chromosome][2], inverted_coverage[chromosome][3], **col_widths))
+                row_fmt.format(chromosome_str, expected_coverage[chromosome][0],
+                               expected_coverage[chromosome][1],
+                               expected_coverage[chromosome][2],
+                               expected_coverage[chromosome][3], **col_widths))
+            f.write(row_fmt.format(chromosome_str + "i",
+                                   inverted_coverage[chromosome][0],
+                                   inverted_coverage[chromosome][1],
+                                   inverted_coverage[chromosome][2],
+                                   inverted_coverage[chromosome][3],
+                                   **col_widths))
             f.write("\n")
 
         # Write the total coverage
         f.write(f"Total Coverage Regular: {100 * total_coverage:.2f}%\n")
-        f.write(f"Total Coverage Inverted: {100 * total_coverage_inverted:.2f}%\n")
+        f.write(
+            f"Total Coverage Inverted: {100 * total_coverage_inverted:.2f}%\n")
 
 
-def check_right_coverage(real_data_file, expected_data_file, expected_inverted_data_file, output_file):
+def check_right_coverage(real_data_file, expected_data_file,
+                         expected_inverted_data_file, output_file):
     real_data = parse_real_data(real_data_file)
     expected_data = parse_expected_data(expected_data_file)
     expected_inverted_data = parse_expected_data(expected_inverted_data_file)
 
-    expected_coverage, total_coverage = calculate_coverage(real_data, expected_data)
-    inverted_coverage, total_coverage_inverted = calculate_coverage(real_data, expected_inverted_data)
+    expected_coverage, total_coverage = calculate_coverage(real_data,
+                                                           expected_data)
+    inverted_coverage, total_coverage_inverted = calculate_coverage(real_data,
+                                                                    expected_inverted_data)
 
     write_results(output_file, expected_coverage, inverted_coverage,
                   total_coverage, total_coverage_inverted)
@@ -133,13 +155,15 @@ def merge_coverage_files(directory_path, output_file):
                 fields = line.strip().split('\t')
                 if len(fields) == 5:  # Check if the line has expected format
                     _, right_coverage, false_negative, false_positive, f1_score = fields
-                    merged_data.append((chromosome, window, error, f1_score, right_coverage))
+                    merged_data.append(
+                        (chromosome, window, error, f1_score, right_coverage))
 
     # Write merged data to output file
     with open(output_file, 'w') as f:
         f.write("chromosome\twindow\terror\tf1_score\tcoverage\n")
         for entry in merged_data:
-            formatted_entry = '\t'.join('{:<10}'.format(str(item)) for item in entry)
+            formatted_entry = '\t'.join(
+                '{:<10}'.format(str(item)) for item in entry)
             f.write(formatted_entry + '\n')
 
 
@@ -150,13 +174,9 @@ def read_data_from_file(file_path):
         next(file)
         for line in file:
             values = line.strip().split('\t')
-            entry = {
-                'chromosome': int(values[0]),
-                'window': int(values[1]),
-                'error': int(values[2]),
-                'f1_score': float(values[3]),
-                'coverage': values[4]
-            }
+            entry = {'chromosome': int(values[0]), 'window': int(values[1]),
+                     'error': int(values[2]), 'f1_score': float(values[3]),
+                     'coverage': values[4]}
             data.append(entry)
     return data
 
@@ -175,7 +195,8 @@ def plot_f1_score(file_path):
     for entry in sorted_data:
         x_values.append(f"{entry['window']}-{entry['error']}")
         y_values.append(entry['f1_score'])
-        colors.append('green' if colors.count('green') < colors.count('red') else 'red')
+        colors.append(
+            'green' if colors.count('green') < colors.count('red') else 'red')
 
     plt.figure(figsize=(10, 6))
     plt.scatter(x_values, y_values, c=colors)
@@ -200,7 +221,8 @@ def plot_coverage(data):
     for entry in sorted_data:
         x_values.append(f"{entry['window']}-{entry['error']}")
         y_values.append(entry['coverage'])
-        colors.append('green' if colors.count('green') < colors.count('red') else 'red')
+        colors.append(
+            'green' if colors.count('green') < colors.count('red') else 'red')
 
     plt.figure(figsize=(10, 6))
     plt.scatter(x_values, y_values, c=colors)

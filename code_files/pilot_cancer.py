@@ -43,10 +43,8 @@ def create_tables_and_plots(input_file, reference_type, save_directory, invert,
     """
     This function will create interval table from the given family.txt file
     """
-    # Creating the common cancer variants dict
     common_cancer_variants_dict = (
         create_common_cancer_genes_dict("data_files/BROCA.genes.tsv"))
-
     if invert:
         # Inverting the file and saving the new path
         file_to_split = invert_reference_genome_haplotype(input_file, save_directory)
@@ -56,11 +54,8 @@ def create_tables_and_plots(input_file, reference_type, save_directory, invert,
         file_to_split = input_file
         path_to_save_interval_table = save_directory + "/interval_tables"
         path_to_save_interval_plots = save_directory + "/interval_plots"
-
-    # Splitting the file to separate chromosome files
     split_file_to_chromosomes(file_to_split,
                               save_directory + "/chromosomes")
-
     chromosome_coverage_dict = {}
     # creating interval table for each chromosome
     for chrom_num in range(1, 23):
@@ -74,7 +69,6 @@ def create_tables_and_plots(input_file, reference_type, save_directory, invert,
         # Adding the interval coverage of the current chromosome
         chromosome_coverage_dict[chrom_num] = calc_coverage(interval_list,
                                                             chrom_num)
-
     merge_haplotype_tables(path_to_save_interval_table, chromosome_coverage_dict,
                            window_size, error_size, invert)
     write_common_genes_to_file(path_to_save_interval_table,
@@ -108,11 +102,9 @@ def single_chromosome_process(input_path, reference_type,
     shared_interval_list = shared_interval(interval_children_list)
     create_table(shared_interval_list, output_directory_tables, window_size,
                  error_size, inverted)
-
     plot_title = f'chromosome {chromosome_number} interval'
     plot_interval(shared_interval_list, plot_title,
                   save_dir=output_directory_plots)
-
     return shared_interval_list
 
 
@@ -129,7 +121,6 @@ def analyze_single_chromosome(chromosome_data_file, chrom_num, reference, output
     window_size_dict = {}
     error_coverage_dict = {}
     window_coverage_dict = {}
-
     # Creating all the interval tables
     for i in range(2):
         for window_size in [20, 30, 50]:
@@ -217,25 +208,16 @@ def main():
 
 def user_interface():
     from code_files.user_interface import handle_response
-
     # Create the main window
     root = tk.Tk()
     root.title("Chromosome Selection")
     root.geometry("500x300")
-
-    # Add a label with the question
     label = tk.Label(root, text="Do you want to work on a specific chromosome?")
     label.pack(pady=20)
-
-    # Add 'Yes' button
     yes_button = tk.Button(root, text="Yes", command=lambda: handle_response(True))
     yes_button.pack(side=tk.LEFT, padx=20, pady=20)
-
-    # Add 'No' button
     no_button = tk.Button(root, text="No", command=lambda: handle_response(False))
     no_button.pack(side=tk.RIGHT, padx=20, pady=20)
-
-    # Start the Tkinter event loop
     root.mainloop()
 
 

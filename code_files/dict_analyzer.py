@@ -26,16 +26,11 @@ def filter_dict_parent_reference(dictionary):
     """
     filtered_dict = {}
     for key, value in dictionary.items():
-        # Apply check_heterozygous_parent to the value associated with the key
         result_parent = check_heterozygous(value[0])
-
-        # Apply check_homozygous_child to the value associated with the key
         result_child = check_homozygous(value[1])
-
         # If both functions return True, add the key to the filtered_dict
         if result_parent and result_child:
             filtered_dict[key] = value
-
     return filtered_dict
 
 
@@ -49,17 +44,14 @@ def filter_dict_sibling_reference(dictionary):
     for key, value in dictionary.items():
         parent = value[0]
         child = value[1]
-
         result_parent = check_heterozygous(parent)
         result_child = check_homozygous(child)
         result_sibling = False
         if (parent == '0|0' and child == '1|1') or\
                 (child == '0|0' and parent == '1|1'):
             result_sibling = True
-
         if result_parent and result_child or result_sibling:
             filtered_dict[key] = value
-
     return filtered_dict
 
 
@@ -75,7 +67,6 @@ def create_and_filter_dictionary(file_path, reference_type):
     with open(file_path, 'r') as file:
         for line in file:
             row = line.strip().split('\t')
-            # skip the first line
             if row[0] == "CHROM":
                 continue
             position = int(row[1])
@@ -104,18 +95,13 @@ def create_common_cancer_genes_dict(file_path):
 
     with open(file_path, 'r') as file:
         for line in file:
-            # Split the columns in the file
             columns = line.strip().split('\t')
-
             chromosome = columns[0]
             start_pos = int(columns[1])
             end_pos = int(columns[2])
             variant_name = columns[3]
-
-            # Adding the variant to the dict
             common_genes_dict[variant_name] = [chromosome, start_pos,
                                                end_pos, False]
-
     return common_genes_dict
 
 
@@ -130,15 +116,12 @@ def update_cancer_variant_dict(shared_interval_list, variants_dict):
         # Checking that the interval list is not empty
         if not shared_interval_list:
             break
-
-        chromosome, variant_start_position, variant_end_position, is_in_common_interval\
-            = variant_info
-
+        chromosome, variant_start_position, variant_end_position, \
+            is_in_common_interval = variant_info
         # Skip irrelevant chromosomes- all intervals have the same chromosome
         cur_chromosome = int(shared_interval_list[0]['chromosome'])
         if cur_chromosome in [1, *range(3, 11), 12, 14, 15, range(18, 22)]:
             break
-
         # Check if the variant is in any common interval
         if not is_in_common_interval:
             is_in_common_interval = any(
@@ -147,7 +130,6 @@ def update_cancer_variant_dict(shared_interval_list, variants_dict):
                  variant_start_position >= interval['start'])
                 for interval in shared_interval_list
             )
-
         # Update the boolean value in the variant_info
         variants_dict[variant_name] = [chromosome, variant_start_position,
                                        variant_end_position, is_in_common_interval]
@@ -160,7 +142,6 @@ def add_haplotype_parent_reference(my_dict):
     for position, values in my_dict.items():
         left_side_parent, right_side_parent = values[0].split('|')
         left_side_child, right_side_child = values[1].split('|')
-
         if left_side_parent == left_side_child:
             # If left sides are equal, add 1 to the list
             values.append(1)
@@ -179,14 +160,12 @@ def add_haplotype_children_reference(my_dict):
     for position, values in my_dict.items():
         left_side_child1, right_side_child1 = values[0].split('|')
         left_side_child2, right_side_child2 = values[1].split('|')
-
         if left_side_child1 == '1' and right_side_child1 == '1' and\
                 left_side_child2 == '0' and right_side_child2 == '0':
             values.append(0)
         elif (left_side_child1 == '0' and right_side_child1 == '0') and \
              (left_side_child2 == '1' and right_side_child2 == '1'):
             values.append(0)
-
         elif left_side_child1 == left_side_child2:
             values.append(1)
         elif right_side_child1 == left_side_child2:
@@ -204,21 +183,17 @@ def add_confidence(my_dict, window_size):
         haplotype = values[-1]  # Get the haplotype for the current position
         count = 1
         count_window = 1
-
         keys_iterator = iter(my_dict.keys())
         next_position = next(keys_iterator)
-
         # Skip positions until the current position in the outer loop
         while next_position != position:
             next_position = next(keys_iterator)
-
         for next_position in islice(keys_iterator, window_size):
             if count_window == window_size:
                 break
             else:
                 count_window += 1
-                next_haplotype = my_dict[next_position][-1]  # Get the haplotype for the next position
-                # Check if haplotypes match
+                next_haplotype = my_dict[next_position][-1]
                 if haplotype == next_haplotype:
                     # If they match, increment the count
                     count += 1

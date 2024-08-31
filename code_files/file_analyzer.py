@@ -3,6 +3,9 @@ import tempfile
 
 import pandas as pd
 
+replacements = {"./.": "0|0", "./1": "0|1", "1/.": "1|0", "1/1": "1|1",
+                "1/0": "1|0", "0/1": "0|1", "0/0": "0|0"}
+
 
 def preprocess_file(input_file_path, output_directory):
     """
@@ -10,55 +13,32 @@ def preprocess_file(input_file_path, output_directory):
     Changing "./." to 0/0, or "./1" to 0/1 etc. and save the result in a new
     file.
     """
-    # Read the input file and process each line
     with open(input_file_path, 'r') as file:
         lines = file.readlines()
-
     processed_lines = []
-
-    # Find the header line and process it separately
     header_index = None
     for i, line in enumerate(lines):
         if line.startswith("#CHROM"):
             header_index = i
             break
-
     if header_index is not None:
         header_line = lines[header_index].strip().replace("#", "")
         processed_lines.append(header_line)
-
         # Process lines after the header
         for line in lines[header_index + 1:]:
-            # Split the line into columns
             columns = line.strip().split('\t')
-
             # Process each column starting from the 5th column
             for i in range(4, len(columns)):
-                # Define replacement patterns
-                replacements = {"./.": "0|0", "./1": "0|1", "1/.": "1|0",
-                                "1/1": "1|1", "1/0": "1|0", "0/1": "0|1",
-                                "0/0": "0|0"}
-
                 # Replace values based on the dictionary
                 columns[i] = replacements.get(columns[i], columns[i])
-
-            # Join the columns back into a line
             processed_line = '\t'.join(columns)
             processed_lines.append(processed_line)
-
-        # Join the processed lines into a string
         result = '\n'.join(processed_lines)
-
-        # Create the output file path in the specified output directory
         input_file_name = os.path.basename(input_file_path)
         output_file_name = "processed_" + input_file_name
         output_file_path = os.path.join(output_directory, output_file_name)
-
-        # Write the processed data to the output file
         with open(output_file_path, 'w') as output_file:
             output_file.write(result)
-
-        # Return the output file path
         return output_file_path
 
 
@@ -70,37 +50,23 @@ def merge_haplotype_tables(input_directory, chromosome_coverage_dict,
     CHROM START END HAPLOTYPE
     Specifying each interval's chromosome, location, and haplotype
     """
-    # Initialize a list to store the merged intervals
     merged_intervals = []
-    # Loop through chromosomes 1 to 22
     for chrom_num in range(1, 23):
-        # Read each haplotype interval table file
         file_path = (f"{input_directory}/table_{chrom_num}_"
                      f"window_{window_size}_error_{error_size}_inverted_"
                      f"{bool(invert)}.txt")
         with open(file_path, 'r') as file:
-            # Process each line in the file
             for line in file:
-                # Split the line into columns
                 columns = line.strip().split()
-                # Append the columns to the merged intervals list
                 merged_intervals.append(columns)
-
-        # Adding chromosome coverage to the end of each chromosome
         chrom_coverage = round(chromosome_coverage_dict[chrom_num] * 100, 1)
         columns.append(str(chrom_coverage) + "%")
-
-    # Write the merged intervals to a new file in the input directory
     output_path_merged = f"{input_directory}/merged_haplotype_intervals.txt"
     with open(output_path_merged, 'w') as output_file:
-        # Write the header line
         output_file.write("CHROM\tSTART\tEND\tHAPLOTYPE\tCERTAINTY\tCOVERAGE\n")
-
         # Write each merged interval to the output file
         for interval in merged_intervals:
             output_file.write('\t'.join(interval) + '\n')
-
-    # Convert the merged intervals txt file to excel
     output_path_excel = f"{input_directory}/merged_haplotype_Excel.xlsx"
     convert_txt_to_excel(output_path_merged, output_path_excel)
 
@@ -136,7 +102,6 @@ def create_table(data_list, output_directory, window_size, error_size, inverted)
     -1 for areas with opposing haplotypes
     the .txt file will be saved in the interval_tables directory
     """
-    # Create the output directory if it doesn't exist
     os.makedirs(output_directory, exist_ok=True)
     # Group data by chromosome
     grouped_data = {}
@@ -145,24 +110,20 @@ def create_table(data_list, output_directory, window_size, error_size, inverted)
         if chromosome not in grouped_data:
             grouped_data[chromosome] = []
         grouped_data[chromosome].append(entry)
-
     # Write data for each chromosome
     for chromosome, chromosome_data in grouped_data.items():
-        # Reorder the keys to make "chromosome" the first column
         data_list_reordered = [
-            {k: entry[k] for k in ['chromosome', 'start', 'end', 'haplotype']} for
-            entry in chromosome_data]
-
+            {k: entry[k] for k in ['chromosome', 'start', 'end', 'haplotype']}
+            for entry in chromosome_data]
         # Calculate certainty level
         for entry in data_list_reordered:
-            entry['certainty_level'] = -1 if (entry['haplotype'] == chromosome_data[0]['haplotype']
+            entry['certainty_level'] = -1 if (entry['haplotype'] ==
+                                              chromosome_data[0]['haplotype']
                                               or entry['haplotype'] == 0) else 1
-
         file_path = os.path.join(output_directory,
                                  f'table_{chromosome}_window_{window_size}'
-                                 f'_error_{error_size}_inverted_{bool(inverted)}.txt')
-
-        # Write the data to a text file
+                                 f'_error_{error_size}_inverted_'
+                                 f'{bool(inverted)}.txt')
         with open(file_path, 'w') as file:
             for entry in data_list_reordered:
                 file.write(f"{entry['chromosome']}\t{entry['start']}\t"
@@ -183,19 +144,14 @@ def invert_reference_genome_haplotype(input_file, output_directory):
     1)
     """
     inverted_lines = []
-
     with open(input_file, 'r') as file:
         header = file.readline().strip()
         inverted_lines.append(header)
-
         for line in file:
             columns = line.strip().split('\t')
             btn1, btn2 = columns[4], columns[5]
-
-            # Process the reference and child genotypes
             ref_genotype = btn1.split('|')
             child_genotype = btn2.split('|')
-
             # Check if the conditions for inversion are met
             if ref_genotype[0] == '0' and ref_genotype[1] == '1' and\
                     child_genotype[0] == '1' and child_genotype[1] == '1':
@@ -205,21 +161,12 @@ def invert_reference_genome_haplotype(input_file, output_directory):
                     child_genotype[0] == '0' and child_genotype[1] == '0':
                 # Invert the reference genotype to 0|1
                 columns[4] = '0|1'
-
-            # Append the modified or original line to inverted_lines
             inverted_lines.append('\t'.join(columns))
-
-    # Create the output directory if it doesn't exist
     os.makedirs(output_directory, exist_ok=True)
-
-    # Create the output file path in the specified output directory
     output_file_name = "inverted_" + os.path.basename(input_file)
     output_file_path = os.path.join(output_directory, output_file_name)
-
-    # Write the inverted lines to the output file
     with open(output_file_path, 'w') as output_file:
         output_file.write('\n'.join(inverted_lines))
-
     return output_file_path
 
 
@@ -236,9 +183,9 @@ def open_and_split_children_files(file_path):
         header_columns = infile.readline().strip().split('\t')
         # Determine the number of child files based on available columns
         num_children = len(header_columns) - 5
-        # Iterate through each child file
         for child_num in range(1, num_children + 1):
-            with tempfile.NamedTemporaryFile(mode='w+', delete=False) as child_file:
+            with tempfile.NamedTemporaryFile(
+                    mode='w+', delete=False) as child_file:
                 child_filenames.append(child_file.name)
                 # Write the header columns to the child file
                 header_line = '\t'.join([header_columns[0], header_columns[1],
@@ -264,19 +211,10 @@ def split_file_to_chromosomes(input_file, output_directory):
     """
     # Read the input file into a df, specifying datatype for 'CHROM' as str
     df = pd.read_table(input_file, sep='\t', dtype={'CHROM': str})
-
-    # Group the DataFrame by the 'CHROM' column
     grouped = df.groupby('CHROM')
-
-    # Create the output directory if it doesn't exist
     os.makedirs(output_directory, exist_ok=True)
-
-    # Iterate through each group and write to separate files
     for chrom, group in grouped:
-        # Define the output file path for each chromosome
         output_file = os.path.join(output_directory, f'chromosome_{chrom}.txt')
-
-        # Write the group to the output file
         group.to_csv(output_file, sep='\t', index=False)
 
 
