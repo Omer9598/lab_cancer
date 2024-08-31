@@ -245,16 +245,13 @@ def open_and_split_children_files(file_path):
                                          header_columns[4],
                                          header_columns[child_num + 4]])
                 child_file.write(header_line + '\n')
-                # Iterate through each line in the input file
                 infile.seek(0)  # Reset file pointer to the beginning
                 next(infile)  # Skip the header line
                 for line in infile:
-                    # Split the line into columns
                     columns = line.strip().split('\t')
                     # Extract the desired columns for the current child file
                     child_line = f"{columns[0]}\t{columns[1]}\t{columns[4]}\t" \
                                  f"{columns[child_num + 4]}\n"
-                    # Write the line to the child file
                     child_file.write(child_line)
     return num_children, child_filenames
 
@@ -284,8 +281,5 @@ def split_file_to_chromosomes(input_file, output_directory):
 
 
 def convert_txt_to_excel(input_file, output_excel):
-    # Read the text file into a DataFrame
     df = pd.read_csv(input_file, sep='\t')
-
-    # Write the DataFrame to an Excel file
     df.to_excel(output_excel, index=False)

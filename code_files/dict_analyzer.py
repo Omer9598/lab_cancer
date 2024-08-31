@@ -198,12 +198,12 @@ def add_confidence(my_dict, window_size):
     This function will add the confidence value to the dict
     the confidence is the number of variants that similar to the current
     variant, in a given window - the size of the window is determined by
-    WINDOW_NUM global parameter
+    the user
     """
     for position, values in my_dict.items():
         haplotype = values[-1]  # Get the haplotype for the current position
         count = 1
-        count_10 = 1
+        count_window = 1
 
         keys_iterator = iter(my_dict.keys())
         next_position = next(keys_iterator)
@@ -213,10 +213,10 @@ def add_confidence(my_dict, window_size):
             next_position = next(keys_iterator)
 
         for next_position in islice(keys_iterator, window_size):
-            if count_10 == window_size:
+            if count_window == window_size:
                 break
             else:
-                count_10 += 1
+                count_window += 1
                 next_haplotype = my_dict[next_position][-1]  # Get the haplotype for the next position
                 # Check if haplotypes match
                 if haplotype == next_haplotype:

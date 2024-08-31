@@ -50,7 +50,7 @@ def create_tables_and_plots(input_file, reference_type, save_directory, invert,
     if invert:
         # Inverting the file and saving the new path
         file_to_split = invert_reference_genome_haplotype(input_file, save_directory)
-        path_to_save_interval_table = save_directory + "/inverted_interval_tables"
+        path_to_save_interval_table = save_directory + "/interval_tables"
         path_to_save_interval_plots = save_directory + "/inverted_interval_plots"
     else:
         file_to_split = input_file
@@ -109,10 +109,9 @@ def single_chromosome_process(input_path, reference_type,
     create_table(shared_interval_list, output_directory_tables, window_size,
                  error_size, inverted)
 
-    # todo - uncomment when finish
-    # plot_title = f'chromosome {chromosome_number} interval'
-    # plot_interval(shared_interval_list, plot_title,
-    #               save_dir=output_directory_plots)
+    plot_title = f'chromosome {chromosome_number} interval'
+    plot_interval(shared_interval_list, plot_title,
+                  save_dir=output_directory_plots)
 
     return shared_interval_list
 
@@ -242,12 +241,18 @@ def user_interface():
 
 if __name__ == '__main__':
 
-    # create_tables_and_plots("tests/family2/sim.cousins.filtered.tab", "parent",
-    #                         "tests/family2", 0, 50, 48)
+    single_chromosome_process("tests/family1/chromosomes/chromosome_13.txt", "parent",
+                              "tests/family1/tables", "tests/family1/plots",
+                              0, 13, 50, 48)
 
-    single_chromosome_process("tests/family2/chromosomes/chromosome_21.txt", "parent",
-                              "tests/family2/tables", "tests/family2/plots",
-                              0, 21, 50, 48)
+    # check_right_coverage(r"tests/family2/real.shared.tsv",
+    #                 r"tests/family2/interval_tables/merged_haplotype_intervals.txt",
+    #                      "tests/family2/interval_tables/merged_haplotype_intervals.txt",
+    #                      "tests/family2/test_results")
+
+    # merge_haplotype_tables(r"tests/family2/interval_tables",
+    #                        {},
+    #                        50, 48, 0)
 
 
 
